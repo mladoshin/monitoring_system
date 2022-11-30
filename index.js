@@ -12,40 +12,10 @@ server.listen(port, host, () => {
     console.log('TCP Server is running on port ' + port + '.');
 });
 
-let sockets = [];
-
-server.on('connection', function (sock) {
-    connect()
-
-    console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
-    sockets.push(sock);
-
-    sock.on('data', processData);
-
-    // Add a 'close' event handler to this instance of socket
-    sock.on('close', function (data) {
-        disconnect()
-        let index = sockets.findIndex(function (o) {
-            return o.remoteAddress === sock.remoteAddress && o.remotePort === sock.remotePort;
-        })
-        if (index !== -1) sockets.splice(index, 1);
-        console.log('CLOSED: ' + sock.remoteAddress + ' ' + sock.remotePort);
-    });
-
-    // Add a 'close' event handler to this instance of socket
-    sock.on('error', function (data) {
-        console.log(data)
-    });
-
-    sock.setTimeout(5000);
-});
-
-// process.on('uncaughtException', function () {
-//     /* ignore error */
-//     console.log("error")
-// });
-
+server.on('connection', MS.onClientConnect);
 server.on('timeout', MS.onConnectionTimeout);
+server.on('error', MS.onServerError);
+server.on('close', () => consoe.log("Closing"))
 
 process.on('SIGINT', function () {
     console.log("Caught interrupt signal");
@@ -88,45 +58,4 @@ function processData(data) {
         //console.log(key, algorithm)
     })
 }
-
-// class MonitoringServer {
-//     constructor() {
-//         this.sockets = []
-//     }
-
-//     onClientConnect(sock) {
-//         connect()
-//         console.log('CONNECTED: ' + sock.remoteAddress + ':' + sock.remotePort);
-//         this.sockets.push(sock);
-//         sock.on('data', processData);
-//         // Add a 'close' event handler to this instance of socket
-//         sock.on('close', () => this.onClientDisconnect(sock));
-//         // Add a 'close' event handler to this instance of socket
-//         sock.on('error', this.onSocketError);
-//         sock.setTimeout(5000);
-//     }
-
-//     onClientDisconnect(sock) {
-//         disconnect()
-//         let index = this.sockets.findIndex(function (o) {
-//             return o.remoteAddress === sock.remoteAddress && o.remotePort === sock.remotePort;
-//         })
-//         if (index !== -1) this.sockets.splice(index, 1);
-//         console.log('CLOSED: ' + sock.remoteAddress + ' ' + sock.remotePort);
-//     }
-
-//     onConnectionTimeout(timedOutSocket) {
-//         timedOutSocket.write('socket timed out!');
-//         timedOutSocket.end();
-//     }
-
-//     onData(data) {
-//         processData(data)
-//     }
-
-//     onSocketError(data) {
-//         console.log("Socket error.")
-//     }
-
-// }
 
