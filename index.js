@@ -1,11 +1,12 @@
 import net from "net"
-import { main, writeData, connect, disconnect, db } from "./db.js";
-const port = 7070;
-const host = '0.0.0.0';
+import AppServer from "./AppServer.js";
 import MonitoringServer from "./MonitoringServer.js";
 
+const port = 7070;
+const host = '0.0.0.0';
 const server = net.createServer();
 const MS = new MonitoringServer()
+const AS = new AppServer()
 
 server.listen(port, host, () => {
     console.log('TCP Server is running on port ' + port + '.');
