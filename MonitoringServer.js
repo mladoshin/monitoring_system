@@ -76,7 +76,7 @@ export default class MonitoringServer {
         }
         this.lastRecordTimeStamp = new Date()
         this.connection_active = true
-        
+
         const chunk = Buffer.from(data)
 
         if (chunk.toString().endsWith(`"}`)) {
@@ -120,6 +120,7 @@ export default class MonitoringServer {
             if (data_obj === 'G'){
                 this.AS.saveBinaryFile(data['G'].join(', '), channel.slice(2))
             }else if (data_obj === 'Customization'){
+                this.AS.saveParamFile(data['Customization'])
                 this.AS.saveMICFile([channel.slice(2), ...data['Customization']].join(', '))
             }
         }

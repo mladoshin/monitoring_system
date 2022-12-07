@@ -181,6 +181,24 @@ class AppServer {
         file.end();
     }
 
+    saveParamFile = (MIC_data_arr) => {
+        const params = MIC_data_arr
+        console.log(params)
+        let obj = {}
+
+        for (let i = 0; i < 13; i++){
+            obj = {...obj, [MIC_ENUM[i]]: params[i]}
+        }
+
+        const json = JSON.stringify(obj)
+
+        // write parameters json to test folder
+        const file = fs.createWriteStream(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}/parameters.json`));
+        file.on('error', function (err) { /* error handling */ });
+        file.write(json)
+        file.end();
+    }
+
     saveMICFile = (MIC_data) => {
         fs.mkdirSync(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), { recursive: true }, (err) => {
             if (err) throw err;
