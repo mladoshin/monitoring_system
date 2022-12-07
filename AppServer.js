@@ -151,9 +151,9 @@ class AppServer {
         //remove test directory before writing to it (clearing old files)
 
         fs.rm(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), { recursive: true, force: true }, err => {
-            if (err){
+            if (err) {
                 console.log(err)
-            }else{
+            } else {
                 console.log("Successfully cleared the directory")
             }
         })
@@ -186,8 +186,8 @@ class AppServer {
         console.log(params)
         let obj = {}
 
-        for (let i = 0; i < 13; i++){
-            obj = {...obj, [MIC_ENUM[i]]: params[i]}
+        for (let i = 0; i < 13; i++) {
+            obj = { ...obj, [MIC_ENUM[i]]: params[i] }
         }
 
         const json = JSON.stringify(obj)
@@ -205,7 +205,7 @@ class AppServer {
         });
 
         // write MIC data to csv file
-        const csv_file = fs.createWriteStream(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}/${this.test_id}.csv`), {flags: 'a'});
+        const csv_file = fs.createWriteStream(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}/${this.test_id}.csv`), { flags: 'a' });
         csv_file.on('error', function (err) { /* error handling */ });
         csv_file.write(`${MIC_data}\n`)
         csv_file.end();
@@ -240,7 +240,7 @@ class AppServer {
         const csv_files = files.filter(file => file.endsWith('.csv'))
         console.log(csv_files)
 
-        if(csv_files.includes(`${file_name}.csv`)){
+        if (csv_files.includes(`${file_name}.csv`)) {
             //clear the previous file
             fs.writeFileSync(path.join(__dirname, `/data/${folder_name}/${file_name}.csv`), '')
         }
@@ -264,20 +264,47 @@ class AppServer {
 
     }
 
+    listFiles = (folder, temp) => {
+        let folders;
+
+        try {
+            folders = Array.from(fs.readdirSync(path.join(__dirname, `/data/${folder}`)))
+        } catch (err) {
+            return
+        }
+
+        for (let file_name of folders) {
+            const keys = (`${folder}/${file_name}`).split("/")
+            let tmp = temp
+
+            for (let key of keys) {
+                tmp[key] = {...tmp[key]}
+                tmp = tmp[key]
+            }
+
+            this.listFiles(`${folder}/${file_name}`, temp)
+        }
+
+        return temp
+    }
+
     getAllFiles = (req, res) => {
+        const files = this.listFiles('', {})
+        console.dir(files[''])
+
         const temp = {}
         const folders = fs.readdirSync(path.join(__dirname, `/data/`))
 
         for (const folder of folders) {
-            console.log(folder)
+            //console.log(folder)
             const files = fs.readdirSync(path.join(__dirname, `/data/${folder}/`))
             temp[folder] = Array.from(files)
         }
 
-        console.log(temp)
+        //console.log(temp)
         this.all_files = temp
 
-        res.status(200).send(this.all_files)
+        res.status(200).send(files[''])
     }
 
 
