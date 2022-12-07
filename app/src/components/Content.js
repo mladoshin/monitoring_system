@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
@@ -19,6 +19,7 @@ import { startMission, getAllFiles, generateResult } from '../api';
 import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import ReplayIcon from '@mui/icons-material/Replay';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
@@ -212,12 +213,56 @@ export default function Content() {
 // }
 
 function FileExplorer({ allFiles, refresh }) {
-  const [currentFolder, setCurrentFolder] = useState('')
+  const [currentFolder, setCurrentFolder] = useState({ file: '' })
+  const [subtree, setSubTree] = useState({ ...allFiles })
+  const [path, setPath] = useState('')
+
+  useEffect(() => {
+    if (!currentFolder.file) {
+      setSubTree({ ...allFiles })
+      return
+    }
+    setPath(p => `${p}/${currentFolder.file}`)
+    setSubTree(st => st[currentFolder.file])
+  }, [currentFolder, allFiles])
+
+  // console.log('Subtree')
+  // console.log(subtree)
+
+  // console.log('current folder')
+  // console.log(currentFolder)
+
+  const files = useMemo(() => {
+    return Object.keys(subtree)
+  }, [subtree])
+
+  function goUp() {
+    const newpath = path.split("/").slice(0, -1).join('/')
+    setPath(newpath)
+
+    const keys = newpath.split("/").filter(k => k !== '')
+
+    console.log(keys)
+
+    let temp = allFiles
+    for (let key of keys) {
+      console.log(temp)
+      temp = temp[key]
+    }
+
+    // console.log("temp")
+    // console.log(temp)
+    setSubTree({...temp})
+  }
 
   return (
     <Paper sx={{ padding: '25px' }}>
 
       <Toolbar >
+        <Button sx={{ marginLeft: 'auto' }} onClick={goUp}>
+          <ArrowUpwardIcon />
+        </Button>
+        <span>{path}</span>
         <Button sx={{ marginLeft: 'auto' }} onClick={refresh}>
           <ReplayIcon />
           Refresh
@@ -225,12 +270,12 @@ function FileExplorer({ allFiles, refresh }) {
       </Toolbar>
 
       <Box sx={{ display: 'flex', height: "400px" }}>
-        <List dense={true} sx={{ borderRight: '1px solid black', width: "200px" }}>
-          {Object.keys(allFiles).map((folder_name, idx) => (
+        <List dense={true} sx={{ width: "100%" }}>
+          {files.map((folder_name, idx) => (
             <ListItemButton
-              key={folder_name}
-              onClick={() => setCurrentFolder(folder_name)}
-              selected={folder_name === currentFolder}
+              key={`${folder_name}${Math.round(Math.random() * Date.now())}`}
+              onDoubleClick={() => setCurrentFolder(st => ({ ...st, file: folder_name }))}
+            // selected={folder_name === currentFolder}
             >
               <ListItemIcon>
                 <FolderIcon />
@@ -240,20 +285,6 @@ function FileExplorer({ allFiles, refresh }) {
               />
             </ListItemButton>
 
-          ))}
-        </List>
-
-
-        <List dense={true}>
-          {allFiles[currentFolder]?.map((file_name, idx) => (
-            <ListItem key={file_name}>
-              <ListItemIcon>
-                <TextSnippetIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary={file_name}
-              />
-            </ListItem>
           ))}
         </List>
 
@@ -273,25 +304,25 @@ function ResultGenerator({ generateResult }) {
     onSubmit: values => {
       console.log(values)
       generateResult(values)
-      .then(res => {
-        console.log(res)
-        handleDownloadFile(res, `${formik.values.file_name}.csv`)
-      })
-      .catch(err => console.log(err))
+        .then(res => {
+          console.log(res)
+          handleDownloadFile(res, `${formik.values.file_name}.csv`)
+        })
+        .catch(err => console.log(err))
     },
   });
 
-  function handleDownloadFile(data, filename){
-      const element = document.createElement('a');
-      element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
-      element.setAttribute('download', filename);
-    
-      element.style.display = 'none';
-      document.body.appendChild(element);
-    
-      element.click();
-    
-      document.body.removeChild(element);
+  function handleDownloadFile(data, filename) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(data));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
   }
 
   return (
