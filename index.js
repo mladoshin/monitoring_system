@@ -5,8 +5,10 @@ import MonitoringServer from "./MonitoringServer.js";
 const port = 7070;
 const host = '0.0.0.0';
 const server = net.createServer();
-const MS = new MonitoringServer()
+
 const AS = new AppServer()
+const MS = new MonitoringServer(AS)
+
 
 server.listen(port, host, () => {
     console.log('TCP Server is running on port ' + port + '.');

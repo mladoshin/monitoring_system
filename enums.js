@@ -144,4 +144,9 @@ const ALGORITHMS_ENUM = {
     '8.1': 'MIC_DFT'
 }
 
-export {MIC_ENUM, SCADA_ENUM, ALGORITHMS_ENUM}
+const MODE = {
+    MONITORING: 'monitoring',
+    TESTING: 'testing',
+}
+
+export {MIC_ENUM, SCADA_ENUM, ALGORITHMS_ENUM, MODE}

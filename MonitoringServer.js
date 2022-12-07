@@ -1,30 +1,38 @@
 import { writeData, connect, disconnect, db } from "./db.js";
-import { MIC_ENUM } from './enums.js';
+import { MIC_ENUM, MODE } from './enums.js';
 import axios from 'axios';
+import fs from "fs"
+import path, {dirname} from "path";
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export default class MonitoringServer {
     sockets = []
     lastRecordTimeStamp = null
     connection_active = false
 
-    constructor() {
+    constructor(AppServer) {
         this.sockets = []
         this.lastRecordTimeStamp = null
         this.connection_active = false
         this.counter = 0
+        this.buffer = Buffer.alloc(1e6);
+        this.AS = AppServer
     }
 
     handleFetchHistory = (start) => {
         const now = new Date()
-        const start_formatted = new Date(start.getTime() - start.getTimezoneOffset() * 1000 * 60).toISOString().replace('T','%20').slice(0, -5);
-        const end_formatted = new Date(now.getTime() - now.getTimezoneOffset() * 1000 * 60).toISOString().replace('T','%20').slice(0, -5);
+        const start_formatted = new Date(start.getTime() - start.getTimezoneOffset() * 1000 * 60).toISOString().replace('T', '%20').slice(0, -5);
+        const end_formatted = new Date(now.getTime() - now.getTimezoneOffset() * 1000 * 60).toISOString().replace('T', '%20').slice(0, -5);
         console.log(start_formatted)
         console.log(end_formatted)
         axios.get(`http://192.168.1.172:6166/history/condition/MCM-204-0/*/${start_formatted}/${end_formatted}/AI0`)
-        .then((res) => {
-            console.log(res.data)
-        })
-        .catch(err => console.log(err.message))
+            .then((res) => {
+                console.log(res.data)
+            })
+            .catch(err => console.log(err.message))
 
     }
 
@@ -42,7 +50,7 @@ export default class MonitoringServer {
         sock.on('close', () => this.onClientDisconnect(sock));
         // Add a 'close' event handler to this instance of socket
         sock.on('error', this.onSocketError);
-        sock.setTimeout(10000);
+        //sock.setTimeout(10000);
         sock.on('timeout', () => this.onConnectionTimeout(sock))
     }
 
@@ -68,8 +76,28 @@ export default class MonitoringServer {
         }
         this.lastRecordTimeStamp = new Date()
         this.connection_active = true
-        this.parseData(data)
+        
+        const chunk = Buffer.from(data)
 
+        if (chunk.toString().endsWith(`"}`)) {
+            this.buffer = Buffer.concat([this.buffer, chunk])
+            console.log("All chunks have arrived!")
+            const str = this.buffer.toString('utf-8').replace(/\0/g, '')
+
+            switch (this.AS.mode){
+                case MODE.TESTING:
+                    this.processTestingData(str)
+                    break;
+                case MODE.MONITORING:
+                    this.processTestingData(str)
+                    // this.processMonitoringData(str)
+                    break
+            }
+
+            this.buffer.fill(0)
+        } else {
+            this.buffer = Buffer.concat([this.buffer, chunk])
+        }
     }
 
     onSocketError = (data) => {
@@ -83,12 +111,50 @@ export default class MonitoringServer {
         console.log(data)
     }
 
+    processChannelData = (channel, data) => {
+        console.log(channel)
+        console.log(Object.keys(data).join(', '))
+        console.log('---------------------------')
+
+        for (const data_obj in data){
+            if (data_obj === 'G'){
+                this.AS.saveBinaryFile(data['G'].join(', '), channel.slice(2))
+            }else if (data_obj === 'Customization'){
+                this.AS.saveMICFile([channel.slice(2), ...data['Customization']].join(', '))
+            }
+        }
+    }
+
+    processTestingData = (data_string) => {
+        const data_obj = JSON.parse(data_string)
+        console.log(typeof data_obj)
+
+        for (const key in data_obj){
+            if (key === 'Date') continue
+
+            //console.log(data_obj[key])
+            this.processChannelData(key, data_obj[key])
+        }
+
+        const G_data = data_obj['AI0']['G']
+        const MIC_data = data_obj['AI0']['Customization']
+
+        //this.AS.saveData(MIC_data.join(', '), G_data.join(', '))
+    }
+
+    processMonitoringData(data_string){
+        this.parseData(data_string)
+    }
+
     parseData(data) {
         const parsedData = JSON.parse(data)
+        console.log(parsedData)
         let algorithm = null;
 
         Object.keys(parsedData).filter(key => key !== 'Date').forEach((key, idx) => {
             try {
+                // const data_types = Object.keys(parsedData[key])
+                // console.log(data_types)
                 algorithm = parsedData[key].Customization[0]
 
                 const data = parsedData[key].Customization.reduce((obj, item, idx) => {
@@ -103,7 +169,7 @@ export default class MonitoringServer {
                 console.log("Sent time: ", parsedData.Date)
                 console.log("Recieve time: ", new Date().toLocaleTimeString())
 
-                db.writeData({ ...data, channel: idx })
+                db.writeData({ ...data, channel: idx, timestamp: parsedData.Date })
             } catch (err) {
                 console.log(err.message)
             }

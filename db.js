@@ -38,7 +38,7 @@ class PostgresDB {
 
         const query = {
             text: 'insert into mic_data (timestamp, channel, ag100, agm155_185, fgm155_185, ag1450, ag2900, ag4350, ag5800, ag7250, agm1_fm, fgm1_fm, m155_185, m12_10, m210_20, m320_30, m430_40, m540_50, m650_60, m760_70, m870_80, m1g2_10, m1g10_20, m1g20_30, m1g30_40, m1g40_50, m1g50_60, m1g60_70, m1g70_80, m1_5000) values($1::timestamptz, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30)',
-            values: [new Date().toISOString(), data.channel, ...args],
+            values: [data.timestamp, data.channel, ...args],
         }
 
         this.pool.connect().then((client) => {
