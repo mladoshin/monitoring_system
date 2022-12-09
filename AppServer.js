@@ -5,7 +5,7 @@ import axios from 'axios';
 import fs from "fs"
 import { MIC_ENUM, MODE } from './enums.js';
 import { channel } from 'diagnostics_channel';
-
+import xl from "excel4node";
 
 axios.defaults.headers.common['Authorization'] = 'Basic YWRtaW5pc3RyYXRvcjpBZGxpbms2MTY2';
 
@@ -29,7 +29,7 @@ class AppServer {
         })
 
         this.app.post('/api/start-mission', this.startMission)
-        this.app.post('/api/generate-result', this.generateTestingCSV)
+        this.app.post('/api/generate-result', this.generateResultingXLSX)
 
         this.app.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
@@ -278,7 +278,7 @@ class AppServer {
             let tmp = temp
 
             for (let key of keys) {
-                tmp[key] = key.includes('.') ? null : {...tmp[key]}
+                tmp[key] = key.includes('.') ? null : { ...tmp[key] }
                 tmp = tmp[key]
             }
 
@@ -307,7 +307,81 @@ class AppServer {
         res.status(200).send(files[''])
     }
 
+    processCSVFiles = (folder_path, files) => {
+        const csv_files = files.filter(f => f.includes('.csv')).sort((a, b) => +a.split('.')[0] > +b.split('.')[0])
+        console.log(csv_files)
 
+        for (let file in csv_files) {
+
+        }
+    }
+
+    generateResultingXLSX = async (req, res) => {
+        let wb = new xl.Workbook();
+
+        // Add Worksheets to the workbook
+        let ws = wb.addWorksheet('Sheet 1');
+        ws.cell(1, 1)
+            .number(100)
+
+
+        const test_modes = this.listFilesInFolder('')
+        console.log(test_modes)
+        for (let i = 0; i < test_modes.length; i++) {
+            const mode = test_modes[i]
+
+            const test_suites = this.listFilesInFolder(`${mode}/`)
+            for (let j = 0; j < test_suites.length; j++) {
+                const test_suite = test_suites[j]
+                const files = this.listFilesInFolder(`${mode}/${test_suite}/`)
+
+                const file_name = files.find(f => f.includes('.csv'))
+
+                const file_content = fs.readFileSync(path.join(__dirname, `/data/${mode}/${test_suite}/${file_name}`))
+                const channels = file_content.toString().split('\n')
+
+                for (let channel_id = 0; channel_id < channels.length; channel_id++) {
+                    const channel = channels[channel_id]
+
+                    this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1)*(80+10), 1, channel)
+                }
+
+
+            }
+
+        }
+
+
+        wb.write('./data/result.xlsx', (err, stats) => {
+            if (err) {
+                console.log(err)
+                res.status(400).send(err)
+            } else {
+                console.log("Success")
+                res.status(200).send("Success")
+            }
+
+        });
+
+
+    }
+
+    listFilesInFolder = (folder_path) => {
+        let files = []
+
+        try {
+            files = fs.readdirSync(path.join(__dirname, `/data/${folder_path}`))
+        } catch (err) { }
+
+        return files
+    }
+
+    insertRowIntoXLSX = (ws, row, col_start, data) => {
+        const values = data.split(', ').slice(14)
+        for (let i = 0; i < values.length; i++) {
+            ws.cell(row + 1, col_start + i).number(+values[i])
+        }
+    }
 
 }
 

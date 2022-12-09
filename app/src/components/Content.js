@@ -99,10 +99,8 @@ export default function Content() {
       
       await startMission(values).then((res) => {
         toast.update(toastId.current, {render: `Миссия запущена`, position: 'bottom-right', type: 'success'})
-        //toast.error("Mission started!", {position: 'bottom-right'})
       }).catch(err => {
         toast.update(toastId.current, {render: err.message, position: 'bottom-right', type: 'error'})
-        // toast.error(err.message, {position: 'bottom-right'})
       })
     }
 
