@@ -22,6 +22,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import * as Yup from 'yup';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { toast } from 'react-toastify';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -68,6 +69,9 @@ const ErrorMessage = ({ error, touched }) => {
 
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
+  const toastId = React.useRef(null);
+
+  const update = () => toast.update(toastId.current, { type: toast.TYPE.INFO, autoClose: 5000 });
 
   async function fetchFiles() {
     const res = await getAllFiles().catch(err => console.log(err.message))
@@ -91,14 +95,14 @@ export default function Content() {
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values) => {
-      let loading = toast.info("Загрузка...", {position: 'bottom-right', autoClose: false})
+      toastId.current = toast(<Box sx={{display: 'flex', alignItems: 'center', gap: "15px"}}><CircularProgress size="30px"/> <p>Загрузка...</p></Box>, {position: 'bottom-right', autoClose: false})
       
       await startMission(values).then((res) => {
-        toast.dismiss(loading)
-        toast.error("Mission started!", {position: 'bottom-right'})
+        toast.update(toastId.current, {render: `Миссия запущена`, position: 'bottom-right', type: 'success'})
+        //toast.error("Mission started!", {position: 'bottom-right'})
       }).catch(err => {
-        setTimeout(()=>toast.dismiss(loading), 500)
-        toast.error(err.message, {position: 'bottom-right'})
+        toast.update(toastId.current, {render: err.message, position: 'bottom-right', type: 'error'})
+        // toast.error(err.message, {position: 'bottom-right'})
       })
     }
 
