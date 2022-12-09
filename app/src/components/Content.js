@@ -20,6 +20,32 @@ import FolderIcon from '@mui/icons-material/Folder';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import * as Yup from 'yup';
+
+const MissionConfigSchema = Yup.object().shape({
+  file_name: Yup.string()
+    .max(50, 'Too Long!')
+    .required('Required'),
+  directory_name: Yup.string()
+    .max(50, 'Too Long!')
+    .required('Required'),
+  data_count: Yup.number()
+    .min(0)
+    .max(128000)
+    .required('Required'),
+  sample_rate: Yup.number()
+    .min(0)
+    .max(128000)
+    .required('Required'),
+});
+
+const ErrorMessage = ({error, touched}) => {
+  if(!touched) return null
+
+  return (
+    <span style={{display: 'block', color: "#f44336"}}>{error}</span>
+  )
+}
 
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
@@ -33,8 +59,6 @@ export default function Content() {
     fetchFiles()
   }, [])
 
-  console.log(allFiles)
-
   const formik = useFormik({
     initialValues: {
       input_type: 'PseudoDifferential',
@@ -46,10 +70,15 @@ export default function Content() {
       file_name: '',
       directory_name: ''
     },
+    validationSchema: MissionConfigSchema,
     onSubmit: values => {
-      startMission(values).then(() => alert("Success")).catch(err => alert("Error!"))
-    },
+
+      //startMission(values).then(() => alert("Success")).catch(err => alert("Error!"))
+    }
+
   });
+
+  console.log(formik.touched)
 
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
@@ -69,9 +98,11 @@ export default function Content() {
                 placeholder="Тип ввода"
                 name="input_type"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
               >
                 <MenuItem value="PseudoDifferential">PseudoDifferential</MenuItem>
               </Select>
+              <ErrorMessage error={formik.errors.input_type} touched={formik.touched.input_type}/>
             </Grid>
 
             <Grid item>
@@ -84,6 +115,7 @@ export default function Content() {
                 name="trigger_source"
                 onChange={formik.handleChange}
                 sx={{ width: '100px' }}
+                onBlur={formik.handleBlur}
               >
                 <MenuItem value="NoWait">NoWait</MenuItem>
                 <MenuItem value="AI0">AI0</MenuItem>
@@ -97,54 +129,67 @@ export default function Content() {
                 <MenuItem value="DIO3">DIO3</MenuItem>
 
               </Select>
+              <ErrorMessage error={formik.errors.trigger_source} touched={formik.touched.trigger_source}/>
             </Grid>
 
             <Grid item>
               <InputLabel>Интервал, мс</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="repeat_interval"
                 placeholder="Интервал, мс"
                 variant="outlined"
                 type="number"
                 name="repeat_interval"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.repeat_interval}
               />
+              <ErrorMessage error={formik.errors.repeat_interval} touched={formik.touched.repeat_interval}/>
             </Grid>
 
             <Grid item>
               <InputLabel>Количество итераций</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="repeat_times"
                 placeholder="Количество итераций"
                 variant="outlined"
                 type="number"
                 name="repeat_times"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.repeat_times}
               />
+              <ErrorMessage error={formik.errors.repeat_times} touched={formik.touched.repeat_times}/>
             </Grid>
 
             <Grid item>
               <InputLabel>Частота обработки</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="sample_rate"
                 placeholder="Частота обработки"
                 variant="outlined"
                 type="number"
                 name="sample_rate"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.sample_rate}
               />
+              <ErrorMessage error={formik.errors.sample_rate} touched={formik.touched.sample_rate}/>
             </Grid>
 
             <Grid item>
               <InputLabel>Число точек</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="data_count"
                 placeholder="Число точек"
                 variant="outlined"
                 type="number"
                 name="data_count"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.data_count}
               />
+              <ErrorMessage error={formik.errors.data_count} touched={formik.touched.data_count}/>
             </Grid>
 
           </Grid>
@@ -161,25 +206,31 @@ export default function Content() {
             <Grid item>
               <InputLabel>Имя каталога</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="directory_name"
                 placeholder="Имя каталога"
                 variant="outlined"
                 type="text"
                 name="directory_name"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.directory_name}
               />
+              <ErrorMessage error={formik.errors.directory_name} touched={formik.touched.directory_name}/>
             </Grid>
 
             <Grid item>
               <InputLabel>Имя файла</InputLabel>
               <TextField
-                id="outlined-basic"
+                id="file_name"
                 placeholder="Имя файла"
                 variant="outlined"
                 type="text"
                 name="file_name"
                 onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.file_name}
               />
+              <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name}/>
             </Grid>
 
           </Grid>
@@ -242,7 +293,7 @@ function FileExplorer({ allFiles, refresh }) {
       temp = temp[key]
     }
 
-    setSubTree({...temp})
+    setSubTree({ ...temp })
   }
 
   return (
