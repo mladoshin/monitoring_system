@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
+import { Breadcrumbs, Drawer, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
 import { InputLabel } from '@mui/material';
 import SelectInput from '@mui/material/Select/SelectInput';
 import { useFormik } from 'formik';
@@ -21,6 +21,7 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import ReplayIcon from '@mui/icons-material/Replay';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import * as Yup from 'yup';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -281,14 +282,6 @@ export default function Content() {
   );
 }
 
-// function FileList({ files }) {
-//   return (
-//     files?.map((file, idx) => (
-
-//     ))
-//   )
-// }
-
 function FileExplorer({ allFiles, refresh }) {
   const [currentFolder, setCurrentFolder] = useState({ file: '' })
   const [subtree, setSubTree] = useState({ ...allFiles })
@@ -301,7 +294,19 @@ function FileExplorer({ allFiles, refresh }) {
     }
     setPath(p => `${p}/${currentFolder.file}`)
     setSubTree(st => st[currentFolder.file])
-  }, [currentFolder, allFiles])
+  }, [currentFolder])
+
+  useEffect(()=>{
+    const keys = path.split("/").filter(k => k !== '')
+
+    let temp = allFiles
+    for (let key of keys) {
+      temp = temp[key]
+    }
+
+    setSubTree({ ...temp })
+  }, [allFiles])
+  
 
   const files = useMemo(() => {
     return Object.keys(subtree)
@@ -325,11 +330,22 @@ function FileExplorer({ allFiles, refresh }) {
   return (
     <Paper sx={{ padding: '25px' }}>
 
-      <Toolbar >
-        <Button sx={{ marginLeft: 'auto' }} onClick={goUp}>
+      <Toolbar sx={{ paddingLeft: "0px !important", borderBottom: '1px solid rgb(196, 196, 196)', paddingBottom: '20px', border: '1px solid rgb(196, 196, 196)', px: "20px", py: "10px", borderRadius: "8px" }}>
+        <Breadcrumbs
+          separator={<NavigateNextIcon fontSize="small" />}
+          aria-label="breadcrumb"
+          sx={{ flexGrow: 1 }}
+        >
+          {['root', ...path.split("/").filter(p => p != '')]?.map((el, idx) => (
+            <Link underline="none" key={`${el}${idx}`}>
+              {el}
+            </Link>
+          ))}
+        </Breadcrumbs>
+
+        <Button sx={{ marginLeft: '10px' }} onClick={goUp}>
           <ArrowUpwardIcon />
         </Button>
-        <span>{path}</span>
         <Button sx={{ marginLeft: 'auto' }} onClick={refresh}>
           <ReplayIcon />
           Refresh
@@ -341,11 +357,16 @@ function FileExplorer({ allFiles, refresh }) {
           {files.map((folder_name, idx) => (
             <ListItemButton
               key={`${folder_name}${Math.round(Math.random() * Date.now())}`}
-              onDoubleClick={() => setCurrentFolder(st => ({ ...st, file: folder_name }))}
+              onDoubleClick={() => {
+                if (subtree[folder_name] == null) {
+                  return
+                }
+                setCurrentFolder(st => ({ ...st, file: folder_name }))
+              }}
             // selected={folder_name === currentFolder}
             >
               <ListItemIcon>
-                <FolderIcon />
+                {subtree[folder_name] ? <FolderIcon /> : <TextSnippetIcon />}
               </ListItemIcon>
               <ListItemText
                 primary={folder_name}

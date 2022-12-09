@@ -278,7 +278,7 @@ class AppServer {
             let tmp = temp
 
             for (let key of keys) {
-                tmp[key] = {...tmp[key]}
+                tmp[key] = key.includes('.') ? null : {...tmp[key]}
                 tmp = tmp[key]
             }
 
