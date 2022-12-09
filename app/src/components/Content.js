@@ -24,26 +24,44 @@ import * as Yup from 'yup';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
-    .max(50, 'Too Long!')
-    .required('Required'),
+    .max(50, 'Слишком длинное')
+    .required('Обязательное поле'),
   directory_name: Yup.string()
-    .max(50, 'Too Long!')
-    .required('Required'),
+    .max(50, 'Слишком длинное')
+    .required('Обязательное поле'),
   data_count: Yup.number()
-    .min(0)
-    .max(128000)
-    .required('Required'),
+    .min(0, "От 0 до 128000")
+    .max(128000, "От 0 до 128000")
+    .required('Обязательное поле'),
   sample_rate: Yup.number()
-    .min(0)
-    .max(128000)
-    .required('Required'),
+    .min(0, "От 0 до 128000")
+    .max(128000, "От 0 до 128000")
+    .required('Обязательное поле'),
+  repeat_times: Yup.number()
+    .min(0, "От 0 до 128000")
+    .max(128000, "От 0 до 128000")
+    .required('Обязательное поле'),
+  repeat_interval: Yup.number()
+    .min(0, "От 0 до 86400")
+    .max(86400, "От 0 до 86400")
+    .required('Обязательное поле'),
 });
 
-const ErrorMessage = ({error, touched}) => {
-  if(!touched) return null
+const ResultFormSchema = Yup.object().shape({
+  file_name: Yup.string()
+    .max(50, 'Слишком длинное')
+    .required('Обязательное поле'),
+  folder_name: Yup.string()
+    .max(50, 'Слишком длинное')
+    .required('Обязательное поле'),
+});
+
+
+const ErrorMessage = ({ error, touched }) => {
+  if (!touched) return null
 
   return (
-    <span style={{display: 'block', color: "#f44336"}}>{error}</span>
+    <span style={{ display: 'block', color: "#f44336" }}>{error}</span>
   )
 }
 
@@ -78,7 +96,7 @@ export default function Content() {
 
   });
 
-  console.log(formik.touched)
+  console.log(formik)
 
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
@@ -92,6 +110,7 @@ export default function Content() {
             <Grid item>
               <InputLabel>Тип ввода</InputLabel>
               <Select
+                error={formik.errors.input_type && formik.touched.input_type}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={formik.values.input_type}
@@ -102,12 +121,13 @@ export default function Content() {
               >
                 <MenuItem value="PseudoDifferential">PseudoDifferential</MenuItem>
               </Select>
-              <ErrorMessage error={formik.errors.input_type} touched={formik.touched.input_type}/>
+              <ErrorMessage error={formik.errors.input_type} touched={formik.touched.input_type} />
             </Grid>
 
             <Grid item>
               <InputLabel>Триггер</InputLabel>
               <Select
+                error={formik.errors.trigger_source && formik.touched.trigger_source}
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"
                 value={formik.values.trigger_source}
@@ -129,12 +149,13 @@ export default function Content() {
                 <MenuItem value="DIO3">DIO3</MenuItem>
 
               </Select>
-              <ErrorMessage error={formik.errors.trigger_source} touched={formik.touched.trigger_source}/>
+              <ErrorMessage error={formik.errors.trigger_source} touched={formik.touched.trigger_source} />
             </Grid>
 
             <Grid item>
               <InputLabel>Интервал, мс</InputLabel>
               <TextField
+                error={formik.errors.repeat_interval && formik.touched.repeat_interval}
                 id="repeat_interval"
                 placeholder="Интервал, мс"
                 variant="outlined"
@@ -144,12 +165,13 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.repeat_interval}
               />
-              <ErrorMessage error={formik.errors.repeat_interval} touched={formik.touched.repeat_interval}/>
+              <ErrorMessage error={formik.errors.repeat_interval} touched={formik.touched.repeat_interval} />
             </Grid>
 
             <Grid item>
               <InputLabel>Количество итераций</InputLabel>
               <TextField
+                error={formik.errors.repeat_times && formik.touched.repeat_times}
                 id="repeat_times"
                 placeholder="Количество итераций"
                 variant="outlined"
@@ -159,12 +181,13 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.repeat_times}
               />
-              <ErrorMessage error={formik.errors.repeat_times} touched={formik.touched.repeat_times}/>
+              <ErrorMessage error={formik.errors.repeat_times} touched={formik.touched.repeat_times} />
             </Grid>
 
             <Grid item>
               <InputLabel>Частота обработки</InputLabel>
               <TextField
+                error={formik.errors.sample_rate && formik.touched.sample_rate}
                 id="sample_rate"
                 placeholder="Частота обработки"
                 variant="outlined"
@@ -174,12 +197,13 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.sample_rate}
               />
-              <ErrorMessage error={formik.errors.sample_rate} touched={formik.touched.sample_rate}/>
+              <ErrorMessage error={formik.errors.sample_rate} touched={formik.touched.sample_rate} />
             </Grid>
 
             <Grid item>
               <InputLabel>Число точек</InputLabel>
               <TextField
+                error={formik.errors.data_count && formik.touched.data_count}
                 id="data_count"
                 placeholder="Число точек"
                 variant="outlined"
@@ -189,7 +213,7 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.data_count}
               />
-              <ErrorMessage error={formik.errors.data_count} touched={formik.touched.data_count}/>
+              <ErrorMessage error={formik.errors.data_count} touched={formik.touched.data_count} />
             </Grid>
 
           </Grid>
@@ -206,6 +230,7 @@ export default function Content() {
             <Grid item>
               <InputLabel>Имя каталога</InputLabel>
               <TextField
+                error={formik.errors.directory_name && formik.touched.directory_name}
                 id="directory_name"
                 placeholder="Имя каталога"
                 variant="outlined"
@@ -215,12 +240,13 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.directory_name}
               />
-              <ErrorMessage error={formik.errors.directory_name} touched={formik.touched.directory_name}/>
+              <ErrorMessage error={formik.errors.directory_name} touched={formik.touched.directory_name} />
             </Grid>
 
             <Grid item>
               <InputLabel>Имя файла</InputLabel>
               <TextField
+                error={formik.errors.file_name && formik.touched.file_name}
                 id="file_name"
                 placeholder="Имя файла"
                 variant="outlined"
@@ -230,7 +256,7 @@ export default function Content() {
                 onBlur={formik.handleBlur}
                 value={formik.values.file_name}
               />
-              <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name}/>
+              <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name} />
             </Grid>
 
           </Grid>
@@ -342,6 +368,7 @@ function ResultGenerator({ generateResult }) {
       folder_name: '',
       file_name: ''
     },
+    validationSchema: ResultFormSchema,
     onSubmit: values => {
       console.log(values)
       generateResult(values)
@@ -373,29 +400,35 @@ function ResultGenerator({ generateResult }) {
           <Grid item xs={6}>
             <InputLabel>Номер режима испытания (имя папки)</InputLabel>
             <TextField
-              id="outlined-basic"
+              id="folder_name"
               placeholder="Имя папки"
               variant="outlined"
               type="text"
               name="folder_name"
               value={formik.values.folder_name}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               sx={{ width: "100%" }}
+              error={formik.errors.folder_name && formik.touched.folder_name}
             />
+            <ErrorMessage error={formik.errors.folder_name} touched={formik.touched.folder_name} />
           </Grid>
 
           <Grid item xs={6}>
             <InputLabel>Имя нового файла</InputLabel>
             <TextField
-              id="outlined-basic"
+              id="file_name"
               placeholder="Имя нового файла"
               variant="outlined"
               type="text"
               name="file_name"
               value={formik.values.file_name}
               onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
               sx={{ width: "100%" }}
+              error={formik.errors.file_name && formik.touched.file_name}
             />
+            <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name} />
           </Grid>
 
         </Grid>
