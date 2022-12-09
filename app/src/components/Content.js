@@ -142,7 +142,7 @@ export default function Content() {
                 placeholder="Число точек"
                 variant="outlined"
                 type="number"
-                Аname="data_count"
+                name="data_count"
                 onChange={formik.handleChange}
               />
             </Grid>
@@ -226,12 +226,6 @@ function FileExplorer({ allFiles, refresh }) {
     setSubTree(st => st[currentFolder.file])
   }, [currentFolder, allFiles])
 
-  // console.log('Subtree')
-  // console.log(subtree)
-
-  // console.log('current folder')
-  // console.log(currentFolder)
-
   const files = useMemo(() => {
     return Object.keys(subtree)
   }, [subtree])
@@ -242,16 +236,12 @@ function FileExplorer({ allFiles, refresh }) {
 
     const keys = newpath.split("/").filter(k => k !== '')
 
-    console.log(keys)
-
     let temp = allFiles
     for (let key of keys) {
       console.log(temp)
       temp = temp[key]
     }
 
-    // console.log("temp")
-    // console.log(temp)
     setSubTree({...temp})
   }
 
