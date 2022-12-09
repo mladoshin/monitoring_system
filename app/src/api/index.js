@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export async function startMission(data) {
-    const res = await axios.post(`/api/start-mission`, data).catch(err => console.log(err))
-    return res?.data
+    const res = await axios.post(`/api/start-mission`, data)
+    return res
 }
 
 export async function getAllFiles() {

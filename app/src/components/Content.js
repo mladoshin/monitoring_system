@@ -12,7 +12,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { Breadcrumbs, Drawer, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
 import { InputLabel } from '@mui/material';
-import SelectInput from '@mui/material/Select/SelectInput';
 import { useFormik } from 'formik';
 import { Box } from '@mui/system';
 import { startMission, getAllFiles, generateResult } from '../api';
@@ -22,6 +21,7 @@ import ReplayIcon from '@mui/icons-material/Replay';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import * as Yup from 'yup';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
+import { toast } from 'react-toastify';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -90,14 +90,20 @@ export default function Content() {
       directory_name: ''
     },
     validationSchema: MissionConfigSchema,
-    onSubmit: values => {
-
-      //startMission(values).then(() => alert("Success")).catch(err => alert("Error!"))
+    onSubmit: async (values) => {
+      let loading = toast.info("Загрузка...", {position: 'bottom-right', autoClose: false})
+      
+      await startMission(values).then((res) => {
+        toast.dismiss(loading)
+        toast.error("Mission started!", {position: 'bottom-right'})
+      }).catch(err => {
+        setTimeout(()=>toast.dismiss(loading), 500)
+        toast.error(err.message, {position: 'bottom-right'})
+      })
     }
 
   });
 
-  console.log(formik)
 
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
@@ -229,11 +235,11 @@ export default function Content() {
 
           <Grid container spacing={2}>
             <Grid item>
-              <InputLabel>Имя каталога</InputLabel>
+              <InputLabel>Режим испытания</InputLabel>
               <TextField
                 error={formik.errors.directory_name && formik.touched.directory_name}
                 id="directory_name"
-                placeholder="Имя каталога"
+                placeholder="Режим испытания"
                 variant="outlined"
                 type="text"
                 name="directory_name"
@@ -245,11 +251,11 @@ export default function Content() {
             </Grid>
 
             <Grid item>
-              <InputLabel>Имя файла</InputLabel>
+              <InputLabel>Номер теста</InputLabel>
               <TextField
                 error={formik.errors.file_name && formik.touched.file_name}
                 id="file_name"
-                placeholder="Имя файла"
+                placeholder="Номер теста"
                 variant="outlined"
                 type="text"
                 name="file_name"
@@ -269,6 +275,7 @@ export default function Content() {
           size='large'
           sx={{ marginTop: '50px', marginLeft: 'auto' }}
           type="submit"
+          disabled={formik.isSubmitting}
         >
           Начать миссию
         </Button>
@@ -306,7 +313,7 @@ function FileExplorer({ allFiles, refresh }) {
 
     setSubTree({ ...temp })
   }, [allFiles])
-  
+
 
   const files = useMemo(() => {
     return Object.keys(subtree)

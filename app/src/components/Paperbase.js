@@ -11,6 +11,8 @@ import Content from './Content';
 import Header from './Header';
 import { useLocation } from 'react-router';
 import { MENU } from '../contstants';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Copyright() {
   return (
@@ -217,6 +219,7 @@ export default function Paperbase({ children }) {
             <Copyright />
           </Box>
         </Box>
+        <ToastContainer/>
       </Box>
     </ThemeProvider>
   );
