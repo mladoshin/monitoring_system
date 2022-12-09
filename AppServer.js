@@ -321,14 +321,15 @@ class AppServer {
 
         // Add Worksheets to the workbook
         let ws = wb.addWorksheet('Sheet 1');
-        ws.cell(1, 1)
-            .number(100)
 
+        const ws_start_row = 135 - 1
+        const ws_col_start = 2
 
         const test_modes = this.listFilesInFolder('')
         console.log(test_modes)
         for (let i = 0; i < test_modes.length; i++) {
             const mode = test_modes[i]
+            const col_start = ([3, 4, 9, 10].includes(+mode) ? 1 : 0) + ws_col_start
 
             const test_suites = this.listFilesInFolder(`${mode}/`)
             for (let j = 0; j < test_suites.length; j++) {
@@ -343,7 +344,7 @@ class AppServer {
                 for (let channel_id = 0; channel_id < channels.length; channel_id++) {
                     const channel = channels[channel_id]
 
-                    this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1)*(80+10), 1, channel)
+                    this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1) * (80 + 8) + ws_start_row, col_start, channel)
                 }
 
 
@@ -352,16 +353,18 @@ class AppServer {
         }
 
 
-        wb.write('./data/result.xlsx', (err, stats) => {
-            if (err) {
-                console.log(err)
-                res.status(400).send(err)
-            } else {
-                console.log("Success")
-                res.status(200).send("Success")
-            }
+        // wb.write('./data/result.xlsx', (err, stats) => {
+        //     if (err) {
+        //         console.log(err)
+        //         res.status(400).send(err)
+        //     } else {
+        //         console.log("Success")
+        //         res.status(200).send("Success")
+        //     }
 
-        });
+        // });
+
+        wb.write('./data/result.xlsx', res);
 
 
     }
