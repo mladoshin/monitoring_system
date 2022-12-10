@@ -293,11 +293,13 @@ class AppServer {
         console.dir(files[''])
 
         const temp = {}
-        const folders = fs.readdirSync(path.join(__dirname, `/data/`))
+        const folders = this.listFilesInFolder('')
+        //fs.readdirSync(path.join(__dirname, `/data/`))
 
         for (const folder of folders) {
             //console.log(folder)
-            const files = fs.readdirSync(path.join(__dirname, `/data/${folder}/`))
+            const files = this.listFilesInFolder(folder)
+            // fs.readdirSync(path.join(__dirname, `/data/${folder}/`))
             temp[folder] = Array.from(files)
         }
 
@@ -317,6 +319,7 @@ class AppServer {
     }
 
     generateResultingXLSX = async (req, res) => {
+        const { file_name } = req.body
         let wb = new xl.Workbook();
 
         // Add Worksheets to the workbook
@@ -326,7 +329,7 @@ class AppServer {
         const ws_col_start = 2
 
         const test_modes = this.listFilesInFolder('')
-        console.log(test_modes)
+
         for (let i = 0; i < test_modes.length; i++) {
             const mode = test_modes[i]
             const col_start = ([3, 4, 9, 10].includes(+mode) ? 1 : 0) + ws_col_start
@@ -364,7 +367,7 @@ class AppServer {
 
         // });
 
-        wb.write('./data/result.xlsx', res);
+        wb.write(`./data/${file_name}.xlsx`, res);
 
 
     }

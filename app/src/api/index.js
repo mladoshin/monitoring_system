@@ -11,6 +11,6 @@ export async function getAllFiles() {
 }
 
 export async function generateResult(body) {
-    const res = await axios.post(`/api/generate-result`, {...body}).catch(err => console.log(err))
-    return res?.data
+    const res = await axios.post(`/api/generate-result`, {...body}, {responseType: 'blob'}).catch(err => console.log(err))
+    return res
 }
