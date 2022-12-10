@@ -318,8 +318,27 @@ class AppServer {
         }
     }
 
+    generateTestModeXLSX({ ws, col_start, mode, ws_start_row }) {
+        const test_suites = this.listFilesInFolder(`${mode}/`)
+        for (let j = 0; j < test_suites.length; j++) {
+            const test_suite = test_suites[j]
+            const files = this.listFilesInFolder(`${mode}/${test_suite}/`)
+
+            const file_name = files.find(f => f.includes('.csv'))
+
+            const file_content = fs.readFileSync(path.join(__dirname, `/data/${mode}/${test_suite}/${file_name}`))
+            const channels = file_content.toString().split('\n')
+
+            for (let channel_id = 0; channel_id < channels.length; channel_id++) {
+                const channel = channels[channel_id]
+
+                this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1) * (80 + 8) + ws_start_row, col_start, channel)
+            }
+        }
+    }
+
     generateResultingXLSX = async (req, res) => {
-        const { file_name } = req.body
+        const { file_name, all_modes, mode } = req.body
         let wb = new xl.Workbook();
 
         // Add Worksheets to the workbook
@@ -328,30 +347,40 @@ class AppServer {
         const ws_start_row = 135 - 1
         const ws_col_start = 2
 
+        if (!all_modes) {
+            try {
+                this.generateTestModeXLSX({ ws, col_start: 1, mode, ws_start_row: 0 })
+                wb.write(`./data/${file_name}.xlsx`, res);
+            }catch(err){
+                console.log(err.message)
+                res.status(400).send("Error")
+            }
+            return
+        }
+
         const test_modes = this.listFilesInFolder('')
 
         for (let i = 0; i < test_modes.length; i++) {
             const mode = test_modes[i]
             const col_start = ([3, 4, 9, 10].includes(+mode) ? 1 : 0) + ws_col_start
 
-            const test_suites = this.listFilesInFolder(`${mode}/`)
-            for (let j = 0; j < test_suites.length; j++) {
-                const test_suite = test_suites[j]
-                const files = this.listFilesInFolder(`${mode}/${test_suite}/`)
+            this.generateTestModeXLSX({ ws, col_start, mode, ws_start_row })
+            // const test_suites = this.listFilesInFolder(`${mode}/`)
+            // for (let j = 0; j < test_suites.length; j++) {
+            //     const test_suite = test_suites[j]
+            //     const files = this.listFilesInFolder(`${mode}/${test_suite}/`)
 
-                const file_name = files.find(f => f.includes('.csv'))
+            //     const file_name = files.find(f => f.includes('.csv'))
 
-                const file_content = fs.readFileSync(path.join(__dirname, `/data/${mode}/${test_suite}/${file_name}`))
-                const channels = file_content.toString().split('\n')
+            //     const file_content = fs.readFileSync(path.join(__dirname, `/data/${mode}/${test_suite}/${file_name}`))
+            //     const channels = file_content.toString().split('\n')
 
-                for (let channel_id = 0; channel_id < channels.length; channel_id++) {
-                    const channel = channels[channel_id]
+            //     for (let channel_id = 0; channel_id < channels.length; channel_id++) {
+            //         const channel = channels[channel_id]
 
-                    this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1) * (80 + 8) + ws_start_row, col_start, channel)
-                }
-
-
-            }
+            //         this.insertRowIntoXLSX(ws, j + channel_id * 10 + (mode - 1) * (80 + 8) + ws_start_row, col_start, channel)
+            //     }
+            // }
 
         }
 

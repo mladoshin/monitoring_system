@@ -10,7 +10,7 @@ import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { Breadcrumbs, Drawer, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
+import { Breadcrumbs, Checkbox, Drawer, FormControlLabel, FormGroup, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
 import { InputLabel } from '@mui/material';
 import { useFormik } from 'formik';
 import { Box } from '@mui/system';
@@ -49,15 +49,6 @@ const MissionConfigSchema = Yup.object().shape({
     .required('Обязательное поле'),
 });
 
-const ResultFormSchema = Yup.object().shape({
-  file_name: Yup.string()
-    .max(50, 'Слишком длинное')
-    .required('Обязательное поле'),
-  folder_name: Yup.string()
-    .max(50, 'Слишком длинное')
-    .required('Обязательное поле'),
-});
-
 
 const ErrorMessage = ({ error, touched }) => {
   if (!touched) return null
@@ -70,8 +61,6 @@ const ErrorMessage = ({ error, touched }) => {
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
   const toastId = React.useRef(null);
-
-  const update = () => toast.update(toastId.current, { type: toast.TYPE.INFO, autoClose: 5000 });
 
   async function fetchFiles() {
     const res = await getAllFiles().catch(err => console.log(err.message))
@@ -95,12 +84,12 @@ export default function Content() {
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values) => {
-      toastId.current = toast(<Box sx={{display: 'flex', alignItems: 'center', gap: "15px"}}><CircularProgress size="30px"/> <p>Загрузка...</p></Box>, {position: 'bottom-right', autoClose: false})
-      
+      toastId.current = toast(<Box sx={{ display: 'flex', alignItems: 'center', gap: "15px" }}><CircularProgress size="30px" /> <p>Загрузка...</p></Box>, { position: 'bottom-right', autoClose: false })
+
       await startMission(values).then((res) => {
-        toast.update(toastId.current, {render: `Миссия запущена`, position: 'bottom-right', type: 'success'})
+        toast.update(toastId.current, { render: `Миссия запущена`, position: 'bottom-right', type: 'success' })
       }).catch(err => {
-        toast.update(toastId.current, {render: err.message, position: 'bottom-right', type: 'error'})
+        toast.update(toastId.current, { render: err.message, position: 'bottom-right', type: 'error' })
       })
     }
 
@@ -305,7 +294,7 @@ function FileExplorer({ allFiles, refresh }) {
     setSubTree(st => st[currentFolder.file])
   }, [currentFolder])
 
-  useEffect(()=>{
+  useEffect(() => {
     const keys = path.split("/").filter(k => k !== '')
 
     let temp = allFiles
@@ -395,17 +384,35 @@ function ResultGenerator({ generateResult }) {
 
   const formik = useFormik({
     initialValues: {
-      folder_name: '',
-      file_name: ''
+      mode: '',
+      file_name: '',
+      all_modes: true
     },
-    validationSchema: ResultFormSchema,
+    validate: (values) => {
+      let errors = {}
+      if(!values.file_name){
+        errors.file_name = 'Обязательное поле!'
+      }else if(values.file_name.includes('.')){
+        errors.file_name = 'Некорректное имя'
+      }
+
+      if(!values.all_modes && !values.mode){
+        errors.mode = 'Обязательное поле'
+      }
+
+      return errors
+    },
     onSubmit: values => {
-      console.log(values)
       generateResult(values)
         .then(res => {
+          toast.success("Файл успешно сгенерирован!")
           handleDownloadFile(res, `${formik.values.file_name}.xlsx`)
         })
-        .catch(err => console.log(err))
+        .catch(err => {
+          toast.error(err.message)
+          console.log('Ошибка генерации файла')
+          console.log(err.message)
+        })
     },
   });
 
@@ -417,29 +424,31 @@ function ResultGenerator({ generateResult }) {
     link.setAttribute('download', filename);
     document.body.appendChild(link);
     link.click();
-
     document.body.removeChild(link);
   }
 
   return (
     <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px" }}>
       <form onSubmit={formik.handleSubmit}>
-        <Grid container alignItems="center" columnSpacing={4}>
+        <Grid container alignItems="start" columnSpacing={4}>
           <Grid item xs={6}>
             <InputLabel>Номер режима испытания (имя папки)</InputLabel>
             <TextField
-              id="folder_name"
+              id="mode"
               placeholder="Имя папки"
               variant="outlined"
               type="text"
-              name="folder_name"
-              value={formik.values.folder_name}
+              name="mode"
+              value={formik.values.all_modes ? 'Все' : formik.values.mode}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               sx={{ width: "100%" }}
-              error={formik.errors.folder_name && formik.touched.folder_name}
+              error={formik.errors.mode && formik.touched.mode}
+              disabled={formik.values.all_modes}
             />
-            <ErrorMessage error={formik.errors.folder_name} touched={formik.touched.folder_name} />
+            <ErrorMessage error={formik.errors.mode} touched={formik.touched.mode} />
+            <FormControlLabel control={<Checkbox id="all_modes" name="all_modes" checked={formik.values.all_modes} onChange={formik.handleChange}/>} label="Все режимы" />
+            
           </Grid>
 
           <Grid item xs={6}>
