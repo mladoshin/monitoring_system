@@ -386,17 +386,18 @@ function ResultGenerator({ generateResult }) {
     initialValues: {
       mode: '',
       file_name: '',
-      all_modes: true
+      all_modes: true,
+      save_on_server: false
     },
     validate: (values) => {
       let errors = {}
-      if(!values.file_name){
+      if (!values.file_name) {
         errors.file_name = 'Обязательное поле!'
-      }else if(values.file_name.includes('.')){
+      } else if (values.file_name.includes('.')) {
         errors.file_name = 'Некорректное имя'
       }
 
-      if(!values.all_modes && !values.mode){
+      if (!values.all_modes && !values.mode) {
         errors.mode = 'Обязательное поле'
       }
 
@@ -447,8 +448,8 @@ function ResultGenerator({ generateResult }) {
               disabled={formik.values.all_modes}
             />
             <ErrorMessage error={formik.errors.mode} touched={formik.touched.mode} />
-            <FormControlLabel control={<Checkbox id="all_modes" name="all_modes" checked={formik.values.all_modes} onChange={formik.handleChange}/>} label="Все режимы" />
-            
+            <FormControlLabel control={<Checkbox id="all_modes" name="all_modes" checked={formik.values.all_modes} onChange={formik.handleChange} />} label="Все режимы" />
+
           </Grid>
 
           <Grid item xs={6}>
@@ -471,6 +472,10 @@ function ResultGenerator({ generateResult }) {
         </Grid>
 
         <Grid container justifyContent="end" sx={{ marginTop: "25px" }}>
+          <Grid item>
+            <FormControlLabel control={<Checkbox id="save_on_server" name="save_on_server" checked={formik.values.save_on_server} onChange={formik.handleChange} />} label="Сохранить на сервере" />
+          </Grid>
+
           <Grid item>
             <Button variant='contained' type="submit">
               Сформировать результат
