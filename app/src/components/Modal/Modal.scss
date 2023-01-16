@@ -1,0 +1,31 @@
+$left-offset: 256px;
+$top-offset: 48px;
+
+.modal-wrapper{
+    display: block;
+    overflow: hidden;
+    position: fixed;
+    width: calc(100vw - $left-offset);
+    height: calc(100vh - $top-offset);
+    top: $top-offset;
+    left: $left-offset;
+    z-index: 1000;
+    transform: translateX(0%);
+    transition: all 350ms ease;
+    padding: 32px;
+    background-color: #fff;
+
+    &.closed{
+        transform: translateX(100%);
+    }
+
+    .inner{
+
+    }
+
+    .header{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}

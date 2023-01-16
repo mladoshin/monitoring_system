@@ -118,7 +118,7 @@ export default class MonitoringServer {
 
         for (const data_obj in data){
             if (data_obj === 'G'){
-                this.AS.saveBinaryFile(data['G'].join(', '), channel.slice(2))
+                this.AS.saveBinaryFile(data['G'].join(',\n'), channel.slice(2))
             }else if (data_obj === 'Customization'){
                 this.AS.saveParamFile(data['Customization'])
                 this.AS.saveMICFile([channel.slice(2), ...data['Customization']].join(', '))

@@ -361,7 +361,7 @@ class AppServer {
         let ws = wb.addWorksheet('Sheet 1');
 
         const ws_start_row = 135 - 1
-        const ws_col_start = 2
+        const ws_col_start = 4
 
         if (!all_modes) {
             try {
@@ -384,7 +384,7 @@ class AppServer {
 
         for (let i = 0; i < test_modes.length; i++) {
             const mode = test_modes[i]
-            const col_start = ([3, 4, 9, 10].includes(+mode) ? 1 : 0) + ws_col_start
+            const col_start = ([9, 10].includes(+mode) ? 1 : 0) + ws_col_start
 
             this.generateTestModeXLSX({ ws, col_start, mode, ws_start_row })
 
@@ -414,7 +414,7 @@ class AppServer {
     }
 
     insertRowIntoXLSX = (ws, row, col_start, data) => {
-        const values = data.split(', ').slice(14)
+        const values = data.split(', ').slice(14, -1)
         for (let i = 0; i < values.length; i++) {
             ws.cell(row + 1, col_start + i).number(+values[i])
         }

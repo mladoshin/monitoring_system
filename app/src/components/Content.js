@@ -6,23 +6,21 @@ import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import { Breadcrumbs, Checkbox, Drawer, FormControlLabel, FormGroup, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
+import { Checkbox, Drawer, FormControlLabel, FormGroup, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
 import { InputLabel } from '@mui/material';
-import { useFormik } from 'formik';
+import { Formik, useFormik } from 'formik';
 import { Box } from '@mui/system';
 import { startMission, getAllFiles, generateResult } from '../api';
-import FolderIcon from '@mui/icons-material/Folder';
-import TextSnippetIcon from '@mui/icons-material/TextSnippet';
-import ReplayIcon from '@mui/icons-material/Replay';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import * as Yup from 'yup';
-import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { toast } from 'react-toastify';
 import CircularProgress from '@mui/material/CircularProgress';
+import MissionConfiguratorWidget from './MissionConfigurator/MissionConfiguratorWidget';
+import Modal from './Modal/Modal';
+import ControllerConfigurator from './ControllerConfigurator/ControllerConfigurator';
+import MissionModeConfig from './MissionConfigurator/MissionModeConfig';
+import ErrorMessage from './ErrorMessage';
+import FileExplorer from './FileExplorer/FileExplorer';
+import ResultGeneratorWidget from './ResultGeneratorWidget/ResultGeneratorWidget';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -49,15 +47,6 @@ const MissionConfigSchema = Yup.object().shape({
     .required('Обязательное поле'),
 });
 
-
-const ErrorMessage = ({ error, touched }) => {
-  if (!touched) return null
-
-  return (
-    <span style={{ display: 'block', color: "#f44336" }}>{error}</span>
-  )
-}
-
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
   const toastId = React.useRef(null);
@@ -71,7 +60,7 @@ export default function Content() {
     fetchFiles()
   }, [])
 
-  const formik = useFormik({
+  const formik = {
     initialValues: {
       input_type: 'PseudoDifferential',
       trigger_source: 'NoWait',
@@ -80,7 +69,11 @@ export default function Content() {
       sample_rate: 16000,
       data_count: 16000,
       file_name: '',
-      directory_name: ''
+      directory_name: '',
+      channels: [
+      ],
+      modal_open: false,
+      current_channel: null
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values) => {
@@ -93,397 +86,44 @@ export default function Content() {
       })
     }
 
-  });
+  };
 
+  function setOpenModal(open, channel){
 
+  }
+  
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
-      <form onSubmit={formik.handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-        <Paper sx={{ padding: '25px' }}>
-          <Typography variant='h5'>
-            Конфигурация контроллера
-          </Typography>
+      <Formik {...formik}>
+        {props => (
+          <form
+            onSubmit={props.handleSubmit}
+            style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}
+          >
+            <ControllerConfigurator />
 
-          <Grid container spacing={2}>
-            <Grid item>
-              <InputLabel>Тип ввода</InputLabel>
-              <Select
-                error={formik.errors.input_type && formik.touched.input_type}
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={formik.values.input_type}
-                placeholder="Тип ввода"
-                name="input_type"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              >
-                <MenuItem value="PseudoDifferential">PseudoDifferential</MenuItem>
-              </Select>
-              <ErrorMessage error={formik.errors.input_type} touched={formik.touched.input_type} />
-            </Grid>
+            <MissionConfiguratorWidget/>
 
-            <Grid item>
-              <InputLabel>Триггер</InputLabel>
-              <Select
-                error={formik.errors.trigger_source && formik.touched.trigger_source}
-                labelId="demo-simple-select-label"
-                id="demo-simple-select"
-                value={formik.values.trigger_source}
-                placeholder="Триггер"
-                name="trigger_source"
-                onChange={formik.handleChange}
-                sx={{ width: '100px' }}
-                onBlur={formik.handleBlur}
-              >
-                <MenuItem value="NoWait">NoWait</MenuItem>
-                <MenuItem value="AI0">AI0</MenuItem>
-                <MenuItem value="AI1">AI1</MenuItem>
-                <MenuItem value="AI2">AI2</MenuItem>
-                <MenuItem value="AI3">AI3</MenuItem>
+            <MissionModeConfig/>
 
-                <MenuItem value="DIO0">DIO0</MenuItem>
-                <MenuItem value="DIO1">DIO1</MenuItem>
-                <MenuItem value="DIO2">DIO2</MenuItem>
-                <MenuItem value="DIO3">DIO3</MenuItem>
+            <Button
+              variant="contained"
+              size='large'
+              sx={{ marginTop: '50px', marginLeft: 'auto' }}
+              type="submit"
+              disabled={props.isSubmitting}
+            >
+              Начать миссию
+            </Button>
 
-              </Select>
-              <ErrorMessage error={formik.errors.trigger_source} touched={formik.touched.trigger_source} />
-            </Grid>
+          </form>
+        )}
+      </Formik>
 
-            <Grid item>
-              <InputLabel>Интервал, мс</InputLabel>
-              <TextField
-                error={formik.errors.repeat_interval && formik.touched.repeat_interval}
-                id="repeat_interval"
-                placeholder="Интервал, мс"
-                variant="outlined"
-                type="number"
-                name="repeat_interval"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.repeat_interval}
-              />
-              <ErrorMessage error={formik.errors.repeat_interval} touched={formik.touched.repeat_interval} />
-            </Grid>
-
-            <Grid item>
-              <InputLabel>Количество итераций</InputLabel>
-              <TextField
-                error={formik.errors.repeat_times && formik.touched.repeat_times}
-                id="repeat_times"
-                placeholder="Количество итераций"
-                variant="outlined"
-                type="number"
-                name="repeat_times"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.repeat_times}
-              />
-              <ErrorMessage error={formik.errors.repeat_times} touched={formik.touched.repeat_times} />
-            </Grid>
-
-            <Grid item>
-              <InputLabel>Частота обработки</InputLabel>
-              <TextField
-                error={formik.errors.sample_rate && formik.touched.sample_rate}
-                id="sample_rate"
-                placeholder="Частота обработки"
-                variant="outlined"
-                type="number"
-                name="sample_rate"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.sample_rate}
-              />
-              <ErrorMessage error={formik.errors.sample_rate} touched={formik.touched.sample_rate} />
-            </Grid>
-
-            <Grid item>
-              <InputLabel>Число точек</InputLabel>
-              <TextField
-                error={formik.errors.data_count && formik.touched.data_count}
-                id="data_count"
-                placeholder="Число точек"
-                variant="outlined"
-                type="number"
-                name="data_count"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.data_count}
-              />
-              <ErrorMessage error={formik.errors.data_count} touched={formik.touched.data_count} />
-            </Grid>
-
-          </Grid>
-
-        </Paper>
-
-        <Paper sx={{ width: '100%', padding: '25px', marginTop: '50px' }}>
-          <Typography variant='h5'>
-            Параметры испытания
-          </Typography>
-
-
-          <Grid container spacing={2}>
-            <Grid item>
-              <InputLabel>Режим испытания</InputLabel>
-              <TextField
-                error={formik.errors.directory_name && formik.touched.directory_name}
-                id="directory_name"
-                placeholder="Режим испытания"
-                variant="outlined"
-                type="text"
-                name="directory_name"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.directory_name}
-              />
-              <ErrorMessage error={formik.errors.directory_name} touched={formik.touched.directory_name} />
-            </Grid>
-
-            <Grid item>
-              <InputLabel>Номер теста</InputLabel>
-              <TextField
-                error={formik.errors.file_name && formik.touched.file_name}
-                id="file_name"
-                placeholder="Номер теста"
-                variant="outlined"
-                type="text"
-                name="file_name"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.file_name}
-              />
-              <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name} />
-            </Grid>
-
-          </Grid>
-
-        </Paper>
-
-        <Button
-          variant="contained"
-          size='large'
-          sx={{ marginTop: '50px', marginLeft: 'auto' }}
-          type="submit"
-          disabled={formik.isSubmitting}
-        >
-          Начать миссию
-        </Button>
-
-      </form>
-
-      <ResultGenerator generateResult={generateResult} />
+      <ResultGeneratorWidget generateResult={generateResult} />
       <FileExplorer allFiles={allFiles} refresh={fetchFiles} />
+      <Modal />
 
     </Box>
   );
-}
-
-function FileExplorer({ allFiles, refresh }) {
-  const [currentFolder, setCurrentFolder] = useState({ file: '' })
-  const [subtree, setSubTree] = useState({ ...allFiles })
-  const [path, setPath] = useState('')
-
-  useEffect(() => {
-    if (!currentFolder.file) {
-      setSubTree({ ...allFiles })
-      return
-    }
-    setPath(p => `${p}/${currentFolder.file}`)
-    setSubTree(st => st[currentFolder.file])
-  }, [currentFolder])
-
-  useEffect(() => {
-    const keys = path.split("/").filter(k => k !== '')
-
-    let temp = allFiles
-    for (let key of keys) {
-      temp = temp[key]
-    }
-
-    setSubTree({ ...temp })
-  }, [allFiles])
-
-
-  const files = useMemo(() => {
-    return Object.keys(subtree)
-  }, [subtree])
-
-  function goUp() {
-    const newpath = path.split("/").slice(0, -1).join('/')
-    setPath(newpath)
-
-    const keys = newpath.split("/").filter(k => k !== '')
-
-    let temp = allFiles
-    for (let key of keys) {
-      console.log(temp)
-      temp = temp[key]
-    }
-
-    setSubTree({ ...temp })
-  }
-
-  return (
-    <Paper sx={{ padding: '25px' }}>
-
-      <Toolbar sx={{ paddingLeft: "0px !important", borderBottom: '1px solid rgb(196, 196, 196)', paddingBottom: '20px', border: '1px solid rgb(196, 196, 196)', px: "20px", py: "10px", borderRadius: "8px" }}>
-        <Breadcrumbs
-          separator={<NavigateNextIcon fontSize="small" />}
-          aria-label="breadcrumb"
-          sx={{ flexGrow: 1 }}
-        >
-          {['root', ...path.split("/").filter(p => p != '')]?.map((el, idx) => (
-            <Link underline="none" key={`${el}${idx}`}>
-              {el}
-            </Link>
-          ))}
-        </Breadcrumbs>
-
-        <Button sx={{ marginLeft: '10px' }} onClick={goUp}>
-          <ArrowUpwardIcon />
-        </Button>
-        <Button sx={{ marginLeft: 'auto' }} onClick={refresh}>
-          <ReplayIcon />
-          Refresh
-        </Button>
-      </Toolbar>
-
-      <Box sx={{ display: 'flex', height: "400px" }}>
-        <List dense={true} sx={{ width: "100%" }}>
-          {files.map((folder_name, idx) => (
-            <ListItemButton
-              key={`${folder_name}${Math.round(Math.random() * Date.now())}`}
-              onDoubleClick={() => {
-                if (subtree[folder_name] == null) {
-                  return
-                }
-                setCurrentFolder(st => ({ ...st, file: folder_name }))
-              }}
-            // selected={folder_name === currentFolder}
-            >
-              <ListItemIcon>
-                {subtree[folder_name] ? <FolderIcon /> : <TextSnippetIcon />}
-              </ListItemIcon>
-              <ListItemText
-                primary={folder_name}
-              />
-            </ListItemButton>
-
-          ))}
-        </List>
-
-      </Box>
-
-    </Paper>
-  )
-}
-
-function ResultGenerator({ generateResult }) {
-
-  const formik = useFormik({
-    initialValues: {
-      mode: '',
-      file_name: '',
-      all_modes: true,
-      save_on_server: false
-    },
-    validate: (values) => {
-      let errors = {}
-      if (!values.file_name) {
-        errors.file_name = 'Обязательное поле!'
-      } else if (values.file_name.includes('.')) {
-        errors.file_name = 'Некорректное имя'
-      }
-
-      if (!values.all_modes && !values.mode) {
-        errors.mode = 'Обязательное поле'
-      }
-
-      return errors
-    },
-    onSubmit: values => {
-      generateResult(values)
-        .then(res => {
-          toast.success("Файл успешно сгенерирован!")
-          handleDownloadFile(res, `${formik.values.file_name}.xlsx`)
-        })
-        .catch(err => {
-          toast.error(err.message)
-          console.log('Ошибка генерации файла')
-          console.log(err.message)
-        })
-    },
-  });
-
-  function handleDownloadFile(response, filename) {
-    const url = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement('a');
-    link.href = url;
-    link.style.display = 'none';
-    link.setAttribute('download', filename);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  return (
-    <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px" }}>
-      <form onSubmit={formik.handleSubmit}>
-        <Grid container alignItems="start" columnSpacing={4}>
-          <Grid item xs={6}>
-            <InputLabel>Номер режима испытания (имя папки)</InputLabel>
-            <TextField
-              id="mode"
-              placeholder="Имя папки"
-              variant="outlined"
-              type="text"
-              name="mode"
-              value={formik.values.all_modes ? 'Все' : formik.values.mode}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              sx={{ width: "100%" }}
-              error={formik.errors.mode && formik.touched.mode}
-              disabled={formik.values.all_modes}
-            />
-            <ErrorMessage error={formik.errors.mode} touched={formik.touched.mode} />
-            <FormControlLabel control={<Checkbox id="all_modes" name="all_modes" checked={formik.values.all_modes} onChange={formik.handleChange} />} label="Все режимы" />
-
-          </Grid>
-
-          <Grid item xs={6}>
-            <InputLabel>Имя нового файла</InputLabel>
-            <TextField
-              id="file_name"
-              placeholder="Имя нового файла"
-              variant="outlined"
-              type="text"
-              name="file_name"
-              value={formik.values.file_name}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              sx={{ width: "100%" }}
-              error={formik.errors.file_name && formik.touched.file_name}
-            />
-            <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name} />
-          </Grid>
-
-        </Grid>
-
-        <Grid container justifyContent="end" sx={{ marginTop: "25px" }}>
-          <Grid item>
-            <FormControlLabel control={<Checkbox id="save_on_server" name="save_on_server" checked={formik.values.save_on_server} onChange={formik.handleChange} />} label="Сохранить на сервере" />
-          </Grid>
-
-          <Grid item>
-            <Button variant='contained' type="submit">
-              Сформировать результат
-            </Button>
-          </Grid>
-        </Grid>
-
-      </form>
-    </Paper>
-  )
 }
