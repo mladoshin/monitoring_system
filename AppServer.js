@@ -43,7 +43,7 @@ class AppServer {
     startMission = async (req, res) => {
         this.mode = MODE.TESTING
         let error = null
-        const { input_type, trigger_source, repeat_interval, repeat_times, sample_rate, data_count, file_name, directory_name } = req.body
+        const { input_type, trigger_source, repeat_interval, repeat_times, sample_rate, data_count, file_name, directory_name, channel_config } = req.body
 
         this.test_mode = directory_name
         this.test_id = file_name
@@ -59,97 +59,12 @@ class AppServer {
                 InputType: input_type,
                 TriggerSource: trigger_source
             },
-            ChannelConfig: [
-                {
-                    Channel: {
-                        Port: "AI0",
-                        Sensor: {
-                            Type: "Accelerometer",
-                            Sensitivity: "1000"
-                        }
-                    },
-                    Coupling: "AC",
-                    InputRange: "B10",
-                    IEPE: "Disable",
-                    Conversion: [
-                        {
-                            DataType: "G",
-                            Algorithm: {
-                                WindowType: "Hann",
-                                FreqStart: "10",
-                                FreqEnd: "10000"
-                            }
-                        },
-                        {
-                            DataType: "Customization",
-                            Algorithm: {
-                                CustomParameter: "MIC-DFT"
-                            }
-                        },
-                    ]
-                },
-                {
-                    Channel: {
-                        Port: "AI1",
-                        Sensor: {
-                            Type: "Accelerometer",
-                            Sensitivity: "1000"
-                        }
-                    },
-                    Coupling: "AC",
-                    InputRange: "B10",
-                    IEPE: "Disable",
-                    Conversion: [
-                        {
-                            DataType: "G",
-                            Algorithm: {
-                                WindowType: "Hann",
-                                FreqStart: "10",
-                                FreqEnd: "10000"
-                            }
-                        },
-                        {
-                            DataType: "Customization",
-                            Algorithm: {
-                                CustomParameter: "MIC-DFT"
-                            }
-                        },
-                    ]
-                },
-                {
-                    Channel: {
-                        Port: "AI2",
-                        Sensor: {
-                            Type: "Accelerometer",
-                            Sensitivity: "1000"
-                        }
-                    },
-                    Coupling: "AC",
-                    InputRange: "B10",
-                    IEPE: "Disable",
-                    Conversion: [
-                        {
-                            DataType: "G",
-                            Algorithm: {
-                                WindowType: "Hann",
-                                FreqStart: "10",
-                                FreqEnd: "10000"
-                            }
-                        },
-                        {
-                            DataType: "Customization",
-                            Algorithm: {
-                                CustomParameter: "MIC-DFT"
-                            }
-                        },
-                    ]
-                }
-            ]
+            ChannelConfig: Array.from(channel_config).filter(ch => ch.enabled)
         }
 
         //remove test directory before writing to it (clearing old files)
 
-        fs.rm(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), { recursive: true, force: true }, err => {
+        fs.rmdir(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), { recursive: true, force: true }, err => {
             if (err) {
                 console.log(err)
             } else {
@@ -157,7 +72,7 @@ class AppServer {
             }
         })
 
-        const response = await axios.post(`${controller_address}/devices/MCM-204-0/mission`, { ...body }).catch(err => error = err.message)
+        const response = await axios.post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, { ...body }).catch(err => error = err.message)
 
         if (error) {
             res.status(400).send(error)

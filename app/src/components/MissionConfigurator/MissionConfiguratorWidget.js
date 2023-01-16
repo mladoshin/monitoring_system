@@ -4,8 +4,8 @@ import React from 'react'
 import useConfigureMission from '../../hooks/useConfigureMission';
 import Modal from '../Modal/Modal';
 
-function MissionConfiguratorWidget() {
-    const {config, enableChannel, modalOpen, handleOpenModal, handleCloseModal, currentChannel, saveChannel} = useConfigureMission({})
+function MissionConfiguratorWidget({ChannelConfig}) {
+    const {config, enableChannel, modalOpen, handleOpenModal, handleCloseModal, currentChannel, saveChannel} = ChannelConfig
 
     return (
         <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px", width: '100%' }}>

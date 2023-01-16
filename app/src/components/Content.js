@@ -21,6 +21,7 @@ import MissionModeConfig from './MissionConfigurator/MissionModeConfig';
 import ErrorMessage from './ErrorMessage';
 import FileExplorer from './FileExplorer/FileExplorer';
 import ResultGeneratorWidget from './ResultGeneratorWidget/ResultGeneratorWidget';
+import useConfigureMission from '../hooks/useConfigureMission';
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -60,6 +61,8 @@ export default function Content() {
     fetchFiles()
   }, [])
 
+  const ChannelConfig = useConfigureMission({})
+
   const formik = {
     initialValues: {
       input_type: 'PseudoDifferential',
@@ -79,7 +82,7 @@ export default function Content() {
     onSubmit: async (values) => {
       toastId.current = toast(<Box sx={{ display: 'flex', alignItems: 'center', gap: "15px" }}><CircularProgress size="30px" /> <p>Загрузка...</p></Box>, { position: 'bottom-right', autoClose: false })
 
-      await startMission(values).then((res) => {
+      await startMission({...values, channel_config: ChannelConfig.config}).then((res) => {
         toast.update(toastId.current, { render: `Миссия запущена`, position: 'bottom-right', type: 'success' })
       }).catch(err => {
         toast.update(toastId.current, { render: err.message, position: 'bottom-right', type: 'error' })
@@ -87,10 +90,6 @@ export default function Content() {
     }
 
   };
-
-  function setOpenModal(open, channel){
-
-  }
   
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
@@ -102,7 +101,7 @@ export default function Content() {
           >
             <ControllerConfigurator />
 
-            <MissionConfiguratorWidget/>
+            <MissionConfiguratorWidget ChannelConfig={ChannelConfig}/>
 
             <MissionModeConfig/>
 
