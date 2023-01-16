@@ -1,16 +1,11 @@
 import { Checkbox, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material'
 import { useFormikContext } from 'formik';
 import React from 'react'
+import useConfigureMission from '../../hooks/useConfigureMission';
+import Modal from '../Modal/Modal';
 
 function MissionConfiguratorWidget() {
-    const formik = useFormikContext();
-
-    const channels = [
-        { id: 0, name: 'AI0', on: true },
-        { id: 1, name: 'AI1', on: false },
-        { id: 2, name: 'AI2', on: true },
-        { id: 3, name: 'AI3', on: false },
-    ]
+    const {config, enableChannel, modalOpen, handleOpenModal, handleCloseModal, currentChannel, saveChannel} = useConfigureMission({})
 
     return (
         <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px", width: '100%' }}>
@@ -18,38 +13,39 @@ function MissionConfiguratorWidget() {
                 sx={{ width: '100%', bgcolor: 'background.paper' }}
             >
                 <div style={{ display: 'flex', padding: '8px 16px', fontWeight: 600 }}>
-                    <div style={{ width: 70, marginRight: 16 }}>
-                        <span>Enable</span>
+                    <div style={{ width: 100, marginRight: 16 }}>
+                        <span>Включить</span>
                     </div>
                     <div style={{ flexGrow: 1 }}>
-                        <span>Name</span>
+                        <span>Имя канала</span>
                     </div>
                 </div>
-                {channels.map((value) => {
+                {config.map((value) => {
 
                     return (
                         <>
                             <ListItem
-                                key={value.id}
+                                key={value.Channel.Port}
                                 disablePadding
 
                             >
                                 <ListItemButton
-                                    onClick={() => alert("Goto channel page")}
+                                    onClick={() => handleOpenModal(value.Channel.Port)}
                                     sx={{ display: 'flex' }}
                                 >
-                                    <ListItemIcon sx={{ width: '70px' }}>
+                                    <ListItemIcon sx={{ width: '100px' }}>
                                         <Checkbox
                                             edge="start"
                                             tabIndex={-1}
                                             disableRipple
-                                            checked={value.on}
+                                            checked={value.enabled}
                                             onClick={(e) => {
                                                 e.stopPropagation()
+                                                enableChannel(value.Channel.Port, e.target.checked)
                                             }}
                                         />
                                     </ListItemIcon>
-                                    <ListItemText primary={value.name} sx={{ flexGrow: 1 }} />
+                                    <ListItemText primary={value.Channel.Port} sx={{ flexGrow: 1 }} />
                                 </ListItemButton>
                             </ListItem>
                             <Divider />
@@ -57,8 +53,21 @@ function MissionConfiguratorWidget() {
                     );
                 })}
             </List>
-
+            
+            <Modal 
+                open={modalOpen} 
+                onClose={handleCloseModal}
+                channel={currentChannel}
+                enableChannel={enableChannel}
+                saveChannel={saveChannel}
+            />
         </Paper>
+    )
+}
+
+function ConfigModal({...props}){
+    return (
+        <Modal></Modal>
     )
 }
 

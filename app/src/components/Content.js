@@ -122,7 +122,6 @@ export default function Content() {
 
       <ResultGeneratorWidget generateResult={generateResult} />
       <FileExplorer allFiles={allFiles} refresh={fetchFiles} />
-      <Modal />
 
     </Box>
   );

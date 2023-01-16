@@ -1,9 +1,11 @@
 import net from "net"
 import AppServer from "./AppServer.js";
 import MonitoringServer from "./MonitoringServer.js";
+import * as dotenv from 'dotenv' 
+dotenv.config()
 
-const port = 7070;
-const host = '0.0.0.0';
+const port = process.env.TCP_PORT;
+const host = process.env.TCP_HOST;
 const server = net.createServer();
 
 const AS = new AppServer()

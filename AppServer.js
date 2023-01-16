@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 import axios from 'axios';
 import fs from "fs"
 import { MIC_ENUM, MODE } from './enums.js';
-import { channel } from 'diagnostics_channel';
 import xl from "excel4node";
 
 axios.defaults.headers.common['Authorization'] = 'Basic YWRtaW5pc3RyYXRvcjpBZGxpbms2MTY2';
@@ -13,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const port = 3000
-const controller_address = "http://192.168.1.172:6166"
+const controller_address = process.env.CONTROLLER_URI
 
 class AppServer {
     constructor(mode = MODE.MONITORING) {

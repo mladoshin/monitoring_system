@@ -1,4 +1,3 @@
-const { Socket } = require('dgram');
 const net = require('net');
 const client = new net.Socket();
 const port = 7070;

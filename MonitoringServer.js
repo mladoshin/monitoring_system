@@ -28,7 +28,7 @@ export default class MonitoringServer {
         const end_formatted = new Date(now.getTime() - now.getTimezoneOffset() * 1000 * 60).toISOString().replace('T', '%20').slice(0, -5);
         console.log(start_formatted)
         console.log(end_formatted)
-        axios.get(`http://192.168.1.172:6166/history/condition/MCM-204-0/*/${start_formatted}/${end_formatted}/AI0`)
+        axios.get(`${process.env.CONTROLLER_URI}/history/condition/MCM-204-0/*/${start_formatted}/${end_formatted}/AI0`)
             .then((res) => {
                 console.log(res.data)
             })

@@ -5,11 +5,11 @@ const { Client, Pool } = pkg;
 class PostgresDB {
     constructor() {
         this.pool = new Pool({
-            user: 'postgres',
-            host: '127.0.0.1',
-            database: 'monitoring_system',
-            password: '1234',
-            port: 5432,
+            user: process.env.PG_USER,
+            host: process.env.PG_HOST,
+            database: process.env.PG_DBNAME,
+            password: process.env.PG_PASSWORD,
+            port: process.env.DB_PORT,
         })
 
         this.pool.on('error', (err, client) => {
