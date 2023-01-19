@@ -1,24 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
-import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
-import { Checkbox, Drawer, FormControlLabel, FormGroup, Link, List, ListItem, ListItemButton, ListItemIcon, ListItemText, MenuItem, OutlinedInput, Select, Slider } from '@mui/material';
-import { InputLabel } from '@mui/material';
 import { Formik, useFormik } from 'formik';
 import { Box } from '@mui/system';
-import { startMission, getAllFiles, generateResult } from '../api';
+import { startMission, getAllFiles, generateResult, connectController } from '../api';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import CircularProgress from '@mui/material/CircularProgress';
 import MissionConfiguratorWidget from './MissionConfigurator/MissionConfiguratorWidget';
-import Modal from './Modal/Modal';
 import ControllerConfigurator from './ControllerConfigurator/ControllerConfigurator';
 import MissionModeConfig from './MissionConfigurator/MissionModeConfig';
-import ErrorMessage from './ErrorMessage';
 import FileExplorer from './FileExplorer/FileExplorer';
 import ResultGeneratorWidget from './ResultGeneratorWidget/ResultGeneratorWidget';
 import useConfigureMission from '../hooks/useConfigureMission';
@@ -59,6 +49,7 @@ export default function Content() {
 
   useEffect(() => {
     fetchFiles()
+    connectController()
   }, [])
 
   const ChannelConfig = useConfigureMission({})
@@ -80,10 +71,15 @@ export default function Content() {
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values) => {
-      toastId.current = toast(<Box sx={{ display: 'flex', alignItems: 'center', gap: "15px" }}><CircularProgress size="30px" /> <p>Загрузка...</p></Box>, { position: 'bottom-right', autoClose: false })
+      toastId.current = toast(<Box sx={{ display: 'flex', alignItems: 'center', gap: "15px" }}><CircularProgress size="30px" /> <p>Загрузка...</p></Box>, { position: 'bottom-right', hideProgressBar: true })
 
       await startMission({...values, channel_config: ChannelConfig.config}).then((res) => {
-        toast.update(toastId.current, { render: `Миссия запущена`, position: 'bottom-right', type: 'success' })
+        toast.update(toastId.current, { render: `Миссия запущена`, position: 'bottom-right', type: 'success', autoClose: values.data_count/values.sample_rate*1000+3000, hideProgressBar: false })
+
+        setTimeout(() => {
+          toast(`Миссия успешно завершена!`, { position: 'bottom-right', type: 'success', autoClose: 3000, hideProgressBar: true })
+        }, values.data_count/values.sample_rate*1000+3500)
+
       }).catch(err => {
         toast.update(toastId.current, { render: err.message, position: 'bottom-right', type: 'error' })
       })

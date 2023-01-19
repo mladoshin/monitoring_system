@@ -5,14 +5,16 @@ import axios from 'axios';
 import fs from "fs"
 import { MIC_ENUM, MODE } from './enums.js';
 import xl from "excel4node";
+import ip from 'ip';
+import * as dotenv from 'dotenv' 
+dotenv.config()
 
-axios.defaults.headers.common['Authorization'] = 'Basic YWRtaW5pc3RyYXRvcjpBZGxpbms2MTY2';
+axios.defaults.headers.common['Authorization'] = process.env.API_TOKEN
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const port = 3000
-const controller_address = process.env.CONTROLLER_URI
+const port = process.env.HTTPS_PORT
 
 class AppServer {
     constructor(mode = MODE.MONITORING) {
@@ -29,6 +31,7 @@ class AppServer {
 
         this.app.post('/api/start-mission', this.startMission)
         this.app.post('/api/generate-result', this.generateResultingXLSX)
+        this.app.post('/api/connect-controller', this.connectController)
 
         this.app.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
@@ -70,7 +73,17 @@ class AppServer {
             } else {
                 console.log("Successfully cleared the directory")
             }
+
+            fs.mkdirSync(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`))
+
+            const JSON_config = JSON.stringify(body, null, 2);
+            const file = fs.createWriteStream(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}/full-config.json`));
+            file.on('error', function (err) { /* error handling */ });
+            file.write(JSON_config)
+            file.end();
+
         })
+
 
         const response = await axios.post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, { ...body }).catch(err => error = err.message)
 
@@ -104,7 +117,7 @@ class AppServer {
             obj = { ...obj, [MIC_ENUM[i]]: params[i] }
         }
 
-        const json = JSON.stringify(obj)
+        const json = JSON.stringify(obj, null, 2)
 
         // write parameters json to test folder
         const file = fs.createWriteStream(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}/parameters.json`));
@@ -308,7 +321,7 @@ class AppServer {
         if (save_on_server) {
             const err = this.saveXLSXFile(wb, `${file_name}_${all_modes ? 'all' : mode}`)
 
-            if(err){
+            if (err) {
                 res.status(400).send("Save to server failed!")
                 return
             }
@@ -334,6 +347,47 @@ class AppServer {
         }
     }
 
+    reconnectController = async () => {
+        let error = null
+        const response = await axios.get(`${process.env.CONTROLLER_URI}/socket/MCM-204-0/connection`).catch(err => error = err.message)
+
+        if (error){
+            return new Error(err.message)
+        }
+
+        return response.data.host
+    }
+
+    connectController = async (req, res) => {
+        let error = null
+        const ip_address = ip.address()
+        const hosts = await this.reconnectController().catch(err => error = err.message)
+
+        if (error) {
+            res.status(400).send(error)
+            return
+        }
+
+        const idx = hosts.findIndex(h => h.address === ip_address)
+        if (idx !== -1){
+            return
+        }
+
+        const body ={
+            address: ip.address(),
+            port: Number(process.env.TCP_PORT)
+        }
+
+        const response = await axios.post(`${process.env.CONTROLLER_URI}/socket/MCM-204-0/connection`, { ...body }).catch(err => error = err.message)
+
+        if (error) {
+            res.status(400).send(error)
+            console.log(error)
+            return
+        }
+
+        res.status(200).send(response.data)
+    }
 }
 
 export default AppServer
