@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Grid, MenuItem, Paper, Select, TextField, ThemeProvider, Typography } from '@mui/material'
+import { Button, Checkbox, Divider, Grid, InputLabel, MenuItem, Paper, Select, TextField, ThemeProvider, Typography } from '@mui/material'
 import { Formik, useFormik, useFormikContext } from 'formik'
 import React from 'react'
 import "./Modal.scss"
@@ -15,7 +15,7 @@ function ConversionCard({ idx, handleRemoveConversion }) {
     const isCustom = formik.values.Conversion[idx].DataType === 'Customization'
 
     return (
-        <Paper sx={{ px: "30px", py: "15px", display: 'flex' }}>
+        <Paper sx={{ px: "30px", py: "15px", display: 'flex', gap: "20px", backgroundColor: '#efefef' }} elevation={1}>
             <Select
                 value={formik.values.Conversion[idx].DataType}
                 placeholder="Data Type"
@@ -72,8 +72,6 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
         }
     }
 
-    console.log(channel)
-
     function handleAddConversion(conversions, setFieldValue) {
         const temp = [...conversions, defaultConversion]
         setFieldValue('Conversion', temp)
@@ -96,11 +94,12 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                 <Button variant='contained' type='submit' onClick={props.handleSubmit}>Сохранить изменения</Button>
                             </div>
 
-                            <div>
-                                <Typography sx={{ display: 'inline' }}>Включен</Typography>
+                            <Paper sx={{ px: "30px", py: "15px", display: 'flex', gap: "20px", backgroundColor: '#efefef', alignItems: 'center', my: "20px" }} elevation={0}>
+                                <Typography variant='h5'>Канал {channel.Channel.Port}</Typography>
+                                <Divider orientation="vertical" flexItem sx={{bgcolor: '#757575'}}/>
+                                <Typography>Включен</Typography>
                                 <Checkbox
                                     edge="start"
-                                    sx={{ display: 'inline', marginLeft: "20px" }}
                                     tabIndex={-1}
                                     disableRipple
                                     checked={props.values.enabled}
@@ -108,10 +107,11 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                     onChange={props.handleChange}
                                     onBlur={props.handleBlur}
                                 />
-                            </div>
+                            </Paper>
 
                             <Grid container justifyContent="start" alignItems="center" gap="20px" py="10px">
                                 <Grid item>
+                                    <InputLabel>Coupling</InputLabel>
                                     <Select
                                         error={props?.errors?.Coupling && props.touched?.Coupling}
                                         value={props.values.Coupling}
@@ -127,6 +127,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                 </Grid>
 
                                 <Grid item>
+                                    <InputLabel>Input range</InputLabel>
                                     <Select
                                         error={props?.errors?.InputRange && props.touched?.InputRange}
                                         value={props.values.InputRange}
@@ -141,23 +142,12 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                     </Select>
                                 </Grid>
 
-                                <Grid item>
-                                    <Select
-                                        value={props.values.Sensor.Type}
-                                        placeholder="Sensor Type"
-                                        name="Sensor.Type"
-                                        onChange={props.handleChange}
-                                        onBlur={props.handleBlur}
-                                        className="select"
-                                    >
-                                        <MenuItem value="Accelerometer">Accelerometer</MenuItem>
-                                    </Select>
-                                </Grid>
                             </Grid>
 
 
                             <Grid container justifyContent="start" alignItems="center" gap="20px" py="10px">
                                 <Grid item>
+                                    <InputLabel>Sensor type</InputLabel>
                                     <Select
                                         value={props.values.Sensor.Type}
                                         placeholder="Sensor Type"
@@ -171,6 +161,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                 </Grid>
 
                                 <Grid item>
+                                    <InputLabel>Sensitivity</InputLabel>
                                     <TextField
                                         value={props.values.Sensor.Sensitivity}
                                         placeholder="Sensor Sensitivity"
@@ -181,6 +172,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                 </Grid>
 
                                 <Grid item>
+                                    <InputLabel>IEPE</InputLabel>
                                     <Select
                                         value={props.values.IEPE}
                                         placeholder="IEPE"
@@ -195,9 +187,10 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                 </Grid>
                             </Grid>
 
-                            <Divider />
+                            <Divider/>
 
-                            <Grid container direction="column" gap="10px" py="20px">
+                            <Typography variant='h5' sx={{marginTop: "15px"}}>Типы данных</Typography>
+                            <Grid container direction="column" gap="20px" py="20px">
                                 {props.values.Conversion?.map((conv, i) => (
                                     <Grid item>
                                         <ConversionCard key={i} idx={i} handleRemoveConversion={handleRemoveConversion} />

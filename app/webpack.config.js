@@ -1,7 +1,11 @@
 const path = require("path")
 const HTMLWebpackPlugin = require("html-webpack-plugin")
-const { CleanWebpackPlugin } = require("clean-webpack-plugin")
-//const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const webpack = require('webpack');
+
+const dotenv = require('dotenv').config({
+    path: path.join(__dirname, '../.env')
+});
 
 const isDev = process.env.NODE_ENV === "development"
 const isProd = !isDev
@@ -20,6 +24,9 @@ module.exports = {
             template: "./index.html"
         }),
         new CleanWebpackPlugin(),
+        new webpack.DefinePlugin({
+            "process.env": dotenv.parsed
+        }),
         // new MiniCssExtractPlugin({
         //     filename: "[name][hash].css"
         // })

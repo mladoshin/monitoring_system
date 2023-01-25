@@ -186,8 +186,6 @@ export default function Paperbase({ children }) {
     setPageHeading(MENU[location.pathname.slice(1)])
   }, [location])
 
-  console.log(pageHeading)
-
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
