@@ -43,7 +43,7 @@ class AppServer {
     startMission = async (req, res) => {
         this.mode = MODE.TESTING
         let error = null
-        const { input_type, trigger_source, repeat_interval, repeat_times, sample_rate, data_count, file_name, directory_name } = req.body
+        const { comment, input_type, trigger_source, repeat_interval, repeat_times, sample_rate, data_count, file_name, directory_name } = req.body
 
         this.test_mode = directory_name
         this.test_id = file_name

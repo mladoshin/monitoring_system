@@ -70,6 +70,7 @@ export default function Content() {
       data_count: 16000,
       file_name: '',
       directory_name: '',
+      comment: '',
       channels: [
       ],
       modal_open: false,
@@ -88,9 +89,6 @@ export default function Content() {
 
   };
 
-  function setOpenModal(open, channel){
-
-  }
   
   return (
     <Box sx={{ maxWidth: 1220, margin: 'auto', overflow: 'hidden' }}>
