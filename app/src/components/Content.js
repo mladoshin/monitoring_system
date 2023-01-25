@@ -38,6 +38,17 @@ const MissionConfigSchema = Yup.object().shape({
     .required('Обязательное поле'),
 });
 
+function getNextMission(dir, file){
+  let directory = +dir
+  let file_name = +file
+
+  if (file_name === process.env.TEST_COUNT){
+    return [++directory, 1]
+  }else{
+    return [directory, ++file_name]
+  }
+}
+
 export default function Content() {
   const [allFiles, setAllFiles] = useState({})
   const toastId = React.useRef(null);
@@ -71,18 +82,38 @@ export default function Content() {
       current_channel: null
     },
     validationSchema: MissionConfigSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, actions) => {
       toastId.current = toast(<Box sx={{ display: 'flex', alignItems: 'center', gap: "15px" }}><CircularProgress size="30px" /> <p>Загрузка...</p></Box>, { position: 'bottom-right', hideProgressBar: true })
-
       await startMission({...values, channel_config: ChannelConfig.config}).then((res) => {
         toast.update(toastId.current, { render: `Миссия запущена`, position: 'bottom-right', type: 'success', autoClose: values.data_count/values.sample_rate*1000+3000, hideProgressBar: false })
 
         setTimeout(() => {
           toast(`Миссия успешно завершена!`, { position: 'bottom-right', type: 'success', autoClose: 3000, hideProgressBar: true })
+
+          const [new_dir, new_file] = getNextMission(values.directory_name, values.file_name)
+          // Auto increment file_name
+          actions.setFieldValue("file_name", new_file)
+          actions.setFieldValue("directory_name", new_dir)
         }, values.data_count/values.sample_rate*1000+3500)
 
+        
+        
       }).catch(err => {
-        toast.update(toastId.current, { render: err.message, position: 'bottom-right', type: 'error' })
+        let msg = err.message
+        console.log(msg)
+
+        if (err.response.status === 300){
+          msg = err.response.data.msg
+        }
+
+        toast.update(toastId.current, { render: msg, position: 'bottom-right', type: 'error' })
+        
+        if (err.response.status === 300){
+          if(confirm(`Вы уверены, что хотите перезаписать миссию ${values.directory_name}-${values.file_name}?`)){
+            formik.onSubmit({...values, force: true}, actions)
+          }
+        }
+
       })
     }
 
