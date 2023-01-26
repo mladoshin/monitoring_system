@@ -147,6 +147,7 @@ const ALGORITHMS_ENUM = {
 const MODE = {
     MONITORING: 'monitoring',
     TESTING: 'testing',
+    CALIBRATION: 'calibration'
 }
 
 export {MIC_ENUM, SCADA_ENUM, ALGORITHMS_ENUM, MODE}

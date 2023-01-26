@@ -28,4 +28,14 @@ $top-offset: 48px;
         justify-content: space-between;
         align-items: center;
     }
+
+    .calibration_form{
+        display: flex;
+        align-items: flex-end;
+        gap: 2rem;
+
+        button {
+            height: 56px;
+        }
+    }
 }
