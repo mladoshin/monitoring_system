@@ -3,7 +3,7 @@ $top-offset: 48px;
 
 .modal-wrapper{
     display: block;
-    overflow: hidden;
+    // overflow: hidden;
     position: fixed;
     width: calc(100vw - $left-offset);
     height: calc(100vh - $top-offset);
@@ -14,6 +14,7 @@ $top-offset: 48px;
     transition: all 350ms ease;
     padding: 32px;
     background-color: #fff;
+    overflow-y: auto;
 
     &.closed{
         transform: translateX(100%);
@@ -37,5 +38,9 @@ $top-offset: 48px;
         button {
             height: 56px;
         }
+    }
+
+    .graph-section{
+        margin-top: 2rem;
     }
 }

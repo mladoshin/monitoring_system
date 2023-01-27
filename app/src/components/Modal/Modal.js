@@ -14,10 +14,16 @@ import {
     Typography,
 } from '@mui/material'
 import { Formik, useFormikContext } from 'formik'
-import React, { useState } from 'react'
-import { calibrateChannel, pollCalibrationResults } from '../../api'
+import React, { useEffect, useState } from 'react'
+import {
+    calibrateChannel,
+    fetchGRawdata,
+    pollCalibrationResults,
+    pollGRawData,
+} from '../../api'
 import './Modal.scss'
 import { toast } from 'react-toastify'
+import Chart from '../Chart'
 
 const defaultConversion = {
     DataType: 'G',
@@ -87,6 +93,41 @@ function ConversionCard({ idx, handleRemoveConversion }) {
 function Modal({ open = false, onClose, channel, saveChannel }) {
     const toastId = React.useRef(null)
     const [isCalibrating, setIsCalibrating] = useState(false)
+    const [rawdata, setRawdata] = useState([])
+
+    useEffect(() => {
+        if (channel) {
+            get()
+        }
+
+        async function get() {
+            const res = await fetchGRawdata(channel.Channel.Port?.slice(2))
+            const data_arr = res.data
+                .split(',\n')
+                .map((el, idx) => ({ x: idx, y: +el * 300000 })).slice(0,16000)
+            setRawdata(data_arr)
+        }
+    }, [channel])
+
+    useEffect(() => {
+        if (!open) {
+            setRawdata([])
+        }
+    }, [open])
+
+    async function updateRawData(){
+        const channel_id = channel.Channel.Port?.slice(2)
+        calibrateChannel({
+            standard_amplitude: 10,
+            channel_id: channel_id,
+        }).then(async ()=>{
+            const data = await pollGRawData({channel_id})
+            const data_arr = data
+                .split(',\n')
+                .map((el, idx) => ({ x: idx, y: +el * 300000 })).slice(0,1000)
+            setRawdata(data_arr)
+        })
+    }
 
     const formik = {
         initialValues: {
@@ -427,6 +468,22 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                         )}
                     </Formik>
                 )}
+
+                <div className="graph-section">
+                    <hr />
+                    <h2>Спектр канала {channel?.Channel?.Port}</h2>
+                    <Button
+                        variant="contained"
+                        onClick={updateRawData}
+                    >
+                        Обновить
+                    </Button>
+                    {rawdata.length > 0 && (
+                        <div>
+                            <Chart data={rawdata} />
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

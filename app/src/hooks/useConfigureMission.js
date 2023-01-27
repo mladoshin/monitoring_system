@@ -72,11 +72,13 @@ function useConfigureMission({ defaultConfig = initConfig }) {
     function handleOpenModal(channelID) {
         setModalOpen(true)
         setSelectedChannel(channelID)
+        document.body.style.overflowY = 'hidden'
     }
 
-    function handleCloseModal(channelID) {
+    function handleCloseModal() {
         setModalOpen(false)
         setSelectedChannel(null)
+        document.body.style.overflowY = 'auto'
     }
 
     function setProp(channelID, prop, value) {
