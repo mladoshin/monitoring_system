@@ -13,8 +13,8 @@ function MissionModeConfig() {
             </Typography>
 
 
-            <Grid container spacing={2}>
-                <Grid item>
+            <Grid container spacing={3} sx={{maxWidth: "600px"}}>
+                <Grid item xs={6}>
                     <InputLabel>Режим испытания</InputLabel>
                     <TextField
                         error={formik.errors.directory_name && formik.touched.directory_name}
@@ -26,11 +26,12 @@ function MissionModeConfig() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.directory_name}
+                        sx={{width: "100%"}}
                     />
                     <ErrorMessage error={formik.errors.directory_name} touched={formik.touched.directory_name} />
                 </Grid>
 
-                <Grid item>
+                <Grid item xs={6}>
                     <InputLabel>Номер теста</InputLabel>
                     <TextField
                         error={formik.errors.file_name && formik.touched.file_name}
@@ -42,8 +43,27 @@ function MissionModeConfig() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.file_name}
+                        sx={{width: "100%"}}
                     />
                     <ErrorMessage error={formik.errors.file_name} touched={formik.touched.file_name} />
+                </Grid>
+
+                <Grid item xs={12}>
+                    <InputLabel>Комментарий</InputLabel>
+                    <TextField
+                        error={formik.errors.comment && formik.touched.comment}
+                        placeholder="Комментарий"
+                        variant="outlined"
+                        type="text"
+                        multiline
+                        rows={4}
+                        name="comment"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.comment}
+                        sx={{width: "100%"}}
+                    />
+                    <ErrorMessage error={formik.errors.comment} touched={formik.touched.comment} />
                 </Grid>
 
             </Grid>

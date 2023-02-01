@@ -1,94 +1,35 @@
 import React, { useEffect, useMemo, useState } from 'react'
 
-const initConfig = [
-    {
-        enabled: true,
-        Channel: {
-            Port: "AI0",
-            Sensor: {
-                Type: "Accelerometer",
-                Sensitivity: "1000"
-            }
-        },
-        Coupling: "AC",
-        InputRange: "B10",
-        IEPE: "Disable",
-        Conversion: [
-            {
-                DataType: "G",
-                Algorithm: {
-                    WindowType: "Hann",
-                    FreqStart: "10",
-                    FreqEnd: "10000"
+const initConfig = []
+
+// generate initConfig for every channel
+for (let i = 0; i < process.env.NUM_CHANNELS; i++) {
+    initConfig.push(
+        {
+            enabled: true,
+            Channel: {
+                Port: `AI${i}`,
+                Sensor: {
+                    Type: "Accelerometer",
+                    Sensitivity: "1000"
                 }
             },
-            {
-                DataType: "Customization",
-                Algorithm: {
-                    CustomParameter: "MIC-DFT"
+            Coupling: "DC",
+            InputRange: "B10",
+            IEPE: "Disable",
+            Conversion: [
+                {
+                    DataType: "G",
+                    Algorithm: {
+                        WindowType: "Hann",
+                        FreqStart: "10",
+                        FreqEnd: "10000"
+                    }
                 }
-            },
-        ]
-    },
-    {
-        enabled: true,
-        Channel: {
-            Port: "AI1",
-            Sensor: {
-                Type: "Accelerometer",
-                Sensitivity: "1000"
-            }
-        },
-        Coupling: "AC",
-        InputRange: "B10",
-        IEPE: "Disable",
-        Conversion: [
-            {
-                DataType: "G",
-                Algorithm: {
-                    WindowType: "Hann",
-                    FreqStart: "10",
-                    FreqEnd: "10000"
-                }
-            },
-            {
-                DataType: "Customization",
-                Algorithm: {
-                    CustomParameter: "MIC-DFT"
-                }
-            },
-        ]
-    },
-    {
-        enabled: true,
-        Channel: {
-            Port: "AI2",
-            Sensor: {
-                Type: "Accelerometer",
-                Sensitivity: "1000"
-            }
-        },
-        Coupling: "DC",
-        InputRange: "B10",
-        IEPE: "Disable",
-        Conversion: [
-            {
-                DataType: "G",
-                Algorithm: {
-                    WindowType: "Hann",
-                    FreqStart: "10",
-                    FreqEnd: "10000"
-                }
-            },
-            {
-                DataType: "Customization",
-                Algorithm: {
-                    CustomParameter: "MIC-DFT"
-                }
-            },
-        ]
-    }
-]
+            ]
+        }
+    )
+}
 
 const defaultConversion = {
     DataType: "G",
@@ -131,11 +72,13 @@ function useConfigureMission({ defaultConfig = initConfig }) {
     function handleOpenModal(channelID) {
         setModalOpen(true)
         setSelectedChannel(channelID)
+        document.body.style.overflowY = 'hidden'
     }
 
-    function handleCloseModal(channelID) {
+    function handleCloseModal() {
         setModalOpen(false)
         setSelectedChannel(null)
+        document.body.style.overflowY = 'auto'
     }
 
     function setProp(channelID, prop, value) {
@@ -195,7 +138,7 @@ function useConfigureMission({ defaultConfig = initConfig }) {
     }
 
     function saveChannel(channelID, data) {
-        const {Conversion, enabled, Coupling, InputRange, IEPE, Sensor} = data
+        const { Conversion, enabled, Coupling, InputRange, IEPE, Sensor } = data
 
         const idx = config.findIndex(ch => ch.Channel.Port === channelID)
         if (idx === -1) return;
@@ -220,7 +163,7 @@ function useConfigureMission({ defaultConfig = initConfig }) {
         setConfig(temp)
     }
 
-    return { config, enableChannel, setProp, setSensor, addConversion, removeConversion, modalOpen, handleOpenModal, handleCloseModal, selectedChannel, currentChannel, saveChannel }
+    return { config, setConfig, enableChannel, setProp, setSensor, addConversion, removeConversion, modalOpen, handleOpenModal, handleCloseModal, selectedChannel, currentChannel, saveChannel }
 }
 
 export default useConfigureMission

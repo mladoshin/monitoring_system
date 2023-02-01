@@ -4,3 +4,8 @@
     text-decoration: none;
     color: #fff;
 }
+
+body{
+    height: 100vh;
+    overflow-y: auto;
+}

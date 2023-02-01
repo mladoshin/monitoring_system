@@ -3,7 +3,7 @@ $top-offset: 48px;
 
 .modal-wrapper{
     display: block;
-    overflow: hidden;
+    // overflow: hidden;
     position: fixed;
     width: calc(100vw - $left-offset);
     height: calc(100vh - $top-offset);
@@ -14,6 +14,7 @@ $top-offset: 48px;
     transition: all 350ms ease;
     padding: 32px;
     background-color: #fff;
+    overflow-y: auto;
 
     &.closed{
         transform: translateX(100%);
@@ -27,5 +28,29 @@ $top-offset: 48px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    .calibration_form{
+        display: flex;
+        align-items: flex-end;
+        gap: 2rem;
+
+        button {
+            height: 56px;
+        }
+    }
+
+    .graph-section{
+        margin-top: 2rem;
+    }
+
+    .toolbar{
+        display: flex;
+        align-items: center;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        border-radius: 7px;
+        padding: 0.5rem 1rem;
+        height: 3.5rem;
     }
 }
