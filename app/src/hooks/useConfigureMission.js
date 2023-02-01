@@ -163,7 +163,7 @@ function useConfigureMission({ defaultConfig = initConfig }) {
         setConfig(temp)
     }
 
-    return { config, enableChannel, setProp, setSensor, addConversion, removeConversion, modalOpen, handleOpenModal, handleCloseModal, selectedChannel, currentChannel, saveChannel }
+    return { config, setConfig, enableChannel, setProp, setSensor, addConversion, removeConversion, modalOpen, handleOpenModal, handleCloseModal, selectedChannel, currentChannel, saveChannel }
 }
 
 export default useConfigureMission

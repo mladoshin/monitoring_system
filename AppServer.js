@@ -32,7 +32,14 @@ class AppServer {
         this.app.use(express.static(path.join(__dirname, './app/dist/')))
 
         this.app.get('/api/get-files', this.getAllFiles)
+
+        this.app.get('/api/user-profiles', this.getUserProfiles)
+        this.app.get('/api/user-profile', this.getUserProfile)
+        this.app.post('/api/user-profiles', this.addUserProfile)
+        this.app.delete('/api/user-profiles', this.removeUserProfile)
+
         this.app.get('/api/calibrate-channel', this.getCalibrationResults)
+        this.app.get('/api/get-g-rawdata', this.getGRawData)
 
         this.app.get('*', (req, res) => {
             res.sendFile(path.join(__dirname, './app/dist/index.html'))
@@ -52,6 +59,85 @@ class AppServer {
         this.test_id = 'test'
         this.mode = mode
         this.all_files = {}
+    }
+
+    getUserProfiles = async (req, res) => {
+        const { profile_name } = req.query
+
+        if (profile_name) {
+            const file_path = path.join(
+                __dirname,
+                `/user-profiles/${profile_name}`
+            )
+
+            fs.readFile(file_path, 'utf8', (err, data) => {
+                if (err) {
+                    res.status(400).send(err)
+                    return
+                }
+                res.status(200).send(data)
+            })
+
+            return
+        }
+
+        let files = []
+
+        const file_path = path.join(__dirname, `/user_profiles/`)
+        try {
+            files = fs.readdirSync(file_path)
+        } catch (err) {
+            res.status(500).send(err.message)
+        }
+
+        res.status(200).send(files)
+    }
+    
+
+    getUserProfile = async (req, res) => {
+        const { profile_name = '' } = req.query
+
+        const file_path = path.join(__dirname, `/user_profiles/${profile_name}`)
+
+        fs.readFile(file_path, 'utf8', (err, data) => {
+            if (err) {
+                res.status(400).send(err)
+                return
+            }
+            res.status(200).send(data)
+        })
+    }
+
+    addUserProfile = async (req, res) => {
+        const { profile_name, data } = req.body
+
+        const file = fs.createWriteStream(
+            path.join(__dirname, `/user_profiles/${profile_name}`)
+        )
+
+        file.on('error', function (err) {
+            /* error handling */
+            res.status(500).send(err)
+        })
+        file.write(JSON.stringify(data, null, 2))
+        file.end()
+
+        res.status(200).send({ [profile_name]: data })
+    }
+
+    removeUserProfile = async (req, res) => {
+        const { profile_name } = req.body
+
+        fs.rm(
+            path.join(__dirname, `/user_profiles/${profile_name}`),
+            { force: true },
+            (err) => {
+                if (err) console.log(err.message)
+                res.status(400).send(err)
+            }
+        )
+
+        res.status(200).send(profile_name)
     }
 
     startMission = async (req, res) => {
@@ -208,6 +294,21 @@ class AppServer {
             }
             // Display the file content
             console.log(data)
+            res.status(200).send(data)
+        })
+    }
+
+    getGRawData = async (req, res) => {
+        const { channel_id = '' } = req.query
+        const file_path = path.join(
+            __dirname,
+            `/data/tmp/${channel_id}/${channel_id}_ch0.dat`
+        )
+
+        fs.readFile(file_path, 'utf8', function (err, data) {
+            if (err) {
+                res.status(400).send(err)
+            }
             res.status(200).send(data)
         })
     }

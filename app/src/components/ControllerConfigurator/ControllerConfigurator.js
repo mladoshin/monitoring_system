@@ -1,22 +1,33 @@
-import { Grid, InputLabel, MenuItem, Paper, Select, TextField, Typography } from '@mui/material'
+import {
+    Button,
+    Grid,
+    InputLabel,
+    MenuItem,
+    Paper,
+    Select,
+    TextField,
+    Typography,
+} from '@mui/material'
+import { Box } from '@mui/system'
 import { useFormikContext } from 'formik'
 import React from 'react'
-import ErrorMessage from '../ErrorMessage';
+import ErrorMessage from '../ErrorMessage'
 
-function ControllerConfigurator() {
-    const formik = useFormikContext();
+function ControllerConfigurator({ onSave, profile, onSelect }) {
+    const formik = useFormikContext()
 
     return (
         <Paper sx={{ padding: '25px' }}>
-            <Typography variant='h5'>
-                Конфигурация контроллера
-            </Typography>
+            <Typography variant="h5">Конфигурация контроллера</Typography>
 
             <Grid container spacing={2}>
                 <Grid item>
                     <InputLabel>Тип ввода</InputLabel>
                     <Select
-                        error={formik.errors?.input_type && formik.touched?.input_type}
+                        error={
+                            formik.errors?.input_type &&
+                            formik.touched?.input_type
+                        }
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={formik.values.input_type}
@@ -25,15 +36,23 @@ function ControllerConfigurator() {
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                     >
-                        <MenuItem value="PseudoDifferential">PseudoDifferential</MenuItem>
+                        <MenuItem value="PseudoDifferential">
+                            PseudoDifferential
+                        </MenuItem>
                     </Select>
-                    <ErrorMessage error={formik.errors.input_type} touched={formik.touched.input_type} />
+                    <ErrorMessage
+                        error={formik.errors.input_type}
+                        touched={formik.touched.input_type}
+                    />
                 </Grid>
 
                 <Grid item>
                     <InputLabel>Триггер</InputLabel>
                     <Select
-                        error={formik.errors.trigger_source && formik.touched.trigger_source}
+                        error={
+                            formik.errors.trigger_source &&
+                            formik.touched.trigger_source
+                        }
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={formik.values.trigger_source}
@@ -53,15 +72,20 @@ function ControllerConfigurator() {
                         <MenuItem value="DIO1">DIO1</MenuItem>
                         <MenuItem value="DIO2">DIO2</MenuItem>
                         <MenuItem value="DIO3">DIO3</MenuItem>
-
                     </Select>
-                    <ErrorMessage error={formik.errors.trigger_source} touched={formik.touched.trigger_source} />
+                    <ErrorMessage
+                        error={formik.errors.trigger_source}
+                        touched={formik.touched.trigger_source}
+                    />
                 </Grid>
 
                 <Grid item>
                     <InputLabel>Интервал, мс</InputLabel>
                     <TextField
-                        error={formik.errors.repeat_interval && formik.touched.repeat_interval}
+                        error={
+                            formik.errors.repeat_interval &&
+                            formik.touched.repeat_interval
+                        }
                         id="repeat_interval"
                         placeholder="Интервал, мс"
                         variant="outlined"
@@ -71,13 +95,19 @@ function ControllerConfigurator() {
                         onBlur={formik.handleBlur}
                         value={formik.values.repeat_interval}
                     />
-                    <ErrorMessage error={formik.errors.repeat_interval} touched={formik.touched.repeat_interval} />
+                    <ErrorMessage
+                        error={formik.errors.repeat_interval}
+                        touched={formik.touched.repeat_interval}
+                    />
                 </Grid>
 
                 <Grid item>
                     <InputLabel>Количество итераций</InputLabel>
                     <TextField
-                        error={formik.errors.repeat_times && formik.touched.repeat_times}
+                        error={
+                            formik.errors.repeat_times &&
+                            formik.touched.repeat_times
+                        }
                         id="repeat_times"
                         placeholder="Количество итераций"
                         variant="outlined"
@@ -87,13 +117,19 @@ function ControllerConfigurator() {
                         onBlur={formik.handleBlur}
                         value={formik.values.repeat_times}
                     />
-                    <ErrorMessage error={formik.errors.repeat_times} touched={formik.touched.repeat_times} />
+                    <ErrorMessage
+                        error={formik.errors.repeat_times}
+                        touched={formik.touched.repeat_times}
+                    />
                 </Grid>
 
                 <Grid item>
                     <InputLabel>Частота обработки</InputLabel>
                     <TextField
-                        error={formik.errors.sample_rate && formik.touched.sample_rate}
+                        error={
+                            formik.errors.sample_rate &&
+                            formik.touched.sample_rate
+                        }
                         id="sample_rate"
                         placeholder="Частота обработки"
                         variant="outlined"
@@ -103,13 +139,19 @@ function ControllerConfigurator() {
                         onBlur={formik.handleBlur}
                         value={formik.values.sample_rate}
                     />
-                    <ErrorMessage error={formik.errors.sample_rate} touched={formik.touched.sample_rate} />
+                    <ErrorMessage
+                        error={formik.errors.sample_rate}
+                        touched={formik.touched.sample_rate}
+                    />
                 </Grid>
 
                 <Grid item>
                     <InputLabel>Число точек</InputLabel>
                     <TextField
-                        error={formik.errors.data_count && formik.touched.data_count}
+                        error={
+                            formik.errors.data_count &&
+                            formik.touched.data_count
+                        }
                         id="data_count"
                         placeholder="Число точек"
                         variant="outlined"
@@ -119,11 +161,36 @@ function ControllerConfigurator() {
                         onBlur={formik.handleBlur}
                         value={formik.values.data_count}
                     />
-                    <ErrorMessage error={formik.errors.data_count} touched={formik.touched.data_count} />
+                    <ErrorMessage
+                        error={formik.errors.data_count}
+                        touched={formik.touched.data_count}
+                    />
                 </Grid>
-
             </Grid>
 
+            <Box sx={{display: 'flex', alignItems: 'center', pt: "50px", gap: '1rem'}}>
+                <Button
+                    variant="outlined"
+                    size="large"
+                    onClick={onSave}
+                >
+                    Сохранить профиль
+                </Button>
+
+                <Button
+                    variant="outlined"
+                    size="large"
+                    onClick={onSelect}
+                >
+                    Сменить профиль
+                </Button>
+
+                {profile && (
+                    <span>
+                        <b>Текущий профиль:</b> {profile}
+                    </span>
+                )}
+            </Box>
         </Paper>
     )
 }
