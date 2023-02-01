@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import ReactApexChart from 'react-apexcharts'
 
 function Chart({ data }) {
-
     // useEffect(() => {
     //     ApexCharts.exec('chart2', 'updateSeries', [
     //         {
@@ -23,9 +22,25 @@ function Chart({ data }) {
                     id: 'chart2',
                     type: 'line',
                     height: 330,
+                    events: {
+                        mounted: function (chartContext, config) {
+                            console.log('Loaded')
+                        },
+                    },
                     toolbar: {
                         autoSelected: 'pan',
-                        show: false,
+                        show: true,
+                        tools: {
+                            download: true,
+                            selection: true,
+                            zoom: true,
+                            zoomin: true,
+                            zoomout: true,
+                            pan: true,
+                            reset:
+                                true |
+                                '<img src="/static/icons/reset.png" width="20">',
+                        },
                     },
                 },
                 colors: ['#009be5'],
@@ -44,6 +59,10 @@ function Chart({ data }) {
                 xaxis: {
                     type: 'numeric',
                 },
+                yaxis: {
+                    type: 'numeric',
+                    decimalsInFloat: 4,
+                },
             },
 
             seriesLine: [
@@ -56,6 +75,11 @@ function Chart({ data }) {
                     id: 'chart1',
                     height: 130,
                     type: 'area',
+                    events: {
+                        mounted: function (chartContext, config) {
+                            console.log('Loaded brush')
+                        },
+                    },
                     brush: {
                         target: 'chart2',
                         enabled: true,
@@ -81,6 +105,7 @@ function Chart({ data }) {
                 },
                 yaxis: {
                     tickAmount: 2,
+                    decimalsInFloat: 3,
                 },
             },
         }

@@ -126,18 +126,21 @@ class AppServer {
     }
 
     removeUserProfile = async (req, res) => {
-        const { profile_name } = req.body
+        const { profile_name } = req.query
 
         fs.rm(
             path.join(__dirname, `/user_profiles/${profile_name}`),
             { force: true },
             (err) => {
-                if (err) console.log(err.message)
-                res.status(400).send(err)
+                if (err) {
+                    res.status(400).send(err)
+                    return
+                }
+                
+                res.status(200).send(profile_name)
             }
         )
-
-        res.status(200).send(profile_name)
+        
     }
 
     startMission = async (req, res) => {

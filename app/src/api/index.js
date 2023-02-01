@@ -135,11 +135,11 @@ export async function addUserProfile({ profile_name, data }) {
     return res?.data
 }
 
-export async function removeUserProfile({ profile_name }) {
+export async function removeUserProfile(profile_name) {
     if (!profile_name) return
 
     const res = await axios
-        .get(`/api/user-profiles`, { params: { profile_name } })
+        .delete(`/api/user-profiles`, { params: { profile_name } })
         .catch((err) => console.log(err))
 
     return res?.data

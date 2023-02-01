@@ -23,10 +23,19 @@
         align-items: center;
         gap: 1rem;
         padding: 1rem 0rem;
+
+        input, button {
+            height: 40px;
+            box-sizing: border-box;
+        }
     }
 
     .profile-item{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         transition: all 250ms ease-in-out;
+        margin-bottom: 1rem;
         &:hover{
             background-color: #ccc;
         }

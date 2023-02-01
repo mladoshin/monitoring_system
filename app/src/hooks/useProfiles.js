@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { addUserProfile, getUserProfiles } from '../api'
+import { addUserProfile, getUserProfiles, removeUserProfile } from '../api'
 
 function useProfiles() {
     const [userProfiles, setUserProfiles] = useState([])
@@ -17,12 +17,24 @@ function useProfiles() {
     }, [])
 
     function addProfile({name, data} = {}){
-        addUserProfile({profile_name: name, data})
+        addUserProfile({profile_name: name, data}).then(res => {
+            console.log(name)
+            if(userProfiles.indexOf(name) === -1){
+                setUserProfiles(s => [...s, name])
+            }
+        })
     }
 
-    function removeProfile({name} = {}){
+    function removeProfile(name){
         if(!name) return;
-        removeProfile({name})
+        removeUserProfile(name).then(removed_name => {
+            const tmp = userProfiles.filter(el => el !== removed_name)
+            setUserProfiles(tmp)
+
+            if(selectedProfile === removed_name){
+                setSelectedProfile(null)
+            }
+        })
     }
 
     return {userProfiles, addProfile, removeProfile, selectedProfile, setSelectedProfile}

@@ -59,7 +59,7 @@ function getNextMission(dir, file) {
 
 export default function Content() {
     const [allFiles, setAllFiles] = useState({})
-    const { userProfiles, addProfile, selectedProfile, setSelectedProfile } =
+    const { userProfiles, addProfile, selectedProfile, setSelectedProfile, removeProfile } =
         useProfiles()
 
     const [modalOpen, setModalOpen] = useState(false)
@@ -161,22 +161,23 @@ export default function Content() {
                     }
                 })
         },
-    } 
+    }
 
-    //handle select the user profile 
+    //handle select the user profile
     function handleSelectProfile(name, values) {
         setSelectedProfile(name)
         addProfile({
             name,
             data: { ...values, channel_config: ChannelConfig.config },
         })
+        setModalOpen(false)
     }
 
     // fetch the user profile and update the ui
     async function handleFetchProfile(name, setValues) {
+        console.log(name)
         const res = await getUserProfiles({ profile_name: name })
-        console.log(res)
-        const {channel_config, ...rest} = res
+        const { channel_config, ...rest } = res
         setValues(rest)
         ChannelConfig.setConfig(channel_config)
     }
@@ -224,6 +225,7 @@ export default function Content() {
                             onSelect={(name) =>
                                 handleSelectProfile(name, props.values)
                             }
+                            onDelete={(name)=>removeProfile(name)}
                             selectedProfile={selectedProfile}
                         />
 
@@ -232,6 +234,7 @@ export default function Content() {
                             profiles={userProfiles}
                             open={selectOpen}
                             handleClose={() => setSelectOpen(false)}
+                            onDelete={(name)=>removeProfile(name)}
                             onSelect={(name) => {
                                 // handleSelectProfile(name, props.values)
                                 setSelectedProfile(name)

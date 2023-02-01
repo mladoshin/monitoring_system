@@ -5,6 +5,7 @@ import {
     CircularProgress,
     Divider,
     Grid,
+    IconButton,
     InputLabel,
     MenuItem,
     Paper,
@@ -104,7 +105,8 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
             const res = await fetchGRawdata(channel.Channel.Port?.slice(2))
             const data_arr = res.data
                 .split(',\n')
-                .map((el, idx) => ({ x: idx, y: +el * 300000 })).slice(0,16000)
+                .map((el, idx) => ({ x: idx, y: +el * 300000 }))
+                .slice(0, 16000)
             setRawdata(data_arr)
         }
     }, [channel])
@@ -115,16 +117,17 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
         }
     }, [open])
 
-    async function updateRawData(){
+    async function updateRawData() {
         const channel_id = channel.Channel.Port?.slice(2)
         calibrateChannel({
             standard_amplitude: 10,
             channel_id: channel_id,
-        }).then(async ()=>{
-            const data = await pollGRawData({channel_id})
+        }).then(async () => {
+            const data = await pollGRawData({ channel_id })
             const data_arr = data
                 .split(',\n')
-                .map((el, idx) => ({ x: idx, y: +el * 300000 })).slice(0,1000)
+                .map((el, idx) => ({ x: idx, y: +el * 300000 }))
+                .slice(0, 1000)
             setRawdata(data_arr)
         })
     }
@@ -472,12 +475,10 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                 <div className="graph-section">
                     <hr />
                     <h2>Спектр канала {channel?.Channel?.Port}</h2>
-                    <Button
-                        variant="contained"
-                        onClick={updateRawData}
-                    >
+                    <Button variant="contained" onClick={updateRawData}>
                         Обновить
                     </Button>
+
                     {rawdata.length > 0 && (
                         <div>
                             <Chart data={rawdata} />

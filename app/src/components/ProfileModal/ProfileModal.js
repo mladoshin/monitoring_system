@@ -1,12 +1,20 @@
-import { Button, Modal, Paper, TextField } from '@mui/material'
+import { Button, IconButton, Modal, Paper, TextField } from '@mui/material'
 import { Box } from '@mui/system'
 import React, { useState } from 'react'
 import './ProfileModal.scss'
+import DeleteIcon from '@mui/icons-material/Delete'
+
+function isNameValid(name, profiles){
+    if(profiles.indexOf(`${name}.json`) === -1 && name) return true
+
+    return false
+}
 
 function ProfileModal({
     open = true,
     profiles = [],
     onSelect,
+    onDelete,
     handleClose,
     select = false,
 }) {
@@ -41,6 +49,7 @@ function ProfileModal({
                                 onSelect(`${name}.json`)
                                 handleClose()
                             }}
+                            disabled={!isNameValid(name, profiles)}
                         >
                             Создать
                         </Button>
@@ -48,17 +57,36 @@ function ProfileModal({
                 )}
                 <div>
                     {profiles.map((p) => (
-                        <Paper
-                            onClick={() => onSelect(p)}
-                            sx={{ py: 2, px: 2 }}
-                            className="profile-item"
-                        >
-                            <b>{p}</b>
-                        </Paper>
+                        <ProfileItem
+                            profile={p}
+                            onDelete={() => onDelete(p)}
+                            onSelect={() => onSelect(p)}
+                        />
                     ))}
                 </div>
             </Box>
         </Modal>
+    )
+}
+
+function ProfileItem({ profile, onSelect, onDelete }) {
+    return (
+        <Paper
+            onClick={onSelect}
+            sx={{ py: 2, px: 2 }}
+            className="profile-item"
+        >
+            <b>{profile.replace('.json', '')}</b>
+            <IconButton
+                aria-label="delete"
+                onClick={(e) => {
+                    e.stopPropagation()
+                    onDelete()
+                }}
+            >
+                <DeleteIcon sx={{ color: 'crimson' }} />
+            </IconButton>
+        </Paper>
     )
 }
 
