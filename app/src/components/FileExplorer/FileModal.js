@@ -4,23 +4,8 @@ import React, { useEffect, useState } from 'react'
 import './FileModal.scss'
 import ParameterChart from './ParameterChart'
 import ReactJson from 'react-json-view'
-import { MIC_ENUM, SCADA_ENUM, MODE } from '../../../../enums'
-
-const axis_generator = function* (num, str) {
-    for (let i = 1; i <= num; i++) {
-        yield `${str}${i}`
-    }
-}
-
-const jsonGenerator = (params, mode) => {
-    const res = {}
-    if (mode === MODE.TESTING) {
-        params.forEach((p, i) => (res[MIC_ENUM[i + 24]] = p))
-    } else if (mode === MODE.MONITORING) {
-        params.forEach((p, i) => (res[SCADA_ENUM[i + 46]] = p))
-    }
-    return res
-}
+import { MODE } from '../../../../enums'
+import { _axisGenerator, _jsonGenerator } from '../../../../utils/utils'
 
 function FileModal({ open, handleClose, data = {}, fileName = '' }) {
     const [rawdata, setRawdata] = useState({})
@@ -44,11 +29,11 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
             // TESING mode
             const axis = []
 
-            for (const el of axis_generator(8, 'M')) {
+            for (const el of _axisGenerator(8, 'M')) {
                 axis.push(el)
             }
 
-            const json = jsonGenerator(
+            const json = _jsonGenerator(
                 data?.split(', ').slice(25, 33),
                 MODE.TESTING
             )
@@ -64,13 +49,13 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
 
             const axis = []
 
-            for (const el of axis_generator(16, 'A')) {
+            for (const el of _axisGenerator(16, 'A')) {
                 axis.push(el)
             }
 
             setChartData({ xaxis: axis, data: data?.split(', ').slice(47, 63) })
 
-            const json = jsonGenerator(
+            const json = _jsonGenerator(
                 data?.split(', ').slice(47, 63),
                 MODE.MONITORING
             )
