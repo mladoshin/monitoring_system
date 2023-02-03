@@ -1,3 +1,5 @@
+import { MIC_ENUM, MODE, SCADA_ENUM } from "../enums.js"
+
 function avg(arr) {
     let sum = 0
     let count = 0
@@ -49,4 +51,26 @@ function RmsAvg(arr) {
     return {rms, avg}
 }
 
-export { avg, rms, RmsAvg }
+function _transformToStatData(str){
+    const arr = str.split(', ').filter(el => el !== '')
+    console.log(arr)
+    return arr
+}
+
+const _axisGenerator = function* (num, str) {
+    for (let i = 1; i <= num; i++) {
+        yield `${str}${i}`
+    }
+}
+
+const _jsonGenerator = (params, mode) => {
+    const res = {}
+    if (mode === MODE.TESTING) {
+        params.forEach((p, i) => (res[MIC_ENUM[i + 24]] = p))
+    } else if (mode === MODE.MONITORING) {
+        params.forEach((p, i) => (res[SCADA_ENUM[i + 46]] = p))
+    }
+    return res
+}
+
+export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator }

@@ -8,6 +8,7 @@ import {
     generateResult,
     connectController,
     getUserProfiles,
+    pollFile,
 } from '../api'
 import * as Yup from 'yup'
 import { toast } from 'react-toastify'
@@ -20,6 +21,7 @@ import ResultGeneratorWidget from './ResultGeneratorWidget/ResultGeneratorWidget
 import useConfigureMission from '../hooks/useConfigureMission'
 import useProfiles from '../hooks/useProfiles'
 import ProfileModal from './ProfileModal'
+import { _transformToStatData } from '../../../utils/utils'
 
 const MissionConfigSchema = Yup.object().shape({
     file_name: Yup.string()
@@ -64,6 +66,7 @@ export default function Content() {
 
     const [modalOpen, setModalOpen] = useState(false)
     const [selectOpen, setSelectOpen] = useState(false)
+    const [paramsData, setParamsData] = useState([])
 
     const toastId = React.useRef(null)
 
@@ -134,6 +137,16 @@ export default function Content() {
                         // Auto increment file_name
                         actions.setFieldValue('file_name', new_file)
                         actions.setFieldValue('directory_name', new_dir)
+
+                        //poll the csv file from server
+
+                        pollFile({path: `${values.directory_name}/${values.file_name}/${values.file_name}.csv`}).then(
+                            res => {
+                                const data = res.split('\n').filter(ch => ch !== '')
+                                setParamsData(data.map(_transformToStatData))
+                            }
+                        ).catch(err => console.log(err))
+
                     }, (values.data_count / values.sample_rate) * 1000 + 3500)
                 })
                 .catch((err) => {
@@ -202,6 +215,7 @@ export default function Content() {
 
                         <MissionConfiguratorWidget
                             ChannelConfig={ChannelConfig}
+                            paramsData={paramsData}
                         />
 
                         <MissionModeConfig />
