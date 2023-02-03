@@ -173,8 +173,9 @@ const drawerWidth = 256;
 export default function Paperbase({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageHeading, setPageHeading] = useState("")
+  const location = useLocation();
+  console.log(location)
 
-  let location = useLocation();
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const handleDrawerToggle = () => {
@@ -205,6 +206,7 @@ export default function Paperbase({ children }) {
           <Navigator
             PaperProps={{ style: { width: drawerWidth } }}
             sx={{ display: { sm: 'block', xs: 'none' } }}
+            location={location}
           />
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

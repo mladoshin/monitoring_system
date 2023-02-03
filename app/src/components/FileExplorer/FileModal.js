@@ -21,7 +21,8 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
 
         if (fileName.endsWith('.dat')) {
             // handle .dat files
-            setRawdata({ data: data.split(',') })
+            setRawdata({ data: data.split(',\n') })
+            return
         }
 
         //handle MIC file and SCADA file
@@ -63,6 +64,10 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
             setRawdata(json)
         }
     }, [open])
+
+    useEffect(()=>{
+        console.log(rawdata)
+    }, [rawdata])
 
     return (
         <Modal
