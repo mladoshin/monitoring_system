@@ -144,3 +144,38 @@ export async function removeUserProfile(profile_name) {
 
     return res?.data
 }
+
+export async function getFile(path) {
+    const res = await axios
+        .get(`/api/mic-file`, { params: { path } })
+        .catch((err) => console.log(err))
+
+    return res
+}
+
+export async function pollFile({ interval = 3000, path, timeout = 10000 }) {
+    let res = null
+    const counter = { value: 0 }
+
+    let poll = new Promise(async (resolve, reject) => {
+        setTimeout(() => tick(resolve, reject, counter), interval)
+    })
+
+    async function tick(resolve, reject, counter) {
+        if (counter.value >= timeout / interval) {
+            reject('timeout')
+            return
+        }
+
+        res = await getFile(path)
+        console.log(res)
+        if (res?.data && res.statusText=='OK') {
+            resolve(res.data)
+            return
+        }
+        counter.value += 1
+        setTimeout(() => tick(resolve, reject, counter), interval)
+    }
+
+    return poll
+}

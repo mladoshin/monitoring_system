@@ -33,6 +33,7 @@ class AppServer {
 
         this.app.get('/api/get-files', this.getAllFiles)
 
+        this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.getUserProfiles)
         this.app.get('/api/user-profile', this.getUserProfile)
         this.app.post('/api/user-profiles', this.addUserProfile)
@@ -59,6 +60,20 @@ class AppServer {
         this.test_id = 'test'
         this.mode = mode
         this.all_files = {}
+    }
+
+    getMICFile = async (req, res) => {
+        const {path: fpath} = req.query
+
+        const file_path = path.join(__dirname, `/data/${fpath}`)
+
+        fs.readFile(file_path, 'utf8', (err, data) => {
+            if (err) {
+                res.status(400).send(err)
+                return
+            }
+            res.status(200).send(data)
+        })
     }
 
     getUserProfiles = async (req, res) => {
@@ -93,7 +108,6 @@ class AppServer {
         res.status(200).send(files)
     }
     
-
     getUserProfile = async (req, res) => {
         const { profile_name = '' } = req.query
 

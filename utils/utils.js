@@ -49,4 +49,10 @@ function RmsAvg(arr) {
     return {rms, avg}
 }
 
-export { avg, rms, RmsAvg }
+function _transformToStatData(str){
+    const arr = str.split(', ').filter(el => el !== '')
+    console.log(arr)
+    return arr
+}
+
+export { avg, rms, RmsAvg, _transformToStatData }
