@@ -7,10 +7,9 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
 import Navigator from './Navigator';
-import Content from './Content';
 import Header from './Header';
 import { useLocation } from 'react-router';
-import { MENU } from '../contstants';
+import { MENU } from '../constants/config';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 

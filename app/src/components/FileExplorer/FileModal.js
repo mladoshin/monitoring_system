@@ -25,7 +25,7 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
         }
 
         //handle MIC file and SCADA file
-        if (data?.split(', ').length === 43) {
+        if (data?.split(', ')[1] == '8.1' || data?.split(', ')[1] == '8') {
             // TESING mode
             const axis = []
 
@@ -44,7 +44,7 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
             })
 
             setRawdata(json)
-        } else if (data?.split(', ').length === 80) {
+        } else {
             //MONIToring mode
 
             const axis = []

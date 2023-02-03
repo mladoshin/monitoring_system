@@ -53,7 +53,6 @@ function RmsAvg(arr) {
 
 function _transformToStatData(str){
     const arr = str.split(', ').filter(el => el !== '')
-    console.log(arr)
     return arr
 }
 

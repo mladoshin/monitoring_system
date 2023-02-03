@@ -1,0 +1,173 @@
+{
+  "input_type": "PseudoDifferential",
+  "trigger_source": "NoWait",
+  "repeat_interval": "5000",
+  "repeat_times": "1",
+  "sample_rate": 16000,
+  "data_count": 16000,
+  "file_name": 5,
+  "directory_name": 1,
+  "comment": "",
+  "channels": [],
+  "modal_open": false,
+  "current_channel": null,
+  "channel_config": [
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI0",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "Customization",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000",
+            "CustomParameter": "MIC-DFT"
+          }
+        },
+        {
+          "DataType": "OA_g(Peak)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(RMS)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI1",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(Peak)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(RMS)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI2",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(Peak)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(RMS)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI3",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(Peak)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        },
+        {
+          "DataType": "OA_g(RMS)",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    }
+  ]
+}

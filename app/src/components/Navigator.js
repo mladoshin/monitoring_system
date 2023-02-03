@@ -18,7 +18,7 @@ import TimerIcon from '@mui/icons-material/Timer';
 import SettingsIcon from '@mui/icons-material/Settings';
 import PhonelinkSetupIcon from '@mui/icons-material/PhonelinkSetup';
 import { Link } from 'react-router-dom';
-import { MENU } from '../contstants';
+import { MENU } from '../constants/config';
 
 const categories = [
   {

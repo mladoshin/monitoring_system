@@ -25,6 +25,7 @@ import {
 import './Modal.scss'
 import { toast } from 'react-toastify'
 import Chart from '../Chart'
+import { CONVERSION_TYPES } from '../../constants/config'
 
 const defaultConversion = {
     DataType: 'G',
@@ -56,10 +57,9 @@ function ConversionCard({ idx, handleRemoveConversion }) {
                 onBlur={formik.handleBlur}
                 className="select"
             >
-                <MenuItem value="RawData">RawData</MenuItem>
-                <MenuItem value="Voltage">Voltage</MenuItem>
-                <MenuItem value="G">G</MenuItem>
-                <MenuItem value="Customization">Customization</MenuItem>
+                {CONVERSION_TYPES.map(type => (
+                    <MenuItem key={type} value={type}>{type}</MenuItem>
+                ))}
             </Select>
 
             {isCustom && (

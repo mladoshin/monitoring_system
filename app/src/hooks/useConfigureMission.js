@@ -25,6 +25,22 @@ for (let i = 0; i < process.env.NUM_CHANNELS; i++) {
                         FreqStart: "10",
                         FreqEnd: "10000"
                     }
+                },
+                {
+                    DataType: "OA_g(Peak)",
+                    Algorithm: {
+                        WindowType: "Hann",
+                        FreqStart: "10",
+                        FreqEnd: "10000"
+                    }
+                },
+                {
+                    DataType: "OA_g(RMS)",
+                    Algorithm: {
+                        WindowType: "Hann",
+                        FreqStart: "10",
+                        FreqEnd: "10000"
+                    }
                 }
             ]
         }
