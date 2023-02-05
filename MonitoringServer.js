@@ -155,9 +155,14 @@ export default class MonitoringServer {
       if (data_obj === "G") {
         this.AS.saveBinaryFile(data["G"].join(",\n"), channel.slice(2));
       } else if (data_obj === "Customization") {
-        this.AS.saveParamFile(data["Customization"]);
+        const peak = Array.isArray(data["OA_g(Peak)"]) ? data["OA_g(Peak)"][0] : undefined;
+        const rms = Array.isArray(data["OA_g(RMS)"]) ? data["OA_g(RMS)"][0] : undefined;
+        const params = {...data["Customization"]}
+
+        this.AS.saveParamFile(params);
+        
         this.AS.saveMICFile(
-          [channel.slice(2), ...data["Customization"]].join(", ")
+          [channel.slice(2), ...data["Customization"], peak, rms].join(", ")
         );
       }
     }

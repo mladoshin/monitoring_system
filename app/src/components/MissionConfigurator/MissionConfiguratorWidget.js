@@ -1,39 +1,78 @@
-import { Checkbox, Divider, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper } from '@mui/material'
-import { useFormikContext } from 'formik';
-import React from 'react'
-import useConfigureMission from '../../hooks/useConfigureMission';
-import Modal from '../Modal/Modal';
+import {
+    Checkbox,
+    Divider,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Paper,
+} from '@mui/material'
+import { useFormikContext } from 'formik'
+import React, { useEffect } from 'react'
+import useConfigureMission from '../../hooks/useConfigureMission'
+import Modal from '../Modal/Modal'
 
 function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
-    const { config, enableChannel, modalOpen, handleOpenModal, handleCloseModal, currentChannel, saveChannel } = ChannelConfig
+    const {
+        config,
+        enableChannel,
+        modalOpen,
+        handleOpenModal,
+        handleCloseModal,
+        currentChannel,
+        saveChannel,
+    } = ChannelConfig
 
-    console.log(paramsData)
     return (
-        <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px", width: '100%' }}>
-            <List
-                sx={{ width: '100%', bgcolor: 'background.paper' }}
-            >
-                <div style={{ display: 'flex', padding: '8px 16px', fontWeight: 600 }}>
+        <Paper
+            sx={{
+                padding: '25px',
+                marginTop: '50px',
+                marginBottom: '50px',
+                width: '100%',
+            }}
+        >
+            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        padding: '8px 16px',
+                        fontWeight: 600,
+                    }}
+                >
                     <div style={{ width: 100, marginRight: 16 }}>
                         <span>Включить</span>
                     </div>
                     <div style={{ flexGrow: 1 }}>
                         <span>Имя канала</span>
                     </div>
-
+                    <div style={{ width: 150 }}>
+                        <span>Peak</span>
+                    </div>
+                    <div style={{ width: 150 }}>
+                        <span>RMS</span>
+                    </div>
                     <div style={{ width: 250 }}>
                         <span>Типы данных</span>
                     </div>
                 </div>
-                {config.map((value) => {
+                {config.map((value, idx) => {
+                    let peak='', rms=''
+                    try {
+                        peak = paramsData[idx][43] || ''
+                        rms = paramsData[idx][44] || ''
+                    } catch (err) {}
 
+                    console.log('peak = ', peak)
+                    console.log('rms = ', rms)
                     return (
                         <div key={value.Channel.Port}>
-                            <ListItem
-                                disablePadding
-                            >
+                            <ListItem disablePadding>
                                 <ListItemButton
-                                    onClick={() => handleOpenModal(value.Channel.Port)}
+                                    onClick={() =>
+                                        handleOpenModal(value.Channel.Port)
+                                    }
                                     sx={{ display: 'flex' }}
                                 >
                                     <ListItemIcon sx={{ width: '100px' }}>
@@ -44,18 +83,31 @@ function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
                                             checked={value.enabled}
                                             onClick={(e) => {
                                                 e.stopPropagation()
-                                                enableChannel(value.Channel.Port, e.target.checked)
+                                                enableChannel(
+                                                    value.Channel.Port,
+                                                    e.target.checked
+                                                )
                                             }}
                                         />
                                     </ListItemIcon>
-                                    <ListItemText primary={value.Channel.Port} sx={{ flexGrow: 1 }} />
+                                    <ListItemText
+                                        primary={value.Channel.Port}
+                                        sx={{ flexGrow: 1 }}
+                                    />
+
+                                    <div style={{ width: 150, fontSize: 14 }}>
+                                        {peak && <span>{parseFloat(peak).toExponential(4)}</span>}
+                                    </div>
+                                    <div style={{ width: 150, fontSize: 14 }}>
+                                        {rms && <span>{parseFloat(rms).toExponential(4)}</span>}
+                                    </div>
 
                                     <DataTypeList types={value.Conversion} />
                                 </ListItemButton>
                             </ListItem>
                             <Divider />
                         </div>
-                    );
+                    )
                 })}
             </List>
 
@@ -72,15 +124,21 @@ function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
 
 function DataTypeList({ types = [] }) {
     return (
-        <div style={{ display: 'flex', gap: 10, width: 250 }}>
-            {[...types].sort((a, b) => a?.DataType > b?.DataType ? 1 : -1)?.map((type, idx) => (
-                <span
-                    key={idx}
-                    style={{ border: '1px solid #757575', padding: '2px 6px', borderRadius: 5 }}
-                >
-                    {type.DataType}
-                </span>
-            ))}
+        <div style={{ display: 'flex', gap: 10, width: 250, flexWrap: 'wrap' }}>
+            {[...types]
+                .sort((a, b) => (a?.DataType > b?.DataType ? 1 : -1))
+                ?.map((type, idx) => (
+                    <span
+                        key={idx}
+                        style={{
+                            border: '1px solid #757575',
+                            padding: '2px 6px',
+                            borderRadius: 5,
+                        }}
+                    >
+                        {type.DataType}
+                    </span>
+                ))}
         </div>
     )
 }

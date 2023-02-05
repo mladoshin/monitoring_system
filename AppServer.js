@@ -725,6 +725,8 @@ class AppServer {
 
         res.status(200).send(response.data)
     }
+
+    save
 }
 
 export default AppServer

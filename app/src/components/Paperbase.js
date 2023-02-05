@@ -7,10 +7,9 @@ import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 
 import Navigator from './Navigator';
-import Content from './Content';
 import Header from './Header';
 import { useLocation } from 'react-router';
-import { MENU } from '../contstants';
+import { MENU } from '../constants/config';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -174,8 +173,9 @@ const drawerWidth = 256;
 export default function Paperbase({ children }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageHeading, setPageHeading] = useState("")
+  const location = useLocation();
+  console.log(location)
 
-  let location = useLocation();
   const isSmUp = useMediaQuery(theme.breakpoints.up('sm'));
 
   const handleDrawerToggle = () => {
@@ -206,6 +206,7 @@ export default function Paperbase({ children }) {
           <Navigator
             PaperProps={{ style: { width: drawerWidth } }}
             sx={{ display: { sm: 'block', xs: 'none' } }}
+            location={location}
           />
         </Box>
         <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
