@@ -6,11 +6,14 @@ import ParameterChart from './ParameterChart'
 import ReactJson from 'react-json-view'
 import { MODE } from '../../../../enums'
 import { _axisGenerator, _jsonGenerator } from '../../../../utils/utils'
+import { transformGRawData } from '../../utils/utils'
+import Chart from '../Chart'
 
 function FileModal({ open, handleClose, data = {}, fileName = '' }) {
     const [rawdata, setRawdata] = useState({})
     const [chartData, setChartData] = useState({ xaxis: [], data: [] })
     const isMIC = fileName.endsWith('.csv')
+    const isDAT = fileName.endsWith('.dat')
 
     useEffect(() => {
         if (typeof data === 'object') {
@@ -19,9 +22,10 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
 
         if (!open || typeof data === 'object') return
 
-        if (fileName.endsWith('.dat')) {
+        if (isDAT) {
             // handle .dat files
-            setRawdata({ data: data.split(',\n') })
+            setRawdata(transformGRawData(data))
+            // console.log(transformGRawData(data))
             return
         }
 
@@ -65,9 +69,7 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
         }
     }, [open])
 
-    useEffect(()=>{
-        console.log(rawdata)
-    }, [rawdata])
+    console.log(rawdata)
 
     return (
         <Modal
@@ -85,9 +87,9 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
                     </Button>
                 </div>
                 <div className="main">
-                    <div className="raw-file">
+                    {!isDAT && <div className="raw-file">
                         <ReactJson src={rawdata} />
-                    </div>
+                    </div>}
 
                     {isMIC && (
                         <ParameterChart
@@ -95,6 +97,11 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
                             xaxis={chartData.xaxis}
                         />
                     )}
+
+                    {isDAT && rawdata?.length > 0 && (
+                        <Chart data={rawdata}/>
+                    )}
+
                 </div>
             </Box>
         </Modal>
