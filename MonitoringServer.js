@@ -4,7 +4,7 @@ import axios from "axios";
 import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
-import { RmsAvg } from "./utils/utils.js";
+import { G_DataInfo, RmsAvg } from "./utils/utils.js";
 import { CALIBRATION_CONFIG } from "./config.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,6 +21,7 @@ export default class MonitoringServer {
     this.connection_active = false;
     this.counter = 0;
     this.buffer = Buffer.alloc(1e6);
+    this.tmp = []
     this.AS = AppServer;
   }
 
@@ -154,7 +155,16 @@ export default class MonitoringServer {
 
     for (const data_obj in data) {
       if (data_obj === "G") {
-        this.AS.saveBinaryFile(data["G"].join(",\n"), channel.slice(2));
+        //convert G to m/s^2
+        const transformed_g_data = data["G"].map(el => el*10)
+
+        //and write to file .dat
+        this.AS.saveBinaryFile(transformed_g_data.join(",\n"), channel.slice(2));
+
+        // write signal info into separate file
+        const metrics = G_DataInfo(transformed_g_data)
+        this.tmp.push({channel: channel.slice(2), ...metrics})
+
       } else if (data_obj === "Customization") {
         const peak = Array.isArray(data["OA_g(Peak)"]) ? data["OA_g(Peak)"][0] : undefined;
         const rms = Array.isArray(data["OA_g(RMS)"]) ? data["OA_g(RMS)"][0] : undefined;
@@ -173,12 +183,16 @@ export default class MonitoringServer {
     const data_obj = JSON.parse(data_string);
     console.log(typeof data_obj);
 
+    this.tmp = []
     for (const key in data_obj) {
       if (key === "Date") continue;
 
       //console.log(data_obj[key])
       this.processChannelData(key, data_obj[key]);
     }
+    console.log("this.tmp")
+    console.log(this.tmp)
+    this.AS.saveMetrics(this.tmp)
   };
 
   processMonitoringData(data_string) {

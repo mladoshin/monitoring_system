@@ -72,4 +72,27 @@ const _jsonGenerator = (params, mode) => {
     return res
 }
 
-export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator }
+const G_DataInfo = (arr) => {
+    let rms = null
+    let avg = null
+    let max = arr[0]
+
+    let sum_avg = 0
+    let sum_rms = 0
+    let count = 0
+    for (let num of arr) {
+        sum_avg += num
+        sum_rms += num ** 2
+        count++
+        if(num > max) max = num;
+    }
+
+    if (count !== 0) {
+        rms = (sum_rms / count)**0.5
+        avg = sum_avg / count
+    }
+
+    return {rms, avg, peak: max}
+}
+
+export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator, G_DataInfo }

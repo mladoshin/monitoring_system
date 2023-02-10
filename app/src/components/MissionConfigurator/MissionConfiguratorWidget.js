@@ -13,7 +13,11 @@ import React, { useEffect } from 'react'
 import useConfigureMission from '../../hooks/useConfigureMission'
 import Modal from '../Modal/Modal'
 
-function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
+function MissionConfiguratorWidget({
+    ChannelConfig,
+    paramsData,
+    metrics = {},
+}) {
     const {
         config,
         enableChannel,
@@ -58,14 +62,9 @@ function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
                     </div>
                 </div>
                 {config.map((value, idx) => {
-                    let peak='', rms=''
-                    try {
-                        peak = paramsData[idx][43] || ''
-                        rms = paramsData[idx][44] || ''
-                    } catch (err) {}
+                    const peak = metrics[idx]?.peak || null
+                    const rms = metrics[idx]?.rms || null
 
-                    console.log('peak = ', peak)
-                    console.log('rms = ', rms)
                     return (
                         <div key={value.Channel.Port}>
                             <ListItem disablePadding>
@@ -96,10 +95,22 @@ function MissionConfiguratorWidget({ ChannelConfig, paramsData }) {
                                     />
 
                                     <div style={{ width: 150, fontSize: 14 }}>
-                                        {peak && <span>{parseFloat(peak).toExponential(4)}</span>}
+                                        {peak && (
+                                            <span>
+                                                {parseFloat(peak).toFixed(
+                                                    4
+                                                )}
+                                            </span>
+                                        )}
                                     </div>
                                     <div style={{ width: 150, fontSize: 14 }}>
-                                        {rms && <span>{parseFloat(rms).toExponential(4)}</span>}
+                                        {rms && (
+                                            <span>
+                                                {parseFloat(rms).toFixed(
+                                                    4
+                                                )}
+                                            </span>
+                                        )}
                                     </div>
 
                                     <DataTypeList types={value.Conversion} />

@@ -22,6 +22,7 @@ import useConfigureMission from '../hooks/useConfigureMission'
 import useProfiles from '../hooks/useProfiles'
 import ProfileModal from './ProfileModal'
 import { _transformToStatData } from '../../../utils/utils'
+import { transformMetrics } from '../utils/utils'
 
 const MissionConfigSchema = Yup.object().shape({
     file_name: Yup.string()
@@ -67,6 +68,7 @@ export default function Content() {
     const [modalOpen, setModalOpen] = useState(false)
     const [selectOpen, setSelectOpen] = useState(false)
     const [paramsData, setParamsData] = useState([])
+    const [metricsData, setMetricsData] = useState({})
 
     const toastId = React.useRef(null)
 
@@ -140,10 +142,11 @@ export default function Content() {
 
                         //poll the csv file from server
 
-                        pollFile({path: `${values.directory_name}/${values.file_name}/${values.file_name}.csv`}).then(
+                        pollFile({path: `${values.directory_name}/${values.file_name}/metrics.json`}).then(
                             res => {
-                                const data = res.split('\n').filter(ch => ch !== '')
-                                setParamsData(data.map(_transformToStatData))
+                                console.log(transformMetrics(res))
+                                // setParamsData(data.map(_transformToStatData))
+                                setMetricsData(transformMetrics(res))
                             }
                         ).catch(err => console.log(err))
 
@@ -216,6 +219,7 @@ export default function Content() {
                         <MissionConfiguratorWidget
                             ChannelConfig={ChannelConfig}
                             paramsData={paramsData}
+                            metrics={metricsData}
                         />
 
                         <MissionModeConfig />
