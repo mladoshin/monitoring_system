@@ -116,6 +116,14 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
         onSubmit: (values) => {
             console.log(values)
             saveChannel(channel.Channel.Port, values)
+
+            toast(`Конфигурация порта ${channel.Channel.Port} сохранена`, {
+                position: 'bottom-right',
+                type: 'success',
+                autoClose: 3000,
+                hideProgressBar: true,
+            })
+            onClose()
         },
     }
 
