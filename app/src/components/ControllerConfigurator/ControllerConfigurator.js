@@ -22,7 +22,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
 
             <Grid container spacing={2}>
                 <Grid item>
-                    <InputLabel>Тип ввода</InputLabel>
+                    <InputLabel>Тип сигнала</InputLabel>
                     <Select
                         error={
                             formik.errors?.input_type &&
@@ -80,7 +80,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
 
                 <Grid item>
-                    <InputLabel>Интервал, мс</InputLabel>
+                    <InputLabel>Период записи, мс</InputLabel>
                     <TextField
                         error={
                             formik.errors.repeat_interval &&
@@ -102,7 +102,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
 
                 <Grid item>
-                    <InputLabel>Количество итераций</InputLabel>
+                    <InputLabel>Количество периодов</InputLabel>
                     <TextField
                         error={
                             formik.errors.repeat_times &&
@@ -124,7 +124,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
 
                 <Grid item>
-                    <InputLabel>Частота обработки</InputLabel>
+                    <InputLabel>Частота дискретизации</InputLabel>
                     <TextField
                         error={
                             formik.errors.sample_rate &&
@@ -174,7 +174,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                     size="large"
                     onClick={onSave}
                 >
-                    Сохранить профиль
+                    Сохранить конфигурацию
                 </Button>
 
                 <Button
@@ -182,12 +182,12 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                     size="large"
                     onClick={onSelect}
                 >
-                    Сменить профиль
+                    Сменить конфигурацию
                 </Button>
 
                 {profile && (
                     <span>
-                        <b>Текущий профиль:</b> {profile}
+                        <b>Текущая конфигурация:</b> {profile}
                     </span>
                 )}
             </Box>

@@ -284,7 +284,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                         </Grid>
 
                                         <Grid item>
-                                            <InputLabel>Input range</InputLabel>
+                                            <InputLabel>Входной диапазон</InputLabel>
                                             <Select
                                                 error={
                                                     props?.errors?.InputRange &&
@@ -315,7 +315,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                         py="10px"
                                     >
                                         <Grid item>
-                                            <InputLabel>Sensor type</InputLabel>
+                                            <InputLabel>Тип сенсора</InputLabel>
                                             <Select
                                                 value={props.values.Sensor.Type}
                                                 placeholder="Sensor Type"
@@ -331,7 +331,7 @@ function Modal({ open = false, onClose, channel, saveChannel }) {
                                         </Grid>
 
                                         <Grid item>
-                                            <InputLabel>Sensitivity</InputLabel>
+                                            <InputLabel>Чувствительность, mV/g</InputLabel>
                                             <TextField
                                                 value={
                                                     props.values.Sensor
