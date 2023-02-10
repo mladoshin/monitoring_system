@@ -16,12 +16,12 @@ const CALIBRATION_CONFIG = {
         Port: `AI0`,
         Sensor: {
           Type: "Accelerometer",
-          Sensitivity: "1000",
+          Sensitivity: "300",
         },
       },
       Coupling: "AC",
       InputRange: "B10",
-      IEPE: "Disable",
+      IEPE: "Enable",
       Conversion: [
         {
           DataType: "G",
