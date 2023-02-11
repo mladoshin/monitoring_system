@@ -154,7 +154,7 @@ export default function Content() {
                         //poll the csv file from server
 
                         pollFile({
-                            timeout: 20000,
+                            timeout: 120*1000,
                             path: `${values.directory_name}/${values.file_name}/metrics.json`,
                         })
                             .then((res) => {
