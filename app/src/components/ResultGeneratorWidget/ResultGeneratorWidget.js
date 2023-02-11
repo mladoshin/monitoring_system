@@ -52,10 +52,11 @@ function ResultGeneratorWidget({ generateResult }) {
 
     return (
         <Paper sx={{ padding: '25px', marginTop: "50px", marginBottom: "50px" }}>
+            <h2>Обработка MIC</h2>
             <form onSubmit={formik.handleSubmit}>
                 <Grid container alignItems="start" columnSpacing={4}>
                     <Grid item xs={6}>
-                        <InputLabel>Номер режима испытания (имя папки)</InputLabel>
+                        <InputLabel>Номер испытания</InputLabel>
                         <TextField
                             id="mode"
                             placeholder="Имя папки"

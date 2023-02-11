@@ -101,7 +101,7 @@ export default function Content() {
             repeat_times: '1',
             sample_rate: 16000,
             data_count: 16000,
-            record_duration: 2000,
+            record_duration: 1,
             file_name: '',
             directory_name: '',
             comment: '',
@@ -235,11 +235,11 @@ export default function Content() {
 
                         <MissionModeConfig />
 
-                        <Box sx={{ display: 'flex', width: '100%' }}>
+                        <Box sx={{ display: 'flex', width: '100%', marginBottom: '3rem', marginTop: '1rem' }}>
                             <Button
                                 variant="contained"
                                 size="large"
-                                sx={{ marginTop: '50px', marginLeft: 'auto' }}
+                                sx={{ marginLeft: 'auto' }}
                                 type="submit"
                                 disabled={props.isSubmitting}
                             >
@@ -276,7 +276,6 @@ export default function Content() {
                 )}
             </Formik>
 
-            <ResultGeneratorWidget generateResult={generateResult} />
             <FileExplorer allFiles={allFiles} refresh={fetchFiles} />
         </Box>
     )

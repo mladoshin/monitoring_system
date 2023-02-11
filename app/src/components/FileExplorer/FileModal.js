@@ -69,7 +69,6 @@ function FileModal({ open, handleClose, data = {}, fileName = '' }) {
         }
     }, [open])
 
-    console.log(rawdata)
 
     return (
         <Modal
