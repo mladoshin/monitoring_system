@@ -726,7 +726,22 @@ class AppServer {
         res.status(200).send(response.data)
     }
 
-    save
+    saveMetrics = (metrics) => {
+        const json = JSON.stringify(metrics, null, 2)
+
+        // write parameters json to test folder
+        const file = fs.createWriteStream(
+            path.join(
+                __dirname,
+                `/data/${this.test_mode}/${this.test_id}/metrics.json`
+            )
+        )
+        file.on('error', function (err) {
+            /* error handling */
+        })
+        file.write(json)
+        file.end()
+    }
 }
 
 export default AppServer

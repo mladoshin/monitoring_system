@@ -22,6 +22,7 @@ import useConfigureMission from '../hooks/useConfigureMission'
 import useProfiles from '../hooks/useProfiles'
 import ProfileModal from './ProfileModal'
 import { _transformToStatData } from '../../../utils/utils'
+import { transformMetrics } from '../utils/utils'
 
 const MissionConfigSchema = Yup.object().shape({
     file_name: Yup.string()
@@ -29,6 +30,10 @@ const MissionConfigSchema = Yup.object().shape({
         .required('Обязательное поле'),
     directory_name: Yup.string()
         .max(50, 'Слишком длинное')
+        .required('Обязательное поле'),
+    record_duration: Yup.number()
+        .min(0, 'От 0 до 100c')
+        .max(100000, 'От 0 до 100c')
         .required('Обязательное поле'),
     data_count: Yup.number()
         .min(0, 'От 0 до 128000')
@@ -61,12 +66,18 @@ function getNextMission(dir, file) {
 
 export default function Content() {
     const [allFiles, setAllFiles] = useState({})
-    const { userProfiles, addProfile, selectedProfile, setSelectedProfile, removeProfile } =
-        useProfiles()
+    const {
+        userProfiles,
+        addProfile,
+        selectedProfile,
+        setSelectedProfile,
+        removeProfile,
+    } = useProfiles()
 
     const [modalOpen, setModalOpen] = useState(false)
     const [selectOpen, setSelectOpen] = useState(false)
     const [paramsData, setParamsData] = useState([])
+    const [metricsData, setMetricsData] = useState({})
 
     const toastId = React.useRef(null)
 
@@ -90,6 +101,7 @@ export default function Content() {
             repeat_times: '1',
             sample_rate: 16000,
             data_count: 16000,
+            record_duration: 2000,
             file_name: '',
             directory_name: '',
             comment: '',
@@ -140,13 +152,15 @@ export default function Content() {
 
                         //poll the csv file from server
 
-                        pollFile({path: `${values.directory_name}/${values.file_name}/${values.file_name}.csv`}).then(
-                            res => {
-                                const data = res.split('\n').filter(ch => ch !== '')
-                                setParamsData(data.map(_transformToStatData))
-                            }
-                        ).catch(err => console.log(err))
-
+                        pollFile({
+                            path: `${values.directory_name}/${values.file_name}/metrics.json`,
+                        })
+                            .then((res) => {
+                                console.log(transformMetrics(res))
+                                // setParamsData(data.map(_transformToStatData))
+                                setMetricsData(transformMetrics(res))
+                            })
+                            .catch((err) => console.log(err))
                     }, (values.data_count / values.sample_rate) * 1000 + 3500)
                 })
                 .catch((err) => {
@@ -216,6 +230,7 @@ export default function Content() {
                         <MissionConfiguratorWidget
                             ChannelConfig={ChannelConfig}
                             paramsData={paramsData}
+                            metrics={metricsData}
                         />
 
                         <MissionModeConfig />
@@ -239,7 +254,7 @@ export default function Content() {
                             onSelect={(name) =>
                                 handleSelectProfile(name, props.values)
                             }
-                            onDelete={(name)=>removeProfile(name)}
+                            onDelete={(name) => removeProfile(name)}
                             selectedProfile={selectedProfile}
                         />
 
@@ -248,7 +263,7 @@ export default function Content() {
                             profiles={userProfiles}
                             open={selectOpen}
                             handleClose={() => setSelectOpen(false)}
-                            onDelete={(name)=>removeProfile(name)}
+                            onDelete={(name) => removeProfile(name)}
                             onSelect={(name) => {
                                 // handleSelectProfile(name, props.values)
                                 setSelectedProfile(name)

@@ -5,4 +5,11 @@ function transformGRawData(data, limit = 1000) {
         .slice(0, limit)
 }
 
-export {transformGRawData}
+function transformMetrics(metrics_arr){
+    const obj = metrics_arr.reduce((cur, {channel, ...data}) =>   
+        cur = {...cur, [channel]: {...data}}, {})
+    return obj
+}
+
+
+export {transformGRawData, transformMetrics}

@@ -15,7 +15,7 @@ function MissionModeConfig() {
 
             <Grid container spacing={3} sx={{maxWidth: "600px"}}>
                 <Grid item xs={6}>
-                    <InputLabel>Режим испытания</InputLabel>
+                    <InputLabel>Номер испытания</InputLabel>
                     <TextField
                         error={formik.errors.directory_name && formik.touched.directory_name}
                         id="directory_name"
