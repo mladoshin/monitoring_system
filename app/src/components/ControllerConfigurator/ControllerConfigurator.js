@@ -18,26 +18,38 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
 
     const handleChangeDuration = (duration) => {
         const { sample_rate } = formik.values
+        if (duration < 0) return
 
         const data_count = duration * sample_rate
-        data_count > 0 && formik.setFieldValue('data_count', data_count)
+        formik.setFieldValue('data_count', data_count)
         formik.setFieldValue('record_duration', duration)
     }
 
     const handleChangeSampleRate = (sample_rate) => {
         const { record_duration } = formik.values
-
+ 
         const data_count = sample_rate * record_duration
-        data_count > 0 && formik.setFieldValue('data_count', data_count)
+        formik.setFieldValue('data_count', data_count)
         formik.setFieldValue('sample_rate', sample_rate)
     }
 
+    const constrainInput = (min, max) => {
+        return (e, handleChange) => {
+            const val = e.target.value
+            if(val < min || val > max) return;
+
+            handleChange(e)
+        }
+    }
+
+    const inputInterval = constrainInput(0, 600)
+    const inputRepeatTimes = constrainInput(0, 99999)
+    const inputSampleRate = constrainInput(0, 128000)
+    const inputDuration = constrainInput(0, 600)
+
     useEffect(() => {
         const { record_duration, sample_rate } = formik.values
-        formik.setFieldValue(
-            'data_count',
-            (sample_rate * record_duration)
-        )
+        formik.setFieldValue('data_count', sample_rate * record_duration)
     }, [])
 
     return (
@@ -104,7 +116,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
 
                 <Grid item>
-                    <InputLabel>Период записи, мс</InputLabel>
+                    <InputLabel>Период записи, с</InputLabel>
                     <TextField
                         error={
                             formik.errors.repeat_interval &&
@@ -115,7 +127,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="repeat_interval"
-                        onChange={formik.handleChange}
+                        onChange={(e) => inputInterval(e, formik.handleChange)}
                         onBlur={formik.handleBlur}
                         value={formik.values.repeat_interval}
                     />
@@ -137,7 +149,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="repeat_times"
-                        onChange={formik.handleChange}
+                        onChange={(e)=>inputRepeatTimes(e, formik.handleChange)}
                         onBlur={formik.handleBlur}
                         value={formik.values.repeat_times}
                     />
@@ -159,7 +171,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="sample_rate"
-                        onChange={(e) => handleChangeSampleRate(e.target.value)}
+                        onChange={(e) => inputSampleRate(e, e => handleChangeSampleRate(e.target.value))}
                         onBlur={formik.handleBlur}
                         value={formik.values.sample_rate}
                     />
@@ -181,7 +193,7 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="record_duration"
-                        onChange={(e) => handleChangeDuration(e.target.value)}
+                        onChange={(e) => inputDuration(e, e => handleChangeDuration(e.target.value))}
                         onBlur={formik.handleBlur}
                         value={formik.values.record_duration}
                     />

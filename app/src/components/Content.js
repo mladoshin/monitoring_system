@@ -22,7 +22,7 @@ import useConfigureMission from '../hooks/useConfigureMission'
 import useProfiles from '../hooks/useProfiles'
 import ProfileModal from './ProfileModal'
 import { _transformToStatData } from '../../../utils/utils'
-import { transformMetrics } from '../utils/utils'
+import { preventEnterKey, transformMetrics } from '../utils/utils'
 
 const MissionConfigSchema = Yup.object().shape({
     file_name: Yup.string()
@@ -32,12 +32,12 @@ const MissionConfigSchema = Yup.object().shape({
         .max(50, 'Слишком длинное')
         .required('Обязательное поле'),
     record_duration: Yup.number()
-        .min(0, 'От 0 до 100c')
-        .max(100000, 'От 0 до 100c')
+        .min(0, 'От 0 до 600c')
+        .max(600, 'От 0 до 600c')
         .required('Обязательное поле'),
     data_count: Yup.number()
         .min(0, 'От 0 до 128000')
-        .max(128000, 'От 0 до 128000')
+        .max(7680000, 'От 0 до 7680000')
         .required('Обязательное поле'),
     sample_rate: Yup.number()
         .min(0, 'От 0 до 128000')
@@ -97,7 +97,7 @@ export default function Content() {
         initialValues: {
             input_type: 'PseudoDifferential',
             trigger_source: 'NoWait',
-            repeat_interval: '5000',
+            repeat_interval: 5,
             repeat_times: '1',
             sample_rate: 16000,
             data_count: 16000,
@@ -121,6 +121,7 @@ export default function Content() {
             )
             await startMission({
                 ...values,
+                repeat_interval: values.repeat_interval * 1000,
                 channel_config: ChannelConfig.config,
             })
                 .then((res) => {
@@ -219,6 +220,16 @@ export default function Content() {
                             display: 'flex',
                             flexDirection: 'column',
                             alignItems: 'flex-end',
+                        }}
+                        onKeyDown={e => {
+                            if(e.keyCode === 13){
+                                e.preventDefault()
+                            }
+                        }}
+                        onKeyUp={e => {
+                            if(e.keyCode === 13){
+                                e.preventDefault()
+                            }
                         }}
                     >
                         <ControllerConfigurator
