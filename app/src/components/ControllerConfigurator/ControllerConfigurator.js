@@ -10,11 +10,33 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import { useFormikContext } from 'formik'
-import React from 'react'
+import React, { useEffect } from 'react'
 import ErrorMessage from '../ErrorMessage'
 
 function ControllerConfigurator({ onSave, profile, onSelect }) {
     const formik = useFormikContext()
+
+    const handleChangeDuration = (val) => {
+        const { sample_rate } = formik.values
+
+        formik.setFieldValue('data_count', (val * sample_rate) / 1000)
+        formik.setFieldValue('record_duration', val)
+    }
+
+    const handleChangeSampleRate = (val) => {
+        const { record_duration } = formik.values
+
+        formik.setFieldValue('data_count', (val * record_duration) / 1000)
+        formik.setFieldValue('sample_rate', val)
+    }
+
+    useEffect(() => {
+        const { record_duration, sample_rate } = formik.values
+        formik.setFieldValue(
+            'data_count',
+            (sample_rate * record_duration) / 1000
+        )
+    }, [])
 
     return (
         <Paper sx={{ padding: '25px' }}>
@@ -135,13 +157,35 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="sample_rate"
-                        onChange={formik.handleChange}
+                        onChange={(e) => handleChangeSampleRate(e.target.value)}
                         onBlur={formik.handleBlur}
                         value={formik.values.sample_rate}
                     />
                     <ErrorMessage
                         error={formik.errors.sample_rate}
                         touched={formik.touched.sample_rate}
+                    />
+                </Grid>
+
+                <Grid item>
+                    <InputLabel>Длительность записи, мс</InputLabel>
+                    <TextField
+                        error={
+                            formik.errors.record_duration &&
+                            formik.touched.record_duration
+                        }
+                        id="record_duration"
+                        placeholder="Длительность записи"
+                        variant="outlined"
+                        type="number"
+                        name="record_duration"
+                        onChange={(e) => handleChangeDuration(e.target.value)}
+                        onBlur={formik.handleBlur}
+                        value={formik.values.record_duration}
+                    />
+                    <ErrorMessage
+                        error={formik.errors.record_duration}
+                        touched={formik.touched.record_duration}
                     />
                 </Grid>
 
@@ -157,9 +201,9 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                         variant="outlined"
                         type="number"
                         name="data_count"
-                        onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         value={formik.values.data_count}
+                        disabled
                     />
                     <ErrorMessage
                         error={formik.errors.data_count}
@@ -168,20 +212,19 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
             </Grid>
 
-            <Box sx={{display: 'flex', alignItems: 'center', pt: "50px", gap: '1rem'}}>
-                <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={onSave}
-                >
+            <Box
+                sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    pt: '50px',
+                    gap: '1rem',
+                }}
+            >
+                <Button variant="outlined" size="large" onClick={onSave}>
                     Сохранить конфигурацию
                 </Button>
 
-                <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={onSelect}
-                >
+                <Button variant="outlined" size="large" onClick={onSelect}>
                     Сменить конфигурацию
                 </Button>
 
