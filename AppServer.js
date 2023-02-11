@@ -9,7 +9,7 @@ import { MIC_ENUM, MODE } from './enums.js'
 import xl from 'excel4node'
 import ip from 'ip'
 import * as dotenv from 'dotenv'
-import { CALIBRATION_CONFIG } from './config.js'
+import { getCalibrationConfig } from './config.js'
 // import enableWs from 'express-ws'
 import cors from 'cors'
 
@@ -269,7 +269,7 @@ class AppServer {
     calibrateChannel = async (req, res) => {
         let error = null
         const { standard_amplitude, channel_id } = req.body
-        const mission_config = CALIBRATION_CONFIG
+        const mission_config = getCalibrationConfig(`AI${channel_id}`)
 
         this.mode = MODE.CALIBRATION
         this.test_mode = 'tmp'
@@ -282,7 +282,8 @@ class AppServer {
                 if (err) console.log(err.message)
             }
         )
-
+        
+        console.log(mission_config.ChannelConfig[0])
         const response = await axios
             .post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, {
                 ...mission_config,

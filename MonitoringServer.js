@@ -5,7 +5,6 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { G_DataInfo, RmsAvg } from "./utils/utils.js";
-import { CALIBRATION_CONFIG } from "./config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -143,7 +142,7 @@ export default class MonitoringServer {
     this.AS.saveBinaryFile(data_arr.join(",\n"), key.slice(2));
 
     const res = RmsAvg(data_arr)
-    const scale_factor = CALIBRATION_CONFIG.ChannelConfig[0].Channel.Sensor.Sensitivity * res.rms
+    const scale_factor = 300 * res.rms
     console.log(scale_factor)
     this.AS.saveCalibrationResults({...res, scale_factor})
   };
