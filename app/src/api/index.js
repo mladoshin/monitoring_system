@@ -153,7 +153,7 @@ export async function getFile(path) {
     return res
 }
 
-export async function pollFile({ interval = 3000, path, timeout = 10000 }) {
+export async function pollFile({ interval = 3000, path, timeout = 300000 }) {
     let res = null
     const counter = { value: 0 }
 
