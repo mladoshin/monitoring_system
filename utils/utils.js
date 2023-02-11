@@ -76,6 +76,7 @@ const G_DataInfo = (arr) => {
     let rms = null
     let avg = null
     let max = arr[0]
+    let min = arr[0]
 
     let sum_avg = 0
     let sum_rms = 0
@@ -85,6 +86,7 @@ const G_DataInfo = (arr) => {
         sum_rms += num ** 2
         count++
         if(num > max) max = num;
+        if(num < min) min = num;
     }
 
     if (count !== 0) {
@@ -92,7 +94,7 @@ const G_DataInfo = (arr) => {
         avg = sum_avg / count
     }
 
-    return {rms, avg, peak: max}
+    return {rms, avg, peak: (Math.abs(max)+Math.abs(min))/2}
 }
 
 export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator, G_DataInfo }

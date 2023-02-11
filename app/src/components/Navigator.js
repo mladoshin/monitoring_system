@@ -31,6 +31,10 @@ const categories = [
                 id: 'missions',
                 icon: <PeopleIcon />,
             },
+            {
+                id: 'postprocessing',
+                icon: <PeopleIcon />,
+            },
         ],
     },
     {

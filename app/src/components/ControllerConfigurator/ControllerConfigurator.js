@@ -16,25 +16,27 @@ import ErrorMessage from '../ErrorMessage'
 function ControllerConfigurator({ onSave, profile, onSelect }) {
     const formik = useFormikContext()
 
-    const handleChangeDuration = (val) => {
+    const handleChangeDuration = (duration) => {
         const { sample_rate } = formik.values
 
-        formik.setFieldValue('data_count', (val * sample_rate) / 1000)
-        formik.setFieldValue('record_duration', val)
+        const data_count = duration * sample_rate
+        data_count > 0 && formik.setFieldValue('data_count', data_count)
+        formik.setFieldValue('record_duration', duration)
     }
 
-    const handleChangeSampleRate = (val) => {
+    const handleChangeSampleRate = (sample_rate) => {
         const { record_duration } = formik.values
 
-        formik.setFieldValue('data_count', (val * record_duration) / 1000)
-        formik.setFieldValue('sample_rate', val)
+        const data_count = sample_rate * record_duration
+        data_count > 0 && formik.setFieldValue('data_count', data_count)
+        formik.setFieldValue('sample_rate', sample_rate)
     }
 
     useEffect(() => {
         const { record_duration, sample_rate } = formik.values
         formik.setFieldValue(
             'data_count',
-            (sample_rate * record_duration) / 1000
+            (sample_rate * record_duration)
         )
     }, [])
 
@@ -168,14 +170,14 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 </Grid>
 
                 <Grid item>
-                    <InputLabel>Длительность записи, мс</InputLabel>
+                    <InputLabel>Время записи, с</InputLabel>
                     <TextField
                         error={
                             formik.errors.record_duration &&
                             formik.touched.record_duration
                         }
                         id="record_duration"
-                        placeholder="Длительность записи"
+                        placeholder="Время записи"
                         variant="outlined"
                         type="number"
                         name="record_duration"
@@ -221,11 +223,11 @@ function ControllerConfigurator({ onSave, profile, onSelect }) {
                 }}
             >
                 <Button variant="outlined" size="large" onClick={onSave}>
-                    Сохранить конфигурацию
+                    Сохранить
                 </Button>
 
                 <Button variant="outlined" size="large" onClick={onSelect}>
-                    Сменить конфигурацию
+                    Загрузить
                 </Button>
 
                 {profile && (
