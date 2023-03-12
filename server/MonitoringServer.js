@@ -141,9 +141,9 @@ export default class MonitoringServer {
     const data_arr = json[key]['G']
     this.AS.saveBinaryFile(data_arr.join(",\n"), key.slice(2));
 
-    const res = RmsAvg(data_arr)
+    const res = G_DataInfo(data_arr)
     const scale_factor = 300 * res.rms
-    console.log(scale_factor)
+    console.log(res)
     this.AS.saveCalibrationResults({...res, scale_factor})
   };
 

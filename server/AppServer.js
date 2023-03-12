@@ -1,5 +1,3 @@
-import ws from './node_modules/ws/index.js'
-
 import express, { json } from 'express'
 import path, { dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -12,6 +10,8 @@ import * as dotenv from 'dotenv'
 import { getCalibrationConfig } from './config.js'
 // import enableWs from 'express-ws'
 import cors from 'cors'
+import { createServer } from 'http'
+import { Server } from 'socket.io'
 
 dotenv.config()
 
@@ -29,10 +29,10 @@ class AppServer {
 
         this.app.use(json())
         this.app.use(cors())
-        this.app.use(express.static(path.join(__dirname, './app/dist/')))
+        this.app.use(express.static(path.join(__dirname, '../webapp/dist/')))
 
         this.app.get('/api/get-files', this.getAllFiles)
-
+        this.app.get('/test-socket', this.testSocket)
         this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.getUserProfiles)
         this.app.get('/api/user-profile', this.getUserProfile)
@@ -52,7 +52,20 @@ class AppServer {
         this.app.post('/api/generate-result', this.generateResultingXLSX)
         this.app.post('/api/connect-controller', this.connectController)
 
-        this.app.listen(port, () => {
+        this.server = createServer(this.app)
+
+        this.io = new Server(this.server, {
+            cors: {
+                origin: 'http://localhost:5000',
+                methods: ['GET', 'POST'],
+            },
+        })
+
+        this.io.on('connection', (socket) => {
+            console.log('New connection!')
+        })
+
+        this.server.listen(port, () => {
             console.log(`Example app listening on port ${port}`)
         })
 
@@ -62,8 +75,12 @@ class AppServer {
         this.all_files = {}
     }
 
+    testSocket = async (req, res) => {
+        this.io.emit('test', { data: { name: 'Max', surname: 'Ladoshin' } })
+        res.sendStatus(200)
+    }
     getMICFile = async (req, res) => {
-        const {path: fpath} = req.query
+        const { path: fpath } = req.query
 
         const file_path = path.join(__dirname, `/data/${fpath}`)
 
@@ -107,7 +124,7 @@ class AppServer {
 
         res.status(200).send(files)
     }
-    
+
     getUserProfile = async (req, res) => {
         const { profile_name = '' } = req.query
 
@@ -150,11 +167,10 @@ class AppServer {
                     res.status(400).send(err)
                     return
                 }
-                
+
                 res.status(200).send(profile_name)
             }
         )
-        
     }
 
     startMission = async (req, res) => {
@@ -282,7 +298,7 @@ class AppServer {
                 if (err) console.log(err.message)
             }
         )
-        
+
         console.log(mission_config.ChannelConfig[0])
         const response = await axios
             .post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, {

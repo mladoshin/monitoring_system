@@ -1,5 +1,4 @@
-node_modules/
-data/
-app/node_modules
-exports/
-app/dist
+/**/node_modules
+server/data/
+server/exports/
+webapp/dist/

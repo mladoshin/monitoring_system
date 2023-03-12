@@ -1,4 +1,4 @@
-import { MIC_ENUM, MODE, SCADA_ENUM } from "../enums.js"
+import { MIC_ENUM, MODE, SCADA_ENUM } from "../../enums.js"
 
 function avg(arr) {
     let sum = 0
@@ -33,9 +33,11 @@ function rms(arr) {
 function RmsAvg(arr) {
     let rms = null
     let avg = null
+    let cko = null
 
     let sum_avg = 0
     let sum_rms = 0
+    let sum_cko = 0
     let count = 0
     for (let num of arr) {
         sum_avg += num
@@ -44,11 +46,22 @@ function RmsAvg(arr) {
     }
 
     if (count !== 0) {
+
         rms = (sum_rms / count)**0.5
         avg = sum_avg / count
     }
 
-    return {rms, avg}
+    count = 0
+    for (let num of arr) {
+        sum_cko += (num - avg) ** 2
+        count++
+    }
+
+    if(count !== 0){
+        cko = (sum_cko / count)**0.5
+    }
+
+    return {rms, avg, cko}
 }
 
 function _transformToStatData(str){
@@ -75,12 +88,15 @@ const _jsonGenerator = (params, mode) => {
 const G_DataInfo = (arr) => {
     let rms = null
     let avg = null
-    let max = arr[0]
-    let min = arr[0]
+    let cko = null
 
     let sum_avg = 0
     let sum_rms = 0
+    let sum_cko = 0
     let count = 0
+    let max = arr[0]
+    let min = arr[0]
+
     for (let num of arr) {
         sum_avg += num
         sum_rms += num ** 2
@@ -94,7 +110,17 @@ const G_DataInfo = (arr) => {
         avg = sum_avg / count
     }
 
-    return {rms, avg, peak: (Math.abs(max)+Math.abs(min))/2}
+    count = 0
+    for (let num of arr) {
+        sum_cko += (num - avg) ** 2
+        count++
+    }
+
+    if(count !== 0){
+        cko = (sum_cko / count)**0.5
+    }
+
+    return {rms, avg, peak: (Math.abs(max)+Math.abs(min))/2, cko}
 }
 
 export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator, G_DataInfo }
