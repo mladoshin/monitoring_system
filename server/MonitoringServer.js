@@ -5,6 +5,7 @@ import fs from "fs";
 import path, { dirname } from "path";
 import { fileURLToPath } from "url";
 import { G_DataInfo, RmsAvg } from "./utils/utils.js";
+import { SOCKET_EVENTS } from "./EventService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -145,6 +146,8 @@ export default class MonitoringServer {
     const scale_factor = 300 * res.rms
     console.log(res)
     this.AS.saveCalibrationResults({...res, scale_factor})
+
+    this.AS.eventService.emit(SOCKET_EVENTS.CALIBRATION_COMPLETE, {...res, scale_factor})
   };
 
   processChannelData = (channel, data) => {
@@ -176,6 +179,7 @@ export default class MonitoringServer {
         );
       }
     }
+
   };
 
   processTestingData = (data_string) => {
@@ -192,6 +196,10 @@ export default class MonitoringServer {
     console.log("this.tmp")
     console.log(this.tmp)
     this.AS.saveMetrics(this.tmp)
+
+    console.log("Sending mission_complete event")
+    this.AS.eventService.emit(SOCKET_EVENTS.MISSION_COMPLETE, {})
+    this.AS.updateAllFiles()
   };
 
   processMonitoringData(data_string) {

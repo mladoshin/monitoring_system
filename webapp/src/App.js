@@ -6,6 +6,7 @@ import MissionsPage from './components/MissionsPage'
 import PostprocessingPage from './components/PostprocessingPage'
 import { io } from 'socket.io-client'
 import axios from 'axios'
+import { SOCKET_EVENTS } from '../../server/EventService'
 
 function App() {
     useEffect(() => {
@@ -22,11 +23,25 @@ function App() {
 
         socket.on('connect', () => {
             console.log('Connected to socket!')
-            axios.get('/test-socket').then((res) => console.log(res))
+            // axios.get('/test-socket').then((res) => console.log(res))
         })
 
-        socket.on('test', (data) => {
-            console.log('Received data from socket!')
+        // socket.on('test', (data) => {
+        //     console.log('Received data from socket!')
+        //     console.log(data)
+        // })
+
+        socket.on(SOCKET_EVENTS.METRICS_UPDATE, (data) => {
+            console.log('Received new metrics file!')
+            console.log(data)
+        })
+
+        socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ()=>{
+            console.log("Mission has completed")
+        })
+
+        socket.on(SOCKET_EVENTS.FILE_CHANGE, (data)=>{
+            console.log("File change")
             console.log(data)
         })
 

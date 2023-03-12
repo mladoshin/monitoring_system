@@ -12,6 +12,7 @@ import { getCalibrationConfig } from './config.js'
 import cors from 'cors'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
+import EventService, { SOCKET_EVENTS } from './EventService.js'
 
 dotenv.config()
 
@@ -73,6 +74,9 @@ class AppServer {
         this.test_id = 'test'
         this.mode = mode
         this.all_files = {}
+
+        //create new instance of Event Service for sending data through socket
+        this.eventService = new EventService(this.io)
     }
 
     testSocket = async (req, res) => {
@@ -369,6 +373,7 @@ class AppServer {
         file.end()
     }
 
+    //synchronous functiion for saving GData file
     saveBinaryFile = (G_data, channel) => {
         fs.mkdirSync(
             path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
@@ -378,18 +383,28 @@ class AppServer {
             }
         )
 
-        //write G data into dat file
-        const file = fs.createWriteStream(
-            path.join(
-                __dirname,
-                `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
+        try {
+            fs.writeFileSync(
+                path.join(
+                    __dirname,
+                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
+                ),
+                G_data
             )
-        )
-        file.on('error', function (err) {
-            /* error handling */
-        })
-        file.write(G_data)
-        file.end()
+
+            // fs.writeFileSync(
+            //     path.join(
+            //         __dirname,
+            //         `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}`
+            //     ),
+            //     Buffer.from(new Uint32Array([1, 2, 3, 4]).buffer)
+            // )
+            // file written successfully
+        } catch (err) {
+            console.error(err)
+        }
+
+        //this.updateAllFiles()
     }
 
     saveParamFile = (MIC_data_arr) => {
@@ -743,21 +758,36 @@ class AppServer {
         res.status(200).send(response.data)
     }
 
+    //synchronous functiion for saving metrics file
     saveMetrics = (metrics) => {
         const json = JSON.stringify(metrics, null, 2)
 
-        // write parameters json to test folder
-        const file = fs.createWriteStream(
+        this.eventService.emit(SOCKET_EVENTS.METRICS_UPDATE, metrics)
+
+        fs.writeFile(
             path.join(
                 __dirname,
                 `/data/${this.test_mode}/${this.test_id}/metrics.json`
-            )
+            ),
+            json,
+            (err) => {
+                if (err) {
+                    console.error(err)
+                }
+            }
         )
-        file.on('error', function (err) {
-            /* error handling */
-        })
-        file.write(json)
-        file.end()
+    }
+
+    updateAllFiles() {
+        const files = this.listFiles('', {})
+        this.eventService.emit(SOCKET_EVENTS.FILE_CHANGE, files)
+    }
+
+    withFileUpdate(func) {
+        return async (req, res) => {
+            await func(req, res)
+            this.updateAllFiles()
+        }
     }
 }
 
