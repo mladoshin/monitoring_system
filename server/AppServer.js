@@ -64,6 +64,8 @@ class AppServer {
 
         this.io.on('connection', (socket) => {
             console.log('New connection!')
+            //send the current file list to user
+            this.updateAllFiles()
         })
 
         this.server.listen(port, () => {
