@@ -21,7 +21,7 @@ import ResultGeneratorWidget from './ResultGeneratorWidget/ResultGeneratorWidget
 import useConfigureMission from '../hooks/useConfigureMission'
 import useProfiles from '../hooks/useProfiles'
 import ProfileModal from './ProfileModal'
-import { _transformToStatData } from '../../../utils/utils'
+import { _transformToStatData } from '../utils/server_utils'
 import { preventEnterKey, transformMetrics } from '../utils/utils'
 
 const MissionConfigSchema = Yup.object().shape({
