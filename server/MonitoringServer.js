@@ -183,6 +183,7 @@ export default class MonitoringServer {
   };
 
   processTestingData = (data_string) => {
+    console.log(data_string)
     const data_obj = JSON.parse(data_string);
     console.log(typeof data_obj);
 

@@ -207,7 +207,7 @@ export default function Layout({ children }) {
 
     socket.on(SOCKET_EVENTS.FILE_CHANGE, (res) => {
       console.log("File change");
-      dispatch(setFiles(res.data));
+      dispatch(setFiles(res.data[''] || {}));
     });
 
     socket.on("error", () => {

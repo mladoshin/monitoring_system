@@ -1,0 +1,109 @@
+{
+  "input_type": "PseudoDifferential",
+  "trigger_source": "NoWait",
+  "repeat_interval": 0.5,
+  "repeat_times": 0,
+  "sample_rate": "1000",
+  "data_count": 100,
+  "record_duration": "0.1",
+  "file_name": "1",
+  "directory_name": "2",
+  "comment": "",
+  "channels": [],
+  "modal_open": false,
+  "current_channel": null,
+  "channel_config": [
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI0",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI1",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI2",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "Channel": {
+        "Port": "AI3",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": "1000"
+        }
+      },
+      "Coupling": "DC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    }
+  ]
+}

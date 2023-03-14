@@ -112,8 +112,8 @@ export default function Navigator(props) {
                                     <ListItemButton
                                         selected={
                                             childId === 'home'
-                                                ? location.pathname === '/'
-                                                : location.pathname ===
+                                                ? location?.pathname === '/'
+                                                : location?.pathname ===
                                                   `/${childId}`
                                         }
                                         sx={item}
