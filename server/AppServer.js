@@ -181,7 +181,6 @@ class AppServer {
     }
 
     startMission = async (req, res) => {
-        this.mode = MODE.TESTING
         let error = null
         const {
             comment = '',
@@ -195,13 +194,16 @@ class AppServer {
             directory_name,
             channel_config,
             force = false,
+            mode = MODE.TESTING,
         } = req.body
+
+        this.mode = mode
 
         this.test_mode = directory_name
         this.test_id = file_name
 
         try {
-            if (!force) {
+            if (!force && this.mode !== MODE.MONITORING) {
                 if (
                     fs.existsSync(
                         path.join(
@@ -237,42 +239,44 @@ class AppServer {
 
         //remove test directory before writing to it (clearing old files)
 
-        fs.rm(
-            path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
-            { recursive: true, force: true },
-            (err) => {
-                if (err) {
-                    console.log(err)
-                } else {
-                    console.log('Successfully cleared the directory')
-                }
+        if (this.mode !== MODE.MONITORING) {
+            fs.rm(
+                path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
+                { recursive: true, force: true },
+                (err) => {
+                    if (err) {
+                        console.log(err)
+                    } else {
+                        console.log('Successfully cleared the directory')
+                    }
 
-                fs.mkdirSync(
-                    path.join(
-                        __dirname,
-                        `/data/${this.test_mode}/${this.test_id}`
-                    ),
-                    { recursive: true }
-                )
-
-                const JSON_config = JSON.stringify(
-                    { ...body, comment: comment },
-                    null,
-                    2
-                )
-                const file = fs.createWriteStream(
-                    path.join(
-                        __dirname,
-                        `/data/${this.test_mode}/${this.test_id}/full-config.json`
+                    fs.mkdirSync(
+                        path.join(
+                            __dirname,
+                            `/data/${this.test_mode}/${this.test_id}`
+                        ),
+                        { recursive: true }
                     )
-                )
-                file.on('error', function (err) {
-                    /* error handling */
-                })
-                file.write(JSON_config)
-                file.end()
-            }
-        )
+
+                    const JSON_config = JSON.stringify(
+                        { ...body, comment: comment },
+                        null,
+                        2
+                    )
+                    const file = fs.createWriteStream(
+                        path.join(
+                            __dirname,
+                            `/data/${this.test_mode}/${this.test_id}/full-config.json`
+                        )
+                    )
+                    file.on('error', function (err) {
+                        /* error handling */
+                    })
+                    file.write(JSON_config)
+                    file.end()
+                }
+            )
+        }
 
         const response = await axios
             .post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, {
@@ -293,7 +297,7 @@ class AppServer {
         await axios
             .delete(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`)
             .then((response) => {
-                console.log("Successfully stopped the mission")
+                console.log('Successfully stopped the mission')
                 res.sendStatus(200)
             })
             .catch((error) => {

@@ -6,7 +6,7 @@ import MissionsPage from "./components/MissionsPage";
 import PostprocessingPage from "./components/PostprocessingPage";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
-import MonitoringPage from "./pages/MonitoringPage";
+import MonitoringPage from "./pages/MonitoringPage/MonitoringPage";
 
 function App() {
 

@@ -6,6 +6,11 @@ export async function startMission(data) {
     return res
 }
 
+export async function stopMission() {
+    const res = await axios.delete(`/api/mission`)
+    return res
+}
+
 export async function getAllFiles() {
     const res = await axios
         .get(`/api/get-files`)
