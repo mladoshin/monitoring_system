@@ -1,6 +1,6 @@
 import { Box, Button, Card, CircularProgress, Grid } from "@mui/material";
 import { Formik } from "formik";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import ControllerConfigurator from "../../components/ControllerConfigurator/ControllerConfigurator";
 import MissionConfiguratorWidget from "../../components/MissionConfigurator/MissionConfiguratorWidget";
 import * as Yup from "yup";
@@ -10,6 +10,8 @@ import GraphMonitor from "../../components/GraphMonitor/GraphMonitor";
 import { toast } from "react-toastify";
 import { startMission, stopMission } from "../../api";
 import { MODE } from "../../../enums";
+import { io } from "socket.io-client";
+import { SOCKET_EVENTS } from "../../../../server/EventService";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -43,6 +45,21 @@ const MissionConfigSchema = Yup.object().shape({
 function MonitoringPage() {
   const ChannelConfig = useConfigureMission({});
   const toastId = React.useRef(null);
+
+  const [monitoringData, setMonitoringData] = useState(Array.from(Array(4).keys()).map(el => []))
+
+  useEffect(()=>{
+
+    const socket = io("ws://localhost:3000", {
+      reconnectionDelayMax: 10000
+    });
+
+    socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({data}) => {
+      console.log("Mission data received!");
+      console.log(data)
+      setMonitoringData(Object.values(data).map(el => el['G']))  
+    });
+  }, [])
 
   const formik = {
     initialValues: {
@@ -150,7 +167,7 @@ function MonitoringPage() {
                   </Grid>
 
                   {/* Graph monitor with line chart for every channel */}
-                  <GraphMonitorWidget />
+                  <GraphMonitorWidget data={monitoringData} />
                 </Grid>
               </Grid>
               <Grid item xs={4}>

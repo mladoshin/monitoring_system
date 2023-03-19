@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-function GraphMonitor({ channels = [1, 1, 1, 1] }) {
+function GraphMonitor({ data=[] }) {
   const chart = {
     series: [
       {
@@ -55,7 +55,7 @@ function GraphMonitor({ channels = [1, 1, 1, 1] }) {
 
   return (
     <Grid container>
-      {channels?.map((ch) => (
+      {data?.map((ch) => (
         <Grid item xs={12} lg={6}>
           <ReactApexChart
             options={chart.options}

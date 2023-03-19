@@ -218,7 +218,7 @@ export default class MonitoringServer {
         }
         this.AS.saveMetrics(this.tmp)
 
-        this.AS.eventService.emit(SOCKET_EVENTS.MISSION_COMPLETE, {})
+        this.AS.eventService.emit(SOCKET_EVENTS.MISSION_COMPLETE, data_obj)
         this.AS.updateAllFiles()
     }
 

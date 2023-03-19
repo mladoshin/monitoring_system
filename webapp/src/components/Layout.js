@@ -201,9 +201,10 @@ export default function Layout({ children }) {
       console.log(data);
     });
 
-    socket.on(SOCKET_EVENTS.MISSION_COMPLETE, () => {
-      console.log("Mission has completed");
-    });
+    // socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
+    //   console.log("Mission data received!");
+    //   console.log(data)
+    // });
 
     socket.on(SOCKET_EVENTS.FILE_CHANGE, (res) => {
       console.log("File change");

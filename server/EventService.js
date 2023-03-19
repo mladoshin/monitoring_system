@@ -4,7 +4,7 @@ export const SOCKET_EVENTS = {
     MISSION_COMPLETE: 'mission-complete',
     CALIBRATION_START: 'calibration-start',
     CALIBRATION_COMPLETE: 'calibration-complete',
-    METRICS_UPDATE: 'metrics-update',
+    METRICS_UPDATE: 'metrics-update'
 }
 
 class EventService {
