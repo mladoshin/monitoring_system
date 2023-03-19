@@ -39,6 +39,7 @@ class AppServer {
         this.app.get('/api/user-profile', this.getUserProfile)
         this.app.post('/api/user-profiles', this.addUserProfile)
         this.app.delete('/api/user-profiles', this.removeUserProfile)
+        this.app.delete('/api/mission', this.stopMission)
 
         this.app.get('/api/calibrate-channel', this.getCalibrationResults)
         this.app.get('/api/get-g-rawdata', this.getGRawData)
@@ -286,6 +287,31 @@ class AppServer {
         }
 
         res.status(200).send({ ...response.data, all_files: this.all_files })
+    }
+
+    stopMission = async (req, res) => {
+        await axios
+            .delete(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`)
+            .then((response) => {
+                console.log("Successfully stopped the mission")
+                res.sendStatus(200)
+            })
+            .catch((error) => {
+                if (error.response) {
+                    // Запрос был сделан, и сервер ответил кодом состояния, который
+                    // выходит за пределы 2xx
+                    res.sendStatus(error.response.status)
+                } else if (error.request) {
+                    // Запрос был сделан, но ответ не получен
+                    // `error.request`- это экземпляр XMLHttpRequest в браузере и экземпляр
+                    // http.ClientRequest в node.js
+                    res.sendStatus(503)
+                } else {
+                    // Произошло что-то при настройке запроса, вызвавшее ошибку
+                    console.log('Error', error.message)
+                    res.sendStatus(500)
+                }
+            })
     }
 
     calibrateChannel = async (req, res) => {
