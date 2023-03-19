@@ -6,6 +6,7 @@ import MissionsPage from "./components/MissionsPage";
 import PostprocessingPage from "./components/PostprocessingPage";
 import { store } from "./store/store";
 import { Provider } from "react-redux";
+import MonitoringPage from "./pages/MonitoringPage";
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Content />} />
             <Route path="/missions" element={<MissionsPage />} />
+            <Route path="/monitoring" element={<MonitoringPage />} />
             <Route path="/postprocessing" element={<PostprocessingPage />} />
           </Routes>
         </Layout>
