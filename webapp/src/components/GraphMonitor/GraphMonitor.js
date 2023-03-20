@@ -1,19 +1,13 @@
 import { Grid } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import ReactApexChart from "react-apexcharts";
 
-function GraphMonitor({ data=[] }) {
+function GraphMonitor({ data = [] }) {
   const chart = {
-    series: [
-      {
-        name: "Desktops",
-        data: [10, 41, 35, 51, 49, 62, 69, 91, 148],
-      },
-    ],
     options: {
       chart: {
         toolbar: {
-            show: false
+          show: false,
         },
         height: 250,
         type: "line",
@@ -28,7 +22,6 @@ function GraphMonitor({ data=[] }) {
         curve: "straight",
       },
       title: {
-        text: "Product Trends by Month",
         align: "left",
       },
       grid: {
@@ -38,33 +31,49 @@ function GraphMonitor({ data=[] }) {
         },
       },
       xaxis: {
-        categories: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-        ],
+        categories: Array.from(Array(100).keys()),
+        type: "numeric",
+        labels: {
+          show: false,
+        },
       },
     },
   };
 
+  useEffect(() => {
+    data.forEach((el, idx) => {
+      ApexCharts.exec(String(idx), "updateSeries", [
+        {
+          data: el,
+        },
+      ]);
+    });
+  }, [data]);
+
   return (
-    <Grid container>
-      {data?.map((ch) => (
-        <Grid item xs={12} lg={6}>
-          <ReactApexChart
-            options={chart.options}
-            series={chart.series}
-            type="line"
-            height={250}
-          />
-        </Grid>
-      ))}
+    <Grid container style={{ width: "100%" }}>
+      {Array.from(Array(4).keys())?.map((_, idx) => {
+        const series = [
+          {
+            name: `Канал ${idx + 1}`,
+            data: data[idx] || [],
+          },
+        ];
+
+        const options = {...chart.options};
+        options.chart.id = idx;
+        options.title = { text: `Канал ${idx + 1}`, align: "left" };
+        return (
+          <Grid item xs={12} lg={6} key={idx}>
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="line"
+              height={250}
+            />
+          </Grid>
+        );
+      })}
     </Grid>
   );
 }

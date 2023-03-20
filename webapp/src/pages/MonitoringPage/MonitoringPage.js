@@ -57,7 +57,7 @@ function MonitoringPage() {
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({data}) => {
       console.log("Mission data received!");
       console.log(data)
-      setMonitoringData(Object.values(data).map(el => el['G']))  
+      setMonitoringData(Object.values(data).map(el => el['G']).filter(el => Array.isArray(el)))  
     });
   }, [])
 
@@ -163,7 +163,7 @@ function MonitoringPage() {
               <Grid item xs={8}>
                 <Grid container>
                   <Grid item xs={12}>
-                    <Card>Metrics component</Card>
+                    <Card>Metrics component (edited)</Card>
                   </Grid>
 
                   {/* Graph monitor with line chart for every channel */}
@@ -221,7 +221,7 @@ function MonitoringControlWidget(props) {
 
 function GraphMonitorWidget(props) {
   return (
-    <Grid item>
+    <Grid item xs={12}>
       <GraphMonitor {...props} />
     </Grid>
   );

@@ -30,7 +30,7 @@ class AppServer {
 
         this.app.use(json())
         this.app.use(cors())
-        this.app.use(express.static(path.join(__dirname, '../webapp/dist/')))
+        //this.app.use(express.static(path.join(__dirname, '../webapp/dist/')))
 
         this.app.get('/api/get-files', this.getAllFiles)
         this.app.get('/test-socket', this.testSocket)
