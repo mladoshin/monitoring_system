@@ -1,15 +1,16 @@
-import { Grid } from "@mui/material";
-import React, { useEffect } from "react";
+import { Card, Grid } from "@mui/material";
+import React, { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
 function GraphMonitor({ data = [] }) {
-  const chart = {
+  const [selectedChannel, setSelectedChannel] = useState(null);
+
+  const chart = useMemo(() => ({
     options: {
       chart: {
         toolbar: {
           show: false,
         },
-        height: 250,
         type: "line",
         zoom: {
           enabled: false,
@@ -18,8 +19,12 @@ function GraphMonitor({ data = [] }) {
       dataLabels: {
         enabled: false,
       },
+      tooltip: {
+        enabled: false,
+      },
       stroke: {
         curve: "straight",
+        width: 1,
       },
       title: {
         align: "left",
@@ -30,6 +35,10 @@ function GraphMonitor({ data = [] }) {
           opacity: 0.5,
         },
       },
+      yaxis: {
+        type: "numeric",
+        decimalsInFloat: 4,
+      },
       xaxis: {
         categories: Array.from(Array(100).keys()),
         type: "numeric",
@@ -38,7 +47,30 @@ function GraphMonitor({ data = [] }) {
         },
       },
     },
-  };
+  }));
+
+  const spectrum_chart_options = useMemo(() => {
+    const options = { ...chart.options, chart: {...chart.options.chart, id: "spectrum_chart"}};
+    options.title.align = "center"
+    return options;
+  }, []);
+
+  useEffect(() => {
+    ApexCharts.exec(
+      "spectrum_chart",
+      "updateOptions",
+      {
+        title: {
+          text:
+            selectedChannel !== null
+              ? `Канал ${selectedChannel + 1} (Спектр)`
+              : ``,
+        },
+      },
+      false,
+      false
+    );
+  }, [selectedChannel]);
 
   useEffect(() => {
     data.forEach((el, idx) => {
@@ -51,7 +83,7 @@ function GraphMonitor({ data = [] }) {
   }, [data]);
 
   return (
-    <Grid container style={{ width: "100%" }}>
+    <Grid container spacing={2}>
       {Array.from(Array(4).keys())?.map((_, idx) => {
         const series = [
           {
@@ -60,20 +92,32 @@ function GraphMonitor({ data = [] }) {
           },
         ];
 
-        const options = {...chart.options};
+        const options = { ...chart.options };
         options.chart.id = idx;
         options.title = { text: `Канал ${idx + 1}`, align: "left" };
         return (
           <Grid item xs={12} lg={6} key={idx}>
-            <ReactApexChart
-              options={options}
-              series={series}
-              type="line"
-              height={250}
-            />
+            <Card onClick={() => setSelectedChannel(idx)}>
+              <ReactApexChart
+                options={options}
+                series={series}
+                type="line"
+                height={200}
+              />
+            </Card>
           </Grid>
         );
       })}
+      <Grid item xs={12}>
+        <Card>
+          <ReactApexChart
+            options={spectrum_chart_options}
+            series={[{ name: "Spectrum", data: [] }]}
+            type="line"
+            height={300}
+          />
+        </Card>
+      </Grid>
     </Grid>
   );
 }
