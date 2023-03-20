@@ -196,10 +196,10 @@ export default function Layout({ children }) {
       // axios.get('/test-socket').then((res) => console.log(res))
     });
 
-    socket.on(SOCKET_EVENTS.METRICS_UPDATE, (data) => {
-      console.log("Received new metrics file!");
-      console.log(data);
-    });
+    // socket.on(SOCKET_EVENTS.METRICS_UPDATE, (data) => {
+    //   console.log("Received new metrics file!");
+    //   console.log(data);
+    // });
 
     // socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
     //   console.log("Mission data received!");

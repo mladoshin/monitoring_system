@@ -12,6 +12,7 @@ import { startMission, stopMission } from "../../api";
 import { MODE } from "../../../enums";
 import { io } from "socket.io-client";
 import { SOCKET_EVENTS } from "../../../../server/EventService";
+import ParameterMonitor from "../../components/ParameterMonitor/ParameterMonitor";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -42,24 +43,39 @@ const MissionConfigSchema = Yup.object().shape({
     .required("Обязательное поле"),
 });
 
+const MonitoringControlWidget = withItemWrapper(MonitoringControl);
+const GraphMonitorWidget = withItemWrapper(GraphMonitor);
+const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
+
 function MonitoringPage() {
   const ChannelConfig = useConfigureMission({});
   const toastId = React.useRef(null);
 
-  const [monitoringData, setMonitoringData] = useState(Array.from(Array(4).keys()).map(el => []))
+  const [monitoringData, setMonitoringData] = useState(
+    Array.from(Array(4).keys()).map((el) => [])
+  );
 
-  useEffect(()=>{
-
+  const [paramData, setParamData] = useState([]);
+  console.log(paramData);
+  useEffect(() => {
     const socket = io("ws://localhost:3000", {
-      reconnectionDelayMax: 10000
+      reconnectionDelayMax: 10000,
     });
 
-    socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({data}) => {
+    socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({ data }) => {
       console.log("Mission data received!");
-      console.log(data)
-      setMonitoringData(Object.values(data).map(el => el['G']).filter(el => Array.isArray(el)))  
+      console.log(data);
+      setMonitoringData(
+        Object.values(data)
+          .map((el) => el["G"])
+          .filter((el) => Array.isArray(el))
+      );
     });
-  }, [])
+
+    socket.on(SOCKET_EVENTS.METRICS_UPDATE, ({ data }) => {
+      setParamData(data);
+    });
+  }, []);
 
   const formik = {
     initialValues: {
@@ -161,10 +177,8 @@ function MonitoringPage() {
           >
             <Grid container spacing={1}>
               <Grid item xs={8}>
-                <Grid container>
-                  <Grid item xs={12}>
-                    <Card>Metrics component (edited)</Card>
-                  </Grid>
+                <Grid container rowSpacing={2}>
+                  <ParameterMonitorWidget />
 
                   {/* Graph monitor with line chart for every channel */}
                   <GraphMonitorWidget data={monitoringData} />
@@ -211,20 +225,13 @@ function MonitoringPage() {
   );
 }
 
-function MonitoringControlWidget(props) {
-  return (
-    <Grid item xs={12}>
-      <MonitoringControl {...props} />
-    </Grid>
-  );
+function withItemWrapper(Component) {
+  return (props) => {
+    return (
+      <Grid item xs={12}>
+        <Component {...props} />
+      </Grid>
+    );
+  };
 }
-
-function GraphMonitorWidget(props) {
-  return (
-    <Grid item xs={12}>
-      <GraphMonitor {...props} />
-    </Grid>
-  );
-}
-
 export default MonitoringPage;
