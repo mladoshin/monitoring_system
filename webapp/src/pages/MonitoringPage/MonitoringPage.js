@@ -50,21 +50,26 @@ const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
 function MonitoringPage() {
   const ChannelConfig = useConfigureMission({});
   const toastId = React.useRef(null);
-  const running = React.useRef(false)
+  const running = React.useRef(false);
 
   const [monitoringData, setMonitoringData] = useState(
     Array.from(Array(4).keys()).map((el) => [])
   );
 
   const [paramData, setParamData] = useState([]);
+  const [selectedChannel, setSelectedChannel] = useState(null);
+  const [maxAmplitude, setMaxAmplitude] = useState([0, 0, 0, 0]);
+
+  //console.log(maxAmplitude)
+
   useEffect(() => {
     const socket = io("ws://localhost:3000", {
       reconnectionDelayMax: 10000,
     });
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({ data }) => {
-      if(!running.current){
-        return
+      if (!running.current) {
+        return;
       }
       setMonitoringData(
         Object.values(data)
@@ -72,11 +77,30 @@ function MonitoringPage() {
           .filter((el) => Array.isArray(el))
       );
     });
-
-    socket.on(SOCKET_EVENTS.METRICS_UPDATE, ({ data }) => {
-      setParamData(data);
-    });
   }, []);
+
+  useEffect(() => {
+    const socket = io("ws://localhost:3000", {
+      reconnectionDelayMax: 10000,
+    });
+
+    socket.once(SOCKET_EVENTS.METRICS_UPDATE, onMetricUpdate);
+  }, [paramData]);
+
+  function onMetricUpdate({ data }) {
+    setParamData(data);
+
+    const amp = data.map((el) => el.peak);
+
+    const tmp = [...maxAmplitude];
+    amp.forEach((el, idx) => {
+      if (el > tmp[idx]) {
+        tmp[idx] = el;
+      }
+    });
+
+    setMaxAmplitude(tmp);
+  }
 
   const formik = {
     initialValues: {
@@ -114,13 +138,13 @@ function MonitoringPage() {
       repeat_times: 0,
       record_duration: 0.1,
       sample_rate: 16000,
-      data_count: 160000,
-      repeat_interval: 100,
+      data_count: 50,
+      repeat_interval: 1000,
       channel_config: ChannelConfig.config,
       mode: MODE.MONITORING,
     })
       .then(() => {
-        running.current = true
+        running.current = true;
         toast.update(toastId.current, {
           render: "Миссия успешно запущена!",
           position: "bottom-right",
@@ -147,7 +171,7 @@ function MonitoringPage() {
     );
 
     await stopMission().then(() => {
-      running.current = false
+      running.current = false;
       toast.update(toastId.current, {
         render: "Миссия успешно завершена",
         position: "bottom-right",
@@ -181,10 +205,18 @@ function MonitoringPage() {
             <Grid container spacing={1}>
               <Grid item xs={8}>
                 <Grid container rowSpacing={2}>
-                  <ParameterMonitorWidget />
+                  <ParameterMonitorWidget
+                    data={paramData}
+                    channel={selectedChannel}
+                    maxAmplitude={maxAmplitude}
+                  />
 
                   {/* Graph monitor with line chart for every channel */}
-                  <GraphMonitorWidget data={monitoringData} />
+                  <GraphMonitorWidget
+                    data={monitoringData}
+                    channel={selectedChannel}
+                    setChannel={setSelectedChannel}
+                  />
                 </Grid>
               </Grid>
               <Grid item xs={4}>

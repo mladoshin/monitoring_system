@@ -4,15 +4,22 @@ import "./BarChart.scss";
 
 function BarChart({ data = [] }) {
   return (
-    <Stack direction="row" spacing={2} justifyContent="center">
-      {Array.from(Array(4).keys()).map((el) => (
-        <Bar/>
+    <Stack direction="row" spacing={5} justifyContent="center" py={1}>
+      {data.map((el) => (
+        <Bar value={el / 10 * 10000}/>
       ))}
     </Stack>
   );
 }
 
-function Bar({value = 0.5}) {
+function Bar({value}) {
+  let color = 'green'
+
+  if(value > 1.0){
+    value = 1.0
+    color = "#ff1744"
+  }
+
   return (
     <Stack
       direction="column"
@@ -25,7 +32,7 @@ function Bar({value = 0.5}) {
         width: 15,
       }}
     >
-        <Box sx={{width: 10, height: `${value*100}%`}} bgcolor="green"></Box>
+        <Box sx={{width: 10, height: `${value*100}%`}} bgcolor={color}></Box>
     </Stack>
   );
 }

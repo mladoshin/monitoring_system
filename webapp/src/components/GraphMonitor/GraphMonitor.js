@@ -2,8 +2,7 @@ import { Card, Grid } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
-function GraphMonitor({ data = [], scaleFactor=10 }) {
-  const [selectedChannel, setSelectedChannel] = useState(null);
+function GraphMonitor({ data = [], scaleFactor=10, channel: selectedChannel, setChannel: setSelectedChannel }) {
 
   const chart = useMemo(() => ({
     options: {
@@ -74,7 +73,6 @@ function GraphMonitor({ data = [], scaleFactor=10 }) {
 
   useEffect(() => {
     data.forEach((el, idx) => {
-      console.log(el.map(num => num*scaleFactor))
       ApexCharts.exec(`chart${idx}`, "updateSeries", [
         {
           data: el.map(num => num*scaleFactor),

@@ -3,19 +3,22 @@ import { Box, Stack } from "@mui/system";
 import React from "react";
 import BarChart from "./BarChart";
 
-function ParameterMonitor({}) {
+function ParameterMonitor({ data, channel, maxAmplitude }) {
+  const channel_params = data?.find((el) => el.channel == channel);
+  console.log(maxAmplitude.map(el => el*100000))
   return (
     <Card>
-      <Stack direction="row">
+      <Stack direction="row" alignItems="center">
         <Box sx={{ flexGrow: 1 }}>
-          <BarChart />
+          <BarChart data={maxAmplitude}/>
         </Box>
         <Divider orientation="vertical" flexItem />
-        <div>
-          <span>m = -0.00746</span>
-          <br />
-          <span>СКЗ = 9.7777</span>
-        </div>
+        {channel_params && (
+          <Stack direction="column" px={3}>
+            <span><b>M</b>{` = ${Number(channel_params?.avg).toFixed(6)}`}</span>
+            <span><b>СКЗ</b>{` = ${Number(channel_params?.rms).toFixed(6)}`}</span>
+          </Stack>
+        )}
       </Stack>
     </Card>
   );
