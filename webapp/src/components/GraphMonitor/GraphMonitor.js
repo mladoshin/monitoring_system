@@ -2,7 +2,7 @@ import { Card, Grid } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
 
-function GraphMonitor({ data = [] }) {
+function GraphMonitor({ data = [], scaleFactor=10 }) {
   const [selectedChannel, setSelectedChannel] = useState(null);
 
   const chart = useMemo(() => ({
@@ -40,7 +40,7 @@ function GraphMonitor({ data = [] }) {
         decimalsInFloat: 4,
       },
       xaxis: {
-        categories: Array.from(Array(100).keys()),
+        // categories: Array.from(Array(100).keys()),
         type: "numeric",
         labels: {
           show: false,
@@ -74,9 +74,10 @@ function GraphMonitor({ data = [] }) {
 
   useEffect(() => {
     data.forEach((el, idx) => {
-      ApexCharts.exec(String(idx), "updateSeries", [
+      console.log(el.map(num => num*scaleFactor))
+      ApexCharts.exec(`chart${idx}`, "updateSeries", [
         {
-          data: el,
+          data: el.map(num => num*scaleFactor),
         },
       ]);
     });
@@ -88,12 +89,11 @@ function GraphMonitor({ data = [] }) {
         const series = [
           {
             name: `Канал ${idx + 1}`,
-            data: data[idx] || [],
+            data: [],
           },
         ];
 
-        const options = { ...chart.options };
-        options.chart.id = idx;
+        const options = { ...chart.options, chart: {...chart.options.chart, id: `chart${idx}`} };
         options.title = { text: `Канал ${idx + 1}`, align: "left" };
         return (
           <Grid item xs={12} lg={6} key={idx}>

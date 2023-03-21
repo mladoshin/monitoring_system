@@ -209,7 +209,7 @@ export default class MonitoringServer {
             data_obj = JSON.parse(json)
         }
 
-        this.tmp = []
+        this.tmp = [] 
         for (const key in data_obj) {
             if (key === 'Date') continue
 

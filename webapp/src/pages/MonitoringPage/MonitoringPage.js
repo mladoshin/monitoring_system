@@ -50,21 +50,22 @@ const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
 function MonitoringPage() {
   const ChannelConfig = useConfigureMission({});
   const toastId = React.useRef(null);
+  const running = React.useRef(false)
 
   const [monitoringData, setMonitoringData] = useState(
     Array.from(Array(4).keys()).map((el) => [])
   );
 
   const [paramData, setParamData] = useState([]);
-  console.log(paramData);
   useEffect(() => {
     const socket = io("ws://localhost:3000", {
       reconnectionDelayMax: 10000,
     });
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({ data }) => {
-      console.log("Mission data received!");
-      console.log(data);
+      if(!running.current){
+        return
+      }
       setMonitoringData(
         Object.values(data)
           .map((el) => el["G"])
@@ -112,13 +113,14 @@ function MonitoringPage() {
       trigger_source: "NoWait",
       repeat_times: 0,
       record_duration: 0.1,
-      sample_rate: 1000,
-      data_count: 100,
-      repeat_interval: 500,
+      sample_rate: 16000,
+      data_count: 160000,
+      repeat_interval: 100,
       channel_config: ChannelConfig.config,
       mode: MODE.MONITORING,
     })
       .then(() => {
+        running.current = true
         toast.update(toastId.current, {
           render: "Миссия успешно запущена!",
           position: "bottom-right",
@@ -145,6 +147,7 @@ function MonitoringPage() {
     );
 
     await stopMission().then(() => {
+      running.current = false
       toast.update(toastId.current, {
         render: "Миссия успешно завершена",
         position: "bottom-right",
