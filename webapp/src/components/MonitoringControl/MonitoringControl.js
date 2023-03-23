@@ -31,7 +31,7 @@ function MonitoringControl({ onStart, onStop }) {
 
   function stopTimer() {
     setActive(false);
-    onStop()
+    onStop();
   }
 
   function resetTimer() {
@@ -52,8 +52,14 @@ function MonitoringControl({ onStart, onStop }) {
     milliseconds.toString().padStart(2, "0");
 
   return (
-    <Card>
-      <Stack direction="row" spacing={2} alignItems="center">
+    <Card sx={{ height: "66px" }} px={2}>
+      <Stack
+        direction="row"
+        spacing={2}
+        alignItems="center"
+        sx={{ width: "100%", height: "100%" }}
+        justifyContent="center"
+      >
         {active && (
           <Button variant="contained" onClick={stopTimer}>
             <StopIcon />
@@ -68,13 +74,11 @@ function MonitoringControl({ onStart, onStop }) {
           </>
         )}
 
-        <h3>{timeString}</h3>
+        <h3 style={{width: 80}}>{timeString}</h3>
 
-        {!active && (
-          <Button variant="contained" onClick={resetTimer}>
-            <ResetIcon />
-          </Button>
-        )}
+        <Button variant="contained" onClick={resetTimer} disabled={active}>
+          <ResetIcon />
+        </Button>
       </Stack>
     </Card>
   );
