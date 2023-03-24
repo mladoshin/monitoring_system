@@ -228,7 +228,7 @@ function MonitoringPage() {
 
                   {/* Channel configuration widget */}
                   <Grid item xs={12}>
-                    <MissionConfiguratorWidget ChannelConfig={ChannelConfig} />
+                    <MissionConfiguratorWidget ChannelConfig={ChannelConfig} monitoring/>
                   </Grid>
                 </Grid>
               </Grid>
