@@ -22,11 +22,12 @@ function MonitoringControl({ onStart, onStop }) {
     return () => clearInterval(interval);
   }, [active]);
 
-  function startTimer() {
-    onStart().then(() => {
+  async function startTimer() {
+    try{
+      await onStart()
       setActive(true);
       setTime(0);
-    });
+    }catch(err){}
   }
 
   function stopTimer() {

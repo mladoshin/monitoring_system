@@ -63,11 +63,7 @@ function MonitoringPage() {
   //console.log(maxAmplitude)
 
   useEffect(() => {
-    // const socket = io("ws://localhost:3000", {
-    //   reconnectionDelayMax: 10000,
-    // });
-
-    const {socket} = new SocketService()
+    const { socket } = new SocketService();
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({ data }) => {
       if (!running.current) {
@@ -82,11 +78,7 @@ function MonitoringPage() {
   }, []);
 
   useEffect(() => {
-    // const socket = io("ws://localhost:3000", {
-    //   reconnectionDelayMax: 10000,
-    // });
-
-    const {socket} = new SocketService()
+    const { socket } = new SocketService();
 
     socket.once(SOCKET_EVENTS.METRICS_UPDATE, onMetricUpdate);
   }, [paramData]);
@@ -136,34 +128,37 @@ function MonitoringPage() {
       { position: "bottom-right", hideProgressBar: true }
     );
 
-    await startMission({
-      input_type: "PseudoDifferential",
-      trigger_source: "NoWait",
-      repeat_times: 0,
-      record_duration: 0.1,
-      sample_rate: 16000,
-      data_count: 50,
-      repeat_interval: 1000,
-      channel_config: ChannelConfig.config,
-      mode: MODE.TEST_MONITORING,
-    })
-      .then(() => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        await startMission({
+          input_type: "PseudoDifferential",
+          trigger_source: "NoWait",
+          repeat_times: 0,
+          record_duration: 0.1,
+          sample_rate: 16000,
+          data_count: 50,
+          repeat_interval: 1000,
+          channel_config: ChannelConfig.config,
+          mode: MODE.TEST_MONITORING,
+        });
+
         running.current = true;
         toast.update(toastId.current, {
           render: "Миссия успешно запущена!",
           position: "bottom-right",
           type: "success",
         });
-      })
-      .catch((err) => {
+        resolve()
+      } catch (err) {
         let msg = err.message;
-
         toast.update(toastId.current, {
           render: msg,
           position: "bottom-right",
           type: "error",
         });
-      });
+        reject(err);
+      }
+    });
   }
 
   async function handleStop() {

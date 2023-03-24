@@ -204,7 +204,7 @@ class AppServer {
         this.test_id = file_name
 
         try {
-            if (!force && this.mode !== MODE.MONITORING) {
+            if (!force && this.mode !== MODE.TEST_MONITORING) {
                 if (
                     fs.existsSync(
                         path.join(
