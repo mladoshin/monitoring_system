@@ -8,7 +8,10 @@ function BarChart({ data = [] }) {
   return (
     <Stack direction="row" spacing={5} justifyContent="center" py={1}>
       {data.map((el, idx) => (
-        <Bar value={(el / 10) * 10000} id={idx} />
+        <Stack direction="column" alignItems="center">
+          <Typography sx={{fontSize: 12, fontWeight: "bold"}}>{idx+1}</Typography>
+          <Bar value={(el / 10) * 10000} id={idx} />
+        </Stack>
       ))}
     </Stack>
   );
@@ -26,7 +29,7 @@ function Bar({ value, id }) {
     <CustomPopover
       component={
         <Box sx={{ p: 1 }}>
-          <Typography sx={{fontWeight: 'bold'}}>Канал {id + 1}</Typography>
+          <Typography sx={{ fontWeight: "bold" }}>Канал {id + 1}</Typography>
           <Typography>Максимум: {Number(value).toFixed(3)}</Typography>
         </Box>
       }
@@ -38,7 +41,7 @@ function Bar({ value, id }) {
         sx={{
           borderTop: "1px solid black",
           borderBottom: "1px solid black",
-          height: 50,
+          height: 40,
           width: 15,
         }}
       >

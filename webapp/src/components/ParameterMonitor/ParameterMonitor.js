@@ -5,7 +5,6 @@ import BarChart from "./BarChart";
 
 function ParameterMonitor({ data, channel, maxAmplitude }) {
   const channel_params = data?.find((el) => el.channel == channel);
-  console.log(maxAmplitude.map(el => el*100000))
   return (
     <Card>
       <Stack direction="row" alignItems="center">
