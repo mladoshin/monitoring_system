@@ -14,7 +14,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
-import { SOCKET_EVENTS } from "../../../server/EventService";
+import { SOCKET_EVENTS } from "../../../common/enums.mjs";
 
 function Copyright() {
   return (

@@ -1,4 +1,4 @@
-const MIC_ENUM = {
+export const MIC_ENUM = {
     0: 'DataType',
     1: 'DataCount',
     2: 'SampleRate',
@@ -45,7 +45,7 @@ const MIC_ENUM = {
 
 }
 
-const SCADA_ENUM = {
+export const SCADA_ENUM = {
     0: 'DataType',
     1: 'DataCount',
     2: 'SampleRate',
@@ -128,7 +128,7 @@ const SCADA_ENUM = {
     79: 'Castom_Kod',
 }
 
-const ALGORITHMS_ENUM = {
+export const ALGORITHMS_ENUM = {
     '1': 'Stаt',
     '2': 'Sing',
     '3': 'Trend',
@@ -144,11 +144,18 @@ const ALGORITHMS_ENUM = {
     '8.1': 'MIC_DFT'
 }
 
-const MODE = {
+export const MODE = {
     MONITORING: 'monitoring', //for contsant monitoring and inserting new data into db
     TEST_MONITORING: 'test-monitoring', //for test monitoring (watching charts and metrics in webapp)
     TESTING: 'testing', //mode for conducting experiments (tests)
     CALIBRATION: 'calibration' //mode for calibration
 }
 
-export {MIC_ENUM, SCADA_ENUM, ALGORITHMS_ENUM, MODE}
+export const SOCKET_EVENTS = {
+    FILE_CHANGE: 'file-change',
+    MISSION_START: 'mission-start',
+    MISSION_COMPLETE: 'mission-complete',
+    CALIBRATION_START: 'calibration-start',
+    CALIBRATION_COMPLETE: 'calibration-complete',
+    METRICS_UPDATE: 'metrics-update'
+}

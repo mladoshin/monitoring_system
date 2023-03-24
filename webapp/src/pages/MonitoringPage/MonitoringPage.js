@@ -10,7 +10,7 @@ import { toast } from "react-toastify";
 import { startMission, stopMission } from "../../api";
 import { MODE } from "../../../../common/enums.mjs";
 import { io } from "socket.io-client";
-import { SOCKET_EVENTS } from "../../../../server/EventService";
+import { SOCKET_EVENTS } from "../../../../common/enums.mjs";
 import ParameterMonitor from "../../components/ParameterMonitor/ParameterMonitor";
 
 const MissionConfigSchema = Yup.object().shape({

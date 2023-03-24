@@ -12,7 +12,8 @@ import { getCalibrationConfig } from './config.js'
 import cors from 'cors'
 import { createServer } from 'http'
 import { Server } from 'socket.io'
-import EventService, { SOCKET_EVENTS } from './EventService.js'
+import EventService from './EventService.js'
+import { SOCKET_EVENTS } from '../common/enums.mjs'
 
 dotenv.config()
 

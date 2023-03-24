@@ -1,11 +1,4 @@
-export const SOCKET_EVENTS = {
-    FILE_CHANGE: 'file-change',
-    MISSION_START: 'mission-start',
-    MISSION_COMPLETE: 'mission-complete',
-    CALIBRATION_START: 'calibration-start',
-    CALIBRATION_COMPLETE: 'calibration-complete',
-    METRICS_UPDATE: 'metrics-update'
-}
+import { SOCKET_EVENTS } from "../common/enums.mjs";
 
 class EventService {
     static instance;

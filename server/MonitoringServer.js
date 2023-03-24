@@ -4,7 +4,7 @@ import axios from 'axios'
 import { dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { G_DataInfo, RmsAvg } from '../common/utils/utils.mjs'
-import { SOCKET_EVENTS } from './EventService.js'
+import { SOCKET_EVENTS } from '../common/enums.mjs'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
