@@ -48,7 +48,7 @@ const GraphMonitorWidget = withItemWrapper(GraphMonitor);
 const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
 
 function MonitoringPage() {
-  const ChannelConfig = useConfigureMission({});
+  const ChannelConfig = useConfigureMission({monitoring: true});
   const toastId = React.useRef(null);
   const running = React.useRef(false);
 
