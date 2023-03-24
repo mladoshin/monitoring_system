@@ -8,6 +8,7 @@ COPY webapp/package*.json ./
 RUN npm ci --legacy-peer-deps
 
 COPY webapp/ .
+COPY enums.js ./server
 
 RUN npm run build
 

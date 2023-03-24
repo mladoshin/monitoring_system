@@ -1,7 +1,6 @@
-import { Box, Button, Card, CircularProgress, Grid } from "@mui/material";
+import { Box, Button, CircularProgress, Grid } from "@mui/material";
 import { Formik } from "formik";
 import React, { useEffect, useState } from "react";
-import ControllerConfigurator from "../../components/ControllerConfigurator/ControllerConfigurator";
 import MissionConfiguratorWidget from "../../components/MissionConfigurator/MissionConfiguratorWidget";
 import * as Yup from "yup";
 import useConfigureMission from "../../hooks/useConfigureMission";
@@ -9,7 +8,7 @@ import MonitoringControl from "../../components/MonitoringControl/MonitoringCont
 import GraphMonitor from "../../components/GraphMonitor/GraphMonitor";
 import { toast } from "react-toastify";
 import { startMission, stopMission } from "../../api";
-import { MODE } from "../../../enums";
+import { MODE } from "../../../../common/enums.mjs";
 import { io } from "socket.io-client";
 import { SOCKET_EVENTS } from "../../../../server/EventService";
 import ParameterMonitor from "../../components/ParameterMonitor/ParameterMonitor";

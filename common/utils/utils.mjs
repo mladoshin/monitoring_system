@@ -1,4 +1,4 @@
-import { MIC_ENUM, MODE, SCADA_ENUM } from "../../enums.js"
+import { MIC_ENUM, MODE, SCADA_ENUM } from "../enums.mjs"
 
 function avg(arr) {
     let sum = 0

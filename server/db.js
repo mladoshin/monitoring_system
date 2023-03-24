@@ -1,5 +1,5 @@
 import pkg from 'pg';
-import { MIC_ENUM } from './enums.js';
+import { MIC_ENUM } from '../common/enums.mjs';
 const { Client, Pool } = pkg;
 
 class PostgresDB {

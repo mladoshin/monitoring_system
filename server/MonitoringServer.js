@@ -1,10 +1,9 @@
 import { writeData, connect, disconnect, db } from './db.js'
-import { MIC_ENUM, MODE } from './enums.js'
+import { MIC_ENUM, MODE } from '../common/enums.mjs'
 import axios from 'axios'
-import fs from 'fs'
-import path, { dirname } from 'path'
+import { dirname } from 'path'
 import { fileURLToPath } from 'url'
-import { G_DataInfo, RmsAvg } from './utils/utils.js'
+import { G_DataInfo, RmsAvg } from '../common/utils/utils.mjs'
 import { SOCKET_EVENTS } from './EventService.js'
 
 const __filename = fileURLToPath(import.meta.url)
@@ -107,8 +106,10 @@ export default class MonitoringServer {
                     this.processTestingData(str)
                     break
                 case MODE.MONITORING:
+                    this.processMonitoringData(str)
+                    break
+                case MODE.TEST_MONITORING:
                     this.processTestingData(str)
-                    // this.processMonitoringData(str)
                     break
                 case MODE.CALIBRATION:
                     this.processCalibrationData(str)
@@ -202,14 +203,14 @@ export default class MonitoringServer {
         } catch (err) {
             const idx = String(data_string).indexOf('}{')
             console.log(`Error index ${idx}`)
-            
+
             const result_array = data_string.split('}{')
             const json = `{${result_array[result_array.length - 1]}`
             console.log(json)
             data_obj = JSON.parse(json)
         }
 
-        this.tmp = [] 
+        this.tmp = []
         for (const key in data_obj) {
             if (key === 'Date') continue
 

@@ -18,15 +18,11 @@ import { Formik, useFormikContext } from 'formik'
 import React, { useEffect, useState } from 'react'
 import {
     calibrateChannel,
-    fetchGRawdata,
     pollCalibrationResults,
-    pollGRawData,
 } from '../../api'
 import './Modal.scss'
 import { toast } from 'react-toastify'
-import Chart from '../Chart'
 import { CONVERSION_TYPES } from '../../constants/config'
-import { transformGRawData } from '../../utils/server_utils'
 
 const defaultConversion = {
     DataType: 'G',
