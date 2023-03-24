@@ -5,7 +5,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Link from "@mui/material/Link";
-import { io } from "socket.io-client";
 import Navigator from "./Navigator";
 import Header from "./Header";
 import { useLocation } from "react-router";
@@ -15,6 +14,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
 import { SOCKET_EVENTS } from "../../../common/enums.mjs";
+import SocketService from "../utils/SocketService";
 
 function Copyright() {
   return (
@@ -187,9 +187,11 @@ export default function Layout({ children }) {
   };
 
   useEffect(() => {
-    const socket = io("ws://localhost:3000", {
-      reconnectionDelayMax: 10000
-    });
+    // const socket = io("ws://localhost:3000", {
+    //   reconnectionDelayMax: 10000
+    // });
+
+    const {socket} = new SocketService()
 
     socket.on("connect", () => {
       console.log("Connected to socket!");

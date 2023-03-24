@@ -155,9 +155,11 @@ export default class MonitoringServer {
     }
 
     processChannelData = (channel, data) => {
-        console.log(channel)
-        console.log(Object.keys(data).join(', '))
-        console.log('---------------------------')
+        // console.log(channel)
+        // console.log(Object.keys(data).join(', '))
+        // console.log('---------------------------')
+
+        const isTesting = this.AS.mode === MODE.TESTING
 
         for (const data_obj in data) {
             if (data_obj === 'G') {
@@ -165,10 +167,12 @@ export default class MonitoringServer {
                 const transformed_g_data = data['G'].map((el) => el * 10)
 
                 //and write to file .dat
-                this.AS.saveBinaryFile(
-                    transformed_g_data.join(',\n'),
-                    channel.slice(2)
-                )
+                if (isTesting) {
+                    this.AS.saveBinaryFile(
+                        transformed_g_data.join(',\n'),
+                        channel.slice(2)
+                    )
+                }
 
                 // write signal info into separate file
                 const metrics = G_DataInfo(transformed_g_data)
@@ -182,16 +186,20 @@ export default class MonitoringServer {
                     : undefined
                 const params = { ...data['Customization'] }
 
-                this.AS.saveParamFile(params)
+                //do not save files for TEST_MONITORING mode
+                if (!isTesting) {
+                    this.AS.saveParamFile(params)
 
-                this.AS.saveMICFile(
-                    [
-                        channel.slice(2),
-                        ...data['Customization'],
-                        peak,
-                        rms,
-                    ].join(', ')
-                )
+                    this.AS.saveMICFile(
+                        [
+                            channel.slice(2),
+                            ...data['Customization'],
+                            peak,
+                            rms,
+                        ].join(', ')
+                    )
+                }
+
             }
         }
     }
@@ -206,7 +214,6 @@ export default class MonitoringServer {
 
             const result_array = data_string.split('}{')
             const json = `{${result_array[result_array.length - 1]}`
-            console.log(json)
             data_obj = JSON.parse(json)
         }
 
@@ -217,10 +224,19 @@ export default class MonitoringServer {
             //console.log(data_obj[key])
             this.processChannelData(key, data_obj[key])
         }
-        this.AS.saveMetrics(this.tmp)
 
+        //only for conducting experiments (TESTING mode)
+        if (this.AS.mode === MODE.TESTING) {
+            this.AS.saveMetrics(this.tmp)
+            this.AS.updateAllFiles()
+        }
+
+        console.log(this.AS.mode)
+
+        //send metrics to socket
+        this.AS.eventService.emit(SOCKET_EVENTS.METRICS_UPDATE, this.tmp)
+        //send data to socket
         this.AS.eventService.emit(SOCKET_EVENTS.MISSION_COMPLETE, data_obj)
-        this.AS.updateAllFiles()
     }
 
     processMonitoringData(data_string) {

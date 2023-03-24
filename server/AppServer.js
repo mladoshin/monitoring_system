@@ -424,15 +424,6 @@ class AppServer {
                 ),
                 G_data
             )
-
-            // fs.writeFileSync(
-            //     path.join(
-            //         __dirname,
-            //         `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}`
-            //     ),
-            //     Buffer.from(new Uint32Array([1, 2, 3, 4]).buffer)
-            // )
-            // file written successfully
         } catch (err) {
             console.error(err)
         }
@@ -795,8 +786,6 @@ class AppServer {
     saveMetrics = (metrics) => {
         const json = JSON.stringify(metrics, null, 2)
 
-        this.eventService.emit(SOCKET_EVENTS.METRICS_UPDATE, metrics)
-
         fs.writeFile(
             path.join(
                 __dirname,
@@ -814,13 +803,6 @@ class AppServer {
     updateAllFiles() {
         const files = this.listFiles('', {})
         this.eventService.emit(SOCKET_EVENTS.FILE_CHANGE, files)
-    }
-
-    withFileUpdate(func) {
-        return async (req, res) => {
-            await func(req, res)
-            this.updateAllFiles()
-        }
     }
 }
 

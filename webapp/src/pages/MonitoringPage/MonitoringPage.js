@@ -12,6 +12,7 @@ import { MODE } from "../../../../common/enums.mjs";
 import { io } from "socket.io-client";
 import { SOCKET_EVENTS } from "../../../../common/enums.mjs";
 import ParameterMonitor from "../../components/ParameterMonitor/ParameterMonitor";
+import SocketService from "../../utils/SocketService";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -62,9 +63,11 @@ function MonitoringPage() {
   //console.log(maxAmplitude)
 
   useEffect(() => {
-    const socket = io("ws://localhost:3000", {
-      reconnectionDelayMax: 10000,
-    });
+    // const socket = io("ws://localhost:3000", {
+    //   reconnectionDelayMax: 10000,
+    // });
+
+    const {socket} = new SocketService()
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, ({ data }) => {
       if (!running.current) {
@@ -79,9 +82,11 @@ function MonitoringPage() {
   }, []);
 
   useEffect(() => {
-    const socket = io("ws://localhost:3000", {
-      reconnectionDelayMax: 10000,
-    });
+    // const socket = io("ws://localhost:3000", {
+    //   reconnectionDelayMax: 10000,
+    // });
+
+    const {socket} = new SocketService()
 
     socket.once(SOCKET_EVENTS.METRICS_UPDATE, onMetricUpdate);
   }, [paramData]);
@@ -140,7 +145,7 @@ function MonitoringPage() {
       data_count: 50,
       repeat_interval: 1000,
       channel_config: ChannelConfig.config,
-      mode: MODE.MONITORING,
+      mode: MODE.TEST_MONITORING,
     })
       .then(() => {
         running.current = true;

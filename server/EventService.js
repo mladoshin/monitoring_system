@@ -11,7 +11,7 @@ class EventService {
     }
 
     emit(event, data) {
-        if (!SOCKET_EVENTS[event]) {
+        if (!Object.values(SOCKET_EVENTS).includes(event)) {
             console.warn(
                 'Event should be one of ',
                 Object.keys(SOCKET_EVENTS).join(' | ')
