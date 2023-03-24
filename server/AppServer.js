@@ -285,7 +285,7 @@ class AppServer {
             .catch((err) => (error = err.message))
 
         if (error) {
-            res.status(400).send(error)
+            res.status(400).send("Возникла ошибка при запросе к контроллеру")
             console.log(error)
             return
         }
