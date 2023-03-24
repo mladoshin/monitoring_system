@@ -201,7 +201,7 @@ function MonitoringPage() {
               }
             }}
           >
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
               <Grid item xs={8}>
                 <Grid container rowSpacing={2}>
                   <ParameterMonitorWidget
@@ -219,7 +219,7 @@ function MonitoringPage() {
                 </Grid>
               </Grid>
               <Grid item xs={4}>
-                <Grid container>
+                <Grid container spacing={2}>
                   {/* Monitoring Control widget */}
                   <MonitoringControlWidget
                     onStart={handleStart}
@@ -233,25 +233,6 @@ function MonitoringPage() {
                 </Grid>
               </Grid>
             </Grid>
-
-            <Box
-              sx={{
-                display: "flex",
-                width: "100%",
-                marginBottom: "3rem",
-                marginTop: "1rem",
-              }}
-            >
-              <Button
-                variant="contained"
-                size="large"
-                sx={{ marginLeft: "auto" }}
-                type="submit"
-                disabled={props.isSubmitting}
-              >
-                Начать миссию
-              </Button>
-            </Box>
           </form>
         )}
       </Formik>

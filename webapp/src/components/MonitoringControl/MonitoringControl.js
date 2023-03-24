@@ -53,7 +53,7 @@ function MonitoringControl({ onStart, onStop }) {
     milliseconds.toString().padStart(2, "0");
 
   return (
-    <Card sx={{ height: "66px" }} px={2}>
+    <Card sx={{ height: "74px" }} px={2}>
       <Stack
         direction="row"
         spacing={2}

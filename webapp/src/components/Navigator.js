@@ -17,6 +17,10 @@ import SettingsInputComponentIcon from '@mui/icons-material/SettingsInputCompone
 import TimerIcon from '@mui/icons-material/Timer'
 import SettingsIcon from '@mui/icons-material/Settings'
 import PhonelinkSetupIcon from '@mui/icons-material/PhonelinkSetup'
+import MonitorIcon from '@mui/icons-material/Monitor';
+import MemoryIcon from '@mui/icons-material/Memory';
+import WorkIcon from '@mui/icons-material/Work';
+import TopicIcon from '@mui/icons-material/Topic';
 import { Link } from 'react-router-dom'
 import { MENU } from '../constants/config'
 
@@ -25,19 +29,19 @@ const categories = [
         id: 'Главная',
         children: [
             {
-                icon: <HomeIcon />,
+                icon: <WorkIcon />,
             },
             {
                 id: 'missions',
-                icon: <PeopleIcon />,
+                icon: <TopicIcon />,
             },
             {
                 id: 'monitoring',
-                icon: <PeopleIcon />,
+                icon: <MonitorIcon />,
             },
             {
                 id: 'postprocessing',
-                icon: <PeopleIcon />,
+                icon: <MemoryIcon />,
             },
         ],
     },

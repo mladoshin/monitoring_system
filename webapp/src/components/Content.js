@@ -243,6 +243,7 @@ export default function Content() {
                             ChannelConfig={ChannelConfig}
                             paramsData={paramsData}
                             metrics={metricsData}
+                            style={{mt: 3, py: 2}}
                         />
 
                         <MissionModeConfig />

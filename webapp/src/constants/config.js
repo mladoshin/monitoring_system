@@ -1,5 +1,5 @@
 const MENU = {
-  'missions': 'Миссии',
+  'missions': 'Результаты испытаний',
   'system-settings': 'Системные настройки',
   'network-settings': 'Сетевые настройки',
   'home': 'Панель управления',
