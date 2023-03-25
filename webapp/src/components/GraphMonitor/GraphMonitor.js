@@ -1,9 +1,14 @@
 import { Card, Grid } from "@mui/material";
 import React, { useEffect, useMemo, useState } from "react";
 import ReactApexChart from "react-apexcharts";
+import { fft, util } from "fft-js";
 
-function GraphMonitor({ data = [], scaleFactor=10, channel: selectedChannel, setChannel: setSelectedChannel }) {
-
+function GraphMonitor({
+  data = [],
+  scaleFactor = 10,
+  channel: selectedChannel,
+  setChannel: setSelectedChannel,
+}) {
   const chart = useMemo(() => ({
     options: {
       chart: {
@@ -49,8 +54,15 @@ function GraphMonitor({ data = [], scaleFactor=10, channel: selectedChannel, set
   }));
 
   const spectrum_chart_options = useMemo(() => {
-    const options = { ...chart.options, chart: {...chart.options.chart, id: "spectrum_chart"}};
-    options.title.align = "center"
+    const options = {
+      ...chart.options,
+      chart: { ...chart.options.chart, id: "spectrum_chart" },
+      stroke: {
+        curve: "straight",
+        width: 2,
+      },
+    };
+    options.title.align = "center";
     return options;
   }, []);
 
@@ -72,10 +84,69 @@ function GraphMonitor({ data = [], scaleFactor=10, channel: selectedChannel, set
   }, [selectedChannel]);
 
   useEffect(() => {
+    try {
+      const phasors = fft(data[selectedChannel].slice(0, 128));
+
+      const frequencies = util.fftFreq(phasors, 16000); // Sample rate and coef is just used for length, and frequency step
+      const magnitudes = util.fftMag(phasors);
+
+      const both = frequencies.map((f, ix) => ({
+        frequency: f,
+        magnitude: magnitudes[ix],
+      }));
+      console.log(both);
+
+      ApexCharts.exec("spectrum_chart", "updateSeries", [
+        {
+          data: both.map((el) => el.magnitude),
+        },
+      ]);
+
+      ApexCharts.exec(
+        "spectrum_chart",
+        "updateOptions",
+        {
+          xaxis: {
+            categories: both.map((el) => el.frequency),
+            labels: {
+              show: true,
+            },
+          },
+        },
+        false,
+        false
+      );
+    } catch (err) {
+      ApexCharts.exec("spectrum_chart", "updateSeries", [
+        {
+          data: [],
+        },
+      ]);
+
+      ApexCharts.exec(
+        "spectrum_chart",
+        "updateOptions",
+        {
+          xaxis: {
+            categories: [],
+            labels: {
+              show: true,
+            },
+          },
+        },
+        false,
+        false
+      );
+      console.error(err);
+    }
+  }, [data, selectedChannel]);
+
+  //update main chart data
+  useEffect(() => {
     data.forEach((el, idx) => {
       ApexCharts.exec(`chart${idx}`, "updateSeries", [
         {
-          data: el.map(num => num*scaleFactor),
+          data: el.map((num) => num * scaleFactor),
         },
       ]);
     });
@@ -91,7 +162,10 @@ function GraphMonitor({ data = [], scaleFactor=10, channel: selectedChannel, set
           },
         ];
 
-        const options = { ...chart.options, chart: {...chart.options.chart, id: `chart${idx}`} };
+        const options = {
+          ...chart.options,
+          chart: { ...chart.options.chart, id: `chart${idx}` },
+        };
         options.title = { text: `Канал ${idx + 1}`, align: "left" };
         return (
           <Grid item xs={12} lg={6} key={idx}>

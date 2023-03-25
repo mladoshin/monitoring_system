@@ -136,7 +136,7 @@ function MonitoringPage() {
           repeat_times: 0,
           record_duration: 0.1,
           sample_rate: 16000,
-          data_count: 50,
+          data_count: 128,
           repeat_interval: 1000,
           channel_config: ChannelConfig.config,
           mode: MODE.TEST_MONITORING,
