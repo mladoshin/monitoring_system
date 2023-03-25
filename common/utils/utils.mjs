@@ -120,7 +120,7 @@ const G_DataInfo = (arr) => {
         cko = (sum_cko / count)**0.5
     }
 
-    return {rms, avg, peak: (Math.abs(max)+Math.abs(min))/2, cko}
+    return {rms, avg, peak: (Math.abs(max)+Math.abs(min))/2, cko, max, min}
 }
 
 export { avg, rms, RmsAvg, _transformToStatData, _axisGenerator, _jsonGenerator, G_DataInfo }

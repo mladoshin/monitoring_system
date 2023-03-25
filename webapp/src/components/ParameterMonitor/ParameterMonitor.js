@@ -5,11 +5,13 @@ import BarChart from "./BarChart";
 
 function ParameterMonitor({ data, channel, maxAmplitude }) {
   const channel_params = data?.find((el) => el.channel == channel);
+
+  const chart_data = maxAmplitude?.map(item => item.max-item.min)
   return (
     <Card>
       <Stack direction="row" alignItems="center">
         <Box sx={{ flexGrow: 1 }}>
-          <BarChart data={maxAmplitude}/>
+          <BarChart data={chart_data}/>
         </Box>
         <Divider orientation="vertical" flexItem />
         {channel_params && (

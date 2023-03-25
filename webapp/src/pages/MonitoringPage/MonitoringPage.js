@@ -43,12 +43,19 @@ const MissionConfigSchema = Yup.object().shape({
     .required("Обязательное поле"),
 });
 
+const initMaxRange = [
+  { min: null, max: null },
+  { min: null, max: null },
+  { min: null, max: null },
+  { min: null, max: null },
+]
+
 const MonitoringControlWidget = withItemWrapper(MonitoringControl);
 const GraphMonitorWidget = withItemWrapper(GraphMonitor);
 const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
 
 function MonitoringPage() {
-  const ChannelConfig = useConfigureMission({monitoring: true});
+  const ChannelConfig = useConfigureMission({ monitoring: true });
   const toastId = React.useRef(null);
   const running = React.useRef(false);
 
@@ -58,7 +65,7 @@ function MonitoringPage() {
 
   const [paramData, setParamData] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState(null);
-  const [maxAmplitude, setMaxAmplitude] = useState([0, 0, 0, 0]);
+  const [maxAmplitude, setMaxAmplitude] = useState(initMaxRange);
 
   //console.log(maxAmplitude)
 
@@ -85,15 +92,21 @@ function MonitoringPage() {
 
   function onMetricUpdate({ data }) {
     setParamData(data);
-
-    const amp = data.map((el) => el.peak);
+    const ranges = data.map((el) => ({ max: el.max, min: el.min }));
 
     const tmp = [...maxAmplitude];
-    amp.forEach((el, idx) => {
-      if (el > tmp[idx]) {
-        tmp[idx] = el;
+
+    ranges.forEach((r, idx) => {
+      if (tmp[idx].max === null || r.max > tmp[idx].max) {
+        tmp[idx].max = r.max;
+      }
+
+      if (tmp[idx].min === null || r.min < tmp[idx].min) {
+        tmp[idx].min = r.min;
       }
     });
+
+    console.log(tmp)
 
     setMaxAmplitude(tmp);
   }
@@ -128,6 +141,9 @@ function MonitoringPage() {
       { position: "bottom-right", hideProgressBar: true }
     );
 
+    //reset the max range
+    setMaxAmplitude(initMaxRange)
+    
     return new Promise(async (resolve, reject) => {
       try {
         await startMission({
@@ -148,7 +164,7 @@ function MonitoringPage() {
           position: "bottom-right",
           type: "success",
         });
-        resolve()
+        resolve();
       } catch (err) {
         let msg = err.message;
         toast.update(toastId.current, {
@@ -228,7 +244,10 @@ function MonitoringPage() {
 
                   {/* Channel configuration widget */}
                   <Grid item xs={12}>
-                    <MissionConfiguratorWidget ChannelConfig={ChannelConfig} monitoring/>
+                    <MissionConfiguratorWidget
+                      ChannelConfig={ChannelConfig}
+                      monitoring
+                    />
                   </Grid>
                 </Grid>
               </Grid>

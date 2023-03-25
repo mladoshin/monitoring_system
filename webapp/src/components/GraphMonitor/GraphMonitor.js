@@ -137,7 +137,6 @@ function GraphMonitor({
         false,
         false
       );
-      console.error(err);
     }
   }, [data, selectedChannel]);
 
