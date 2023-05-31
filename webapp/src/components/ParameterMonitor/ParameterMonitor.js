@@ -1,15 +1,16 @@
-import { Card, Divider } from "@mui/material";
+import { Button, Card, Divider } from "@mui/material";
 import { Box, Stack } from "@mui/system";
 import React from "react";
 import BarChart from "./BarChart";
 
-function ParameterMonitor({ data, channel, maxAmplitude }) {
+function ParameterMonitor({ data, channel, maxAmplitude, resetMaxAmplitude }) {
   const channel_params = data?.find((el) => el.channel == channel);
 
   const chart_data = maxAmplitude?.map(item => item.max-item.min)
   return (
     <Card>
       <Stack direction="row" alignItems="center">
+        <Button variant="outlined" onClick={resetMaxAmplitude}>Сбросить</Button>
         <Box sx={{ flexGrow: 1 }}>
           <BarChart data={chart_data}/>
         </Box>

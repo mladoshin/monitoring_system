@@ -48,11 +48,31 @@ const initMaxRange = [
   { min: null, max: null },
   { min: null, max: null },
   { min: null, max: null },
-]
+];
 
 const MonitoringControlWidget = withItemWrapper(MonitoringControl);
 const GraphMonitorWidget = withItemWrapper(GraphMonitor);
 const ParameterMonitorWidget = withItemWrapper(ParameterMonitor);
+
+function centerSignal(data) {
+  let offsets = [];
+
+  data.forEach((ch, idx) => {
+    let sum = 0;
+    for (let i = 0; i < ch.length; i++) {
+      sum += ch[i];
+    }
+    offsets.push(sum / ch.length);
+  });
+
+  let tmp = [];
+
+  data.forEach((ch, idx) => {
+    tmp.push(ch.map((el) => el - offsets[idx]));
+  });
+
+  return tmp;
+}
 
 function MonitoringPage() {
   const ChannelConfig = useConfigureMission({ monitoring: true });
@@ -65,9 +85,7 @@ function MonitoringPage() {
 
   const [paramData, setParamData] = useState([]);
   const [selectedChannel, setSelectedChannel] = useState(null);
-  const [maxAmplitude, setMaxAmplitude] = useState(initMaxRange);
-
-  //console.log(maxAmplitude)
+  const [maxAmplitude, setMaxAmplitude] = useState([...initMaxRange]);
 
   useEffect(() => {
     const { socket } = new SocketService();
@@ -76,11 +94,19 @@ function MonitoringPage() {
       if (!running.current) {
         return;
       }
-      setMonitoringData(
+
+      console.log(
         Object.values(data)
           .map((el) => el["G"])
           .filter((el) => Array.isArray(el))
       );
+      const tmp = centerSignal(
+        Object.values(data)
+          .map((el) => el["G"])
+          .filter((el) => Array.isArray(el))
+      );
+
+      setMonitoringData(tmp);
     });
   }, []);
 
@@ -89,6 +115,20 @@ function MonitoringPage() {
 
     socket.once(SOCKET_EVENTS.METRICS_UPDATE, onMetricUpdate);
   }, [paramData]);
+
+  function resetMaxAmplitude() {
+    setMaxAmplitude((state) => {
+      let tmp = [...state];
+      tmp.forEach((el) => {
+        el.max = 0;
+        el.min = 0;
+      });
+
+      return tmp
+    });
+  }
+
+  console.log(maxAmplitude);
 
   function onMetricUpdate({ data }) {
     setParamData(data);
@@ -106,7 +146,7 @@ function MonitoringPage() {
       }
     });
 
-    console.log(tmp)
+    // console.log(tmp);
 
     setMaxAmplitude(tmp);
   }
@@ -142,8 +182,8 @@ function MonitoringPage() {
     );
 
     //reset the max range
-    setMaxAmplitude(initMaxRange)
-    
+    resetMaxAmplitude();
+
     return new Promise(async (resolve, reject) => {
       try {
         await startMission({
@@ -224,6 +264,7 @@ function MonitoringPage() {
                     data={paramData}
                     channel={selectedChannel}
                     maxAmplitude={maxAmplitude}
+                    resetMaxAmplitude={resetMaxAmplitude}
                   />
 
                   {/* Graph monitor with line chart for every channel */}
