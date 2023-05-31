@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
 import { SOCKET_EVENTS } from "../../../common/enums.mjs";
 import SocketService from "../utils/SocketService";
+import { setLoading, setSuccess } from "../store/slices/missionSlice";
 
 function Copyright() {
   return (
@@ -187,10 +188,6 @@ export default function Layout({ children }) {
   };
 
   useEffect(() => {
-    // const socket = io("ws://localhost:3000", {
-    //   reconnectionDelayMax: 10000
-    // });
-
     const {socket} = new SocketService()
 
     socket.on("connect", () => {
@@ -203,10 +200,10 @@ export default function Layout({ children }) {
     //   console.log(data);
     // });
 
-    // socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
-    //   console.log("Mission data received!");
-    //   console.log(data)
-    // });
+    socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
+      console.log("Mission completed!");
+      dispatch(setSuccess())
+    });
 
     socket.on(SOCKET_EVENTS.FILE_CHANGE, (res) => {
       console.log("File change");

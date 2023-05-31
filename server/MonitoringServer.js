@@ -100,7 +100,7 @@ export default class MonitoringServer {
             this.buffer = Buffer.concat([this.buffer, chunk])
             console.log('All chunks have arrived!')
             const str = this.buffer.toString('utf-8').replace(/\0/g, '')
-
+                        
             switch (this.AS.mode) {
                 case MODE.TESTING:
                     this.processTestingData(str)
@@ -230,8 +230,6 @@ export default class MonitoringServer {
             this.AS.saveMetrics(this.tmp)
             this.AS.updateAllFiles()
         }
-
-        console.log(this.AS.mode)
 
         //send metrics to socket
         this.AS.eventService.emit(SOCKET_EVENTS.METRICS_UPDATE, this.tmp)

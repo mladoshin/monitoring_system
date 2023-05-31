@@ -19,6 +19,7 @@ function BarChart({ data = [] }) {
 
 function Bar({ value, id }) {
   let color = "green";
+  let tmp = value;
 
   if (value > 1.0) {
     value = 1.0;
@@ -30,7 +31,7 @@ function Bar({ value, id }) {
       component={
         <Box sx={{ p: 1 }}>
           <Typography sx={{ fontWeight: "bold" }}>Канал {id + 1}</Typography>
-          <Typography>Максимум: {Number(value).toFixed(3)}</Typography>
+          <Typography>Максимум: {Number(tmp).toFixed(3)}</Typography>
         </Box>
       }
     >

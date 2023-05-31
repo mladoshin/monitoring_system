@@ -763,7 +763,7 @@ class AppServer {
         }
 
         const body = {
-            address: ip.address(),
+            address: ip_address,
             port: Number(process.env.TCP_PORT),
         }
 
