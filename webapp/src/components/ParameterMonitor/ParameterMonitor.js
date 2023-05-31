@@ -10,7 +10,7 @@ function ParameterMonitor({ data, channel, maxAmplitude, resetMaxAmplitude }) {
   return (
     <Card>
       <Stack direction="row" alignItems="center">
-        <Button variant="outlined" onClick={resetMaxAmplitude}>Сбросить</Button>
+        <Button variant="text" onClick={resetMaxAmplitude} sx={{ml: 2}}>Сбросить</Button>
         <Box sx={{ flexGrow: 1 }}>
           <BarChart data={chart_data}/>
         </Box>
