@@ -1,12 +1,13 @@
 {
   "input_type": "PseudoDifferential",
   "trigger_source": "NoWait",
-  "repeat_interval": "5000",
-  "repeat_times": "1",
-  "sample_rate": 16000,
-  "data_count": 16000,
-  "file_name": 5,
-  "directory_name": 1,
+  "repeat_interval": 0.5,
+  "repeat_times": 0,
+  "sample_rate": "1000",
+  "data_count": 100,
+  "record_duration": "0.1",
+  "file_name": "1",
+  "directory_name": "2",
   "comment": "",
   "channels": [],
   "modal_open": false,
@@ -26,24 +27,7 @@
       "IEPE": "Disable",
       "Conversion": [
         {
-          "DataType": "Customization",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000",
-            "CustomParameter": "MIC-DFT"
-          }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
+          "DataType": "G",
           "Algorithm": {
             "WindowType": "Hann",
             "FreqStart": "10",
@@ -72,22 +56,6 @@
             "FreqStart": "10",
             "FreqEnd": "10000"
           }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
         }
       ]
     },
@@ -111,22 +79,6 @@
             "FreqStart": "10",
             "FreqEnd": "10000"
           }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
         }
       ]
     },
@@ -145,22 +97,6 @@
       "Conversion": [
         {
           "DataType": "G",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
           "Algorithm": {
             "WindowType": "Hann",
             "FreqStart": "10",

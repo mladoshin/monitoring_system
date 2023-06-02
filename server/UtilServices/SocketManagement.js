@@ -77,15 +77,12 @@ class SocketManagement {
             error = err
         })
 
-        console.log('end')
-        console.log(hosts)
-
         if (error) {
             res.status(400).send(error)
             return
         }
 
-        const idx = hosts.findIndex((h) => h.address === ip_address)
+        const idx = hosts.host.findIndex((h) => h.address === ip_address)
         if (idx !== -1) {
             return res.status(200).send(hosts)
         }
