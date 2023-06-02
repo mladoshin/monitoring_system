@@ -38,7 +38,7 @@ class AppServer {
         this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.getUserProfiles)
         this.app.get('/api/user-profile', this.getUserProfile)
-        this.app.get("/api/network-info", this.getNetworkInfo)
+        this.app.get('/api/network-info', this.getNetworkInfo)
         this.app.delete('/api/controller-history', this.clearControllerHistory)
         this.app.get(
             '/api/get-socket-connections',
@@ -94,23 +94,26 @@ class AppServer {
     }
 
     getNetworkInfo = async (req, res) => {
-        const response = await axios
-        .get(`${process.env.CONTROLLER_URI}/system/network`)
-
-        if(!response?.data){
-            return res.sendStatus(400);
+        try {
+            const response = await axios.get(
+                `${process.env.CONTROLLER_URI}/system/network`
+            )
+            if (!response?.data) {
+                return res.sendStatus(400)
+            }
+            const server_ip = ip.address()
+            res.send({ ...response.data, server_ip })
+        } catch (err) {
+            res.status(400).send(err)
         }
-
-        const server_ip = ip.address()
-
-        res.send({...response.data, server_ip})
     }
 
     clearControllerHistory = async (req, res) => {
-        const response = await axios
-            .delete(`${process.env.CONTROLLER_URI}/history`)
-        
-        res.sendStatus(response?.status || 400);
+        const response = await axios.delete(
+            `${process.env.CONTROLLER_URI}/history`
+        )
+
+        res.sendStatus(response?.status || 400)
     }
 
     testSocket = async (req, res) => {

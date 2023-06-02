@@ -3,7 +3,6 @@ import ip from 'ip'
 import * as dotenv from 'dotenv'
 dotenv.config()
 
-
 const SocketQueries = {
     SOCKET_CONNECTION: `${process.env.CONTROLLER_URI}/socket/MCM-204-0/connection`,
 }
@@ -19,7 +18,7 @@ class SocketManagement {
 
     //get all socket connection of controller
     #getSocketConnections = async () => {
-        const response = await axios.get(SocketQueries.SOCKET_CONNECTION)
+        const response = await axios.get(SocketQueries.SOCKET_CONNECTION, {timeout: 5000})
         return response?.data
     }
 
@@ -27,7 +26,7 @@ class SocketManagement {
     #deleteSocketConnection = async (socket) => {
         console.log(socket)
         const response = await axios
-            .delete(SocketQueries.SOCKET_CONNECTION, { data: { ...socket } })
+            .delete(SocketQueries.SOCKET_CONNECTION, { data: { ...socket }, timeout: 5000 })
             .catch((err) => console.log(err))
 
         console.log(response.status)
@@ -56,32 +55,29 @@ class SocketManagement {
 
     //api query for getting all socket connections
     getSocketConnectionsQuery = async (req, res) => {
-        const data = await this.#getSocketConnections()
+        try {
+            const data = await this.#getSocketConnections()
 
-        if (!data) {
-            res.send(400)
-            return
+            if (!data) {
+                return new Error()
+            }
+
+            res.status(200).send(data)
+        } catch (err) {
+            return res.sendStatus(400)
         }
-
-        res.status(200).send(data)
     }
-
-    //reconnect the controller
-    #reconnectController = async () => {
-        const response = await axios.get(SocketQueries.SOCKET_CONNECTION)
-
-        return response.data.host
-    }
-
 
     //connect new ip_address of a host pc to controller
     connectController = async (req, res) => {
         let error = null
         const ip_address = ip.address()
-        const hosts = await this.#reconnectController().catch((err) => {
+        console.log('start')
+        const hosts = await this.#getSocketConnections().catch((err) => {
             error = err
         })
 
+        console.log('end')
         console.log(hosts)
 
         if (error) {

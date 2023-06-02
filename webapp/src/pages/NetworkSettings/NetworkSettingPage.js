@@ -6,6 +6,7 @@ import {
   useResetSocketConnectionsMutation,
 } from "../../store/api";
 import {
+  Alert,
   Box,
   Button,
   CircularProgress,
@@ -39,7 +40,7 @@ function NetworkSettingPage() {
 }
 
 function SocketSettings() {
-  const { data, error, isLoading, isSuccess } = useGetSocketConnectionsQuery();
+  const { data, error, isLoading, isError } = useGetSocketConnectionsQuery();
   const [resetSocketConnections, { isLoading: isResetLoading }] =
     useResetSocketConnectionsMutation();
 
@@ -50,6 +51,8 @@ function SocketSettings() {
 
   if (isLoading) {
     return <Skeleton variant="rounded" height={200} />;
+  } else if (isError) {
+    return <Alert severity="error">Ошибка загрузки подключений</Alert>;
   }
 
   const handleReset = async (...props) => {
@@ -61,11 +64,10 @@ function SocketSettings() {
     );
 
     try {
-      await resetSocketConnections(...props);
-
+      await resetSocketConnections(...props).unwrap();
       toast.dismiss(toastId.current);
     } catch (err) {
-      console.log(err);
+      displayErrorToast();
     }
   };
 
@@ -75,16 +77,25 @@ function SocketSettings() {
         <CircularProgress size="30px" />{" "}
         <p>Добавление TCP сокета к контроллеру</p>
       </Box>,
-      { position: "bottom-right", hideProgressBar: true }
+      { position: "bottom-right", hideProgressBar: true, autoClose: false }
     );
 
     try {
-      await connectController();
-
+      await connectController().unwrap()
       toast.dismiss(toastId.current);
     } catch (err) {
-      console.log(err);
+      displayErrorToast();
     }
+  };
+
+  const displayErrorToast = () => {
+    toast.update(toastId.current, {
+      render: `Ошибка`,
+      position: "bottom-right",
+      type: "error",
+      autoClose: 3000,
+      hideProgressBar: true,
+    });
   };
 
   return (
@@ -93,9 +104,9 @@ function SocketSettings() {
         Подключения
       </Typography>
 
-      {data.host.length === 0 && <i>Нет подключений</i>}
-      
-      {data.host.length > 0 && (
+      {data?.host?.length === 0 && <i>Нет подключений</i>}
+
+      {data?.host?.length > 0 && (
         <Table aria-label="simple table">
           <TableHead>
             <TableRow>
@@ -150,13 +161,15 @@ function SocketSettings() {
 }
 
 function NetworkInfo() {
-  const { data, isLoading } = useGetNetworkInfoQuery();
+  const { data, isLoading, isError } = useGetNetworkInfoQuery();
 
   if (isLoading) {
     return <Skeleton variant="rounded" height={150} />;
+  } else if (isError) {
+    return <Alert severity="error">Ошибка загрузки сетевой информации</Alert>;
   }
 
-  const info = data.interfaces[0];
+  const info = data?.interfaces[0];
 
   return (
     <Paper sx={{ p: 3 }}>
