@@ -23,13 +23,19 @@ export const AppAPI = createApi({
     getNetworkInfo: builder.query({
       query: () => "/network-info",
     }),
-    connectController: builder.mutation({
-        query: () => ({
-          url: "/connect-controller",
-          method: "POST"
-        }),
-        invalidatesTags: ["Socket"]
+    clearHistory: builder.mutation({
+      query: () => ({
+        url: "/controller-history",
+        method: "DELETE",
       }),
+    }),
+    connectController: builder.mutation({
+      query: () => ({
+        url: "/connect-controller",
+        method: "POST",
+      }),
+      invalidatesTags: ["Socket"],
+    }),
   }),
 });
 
@@ -41,5 +47,6 @@ export const {
   useResetSocketConnectionsMutation,
   useLazyGetNetworkInfoQuery,
   useGetNetworkInfoQuery,
-  useConnectControllerMutation
+  useConnectControllerMutation,
+  useClearHistoryMutation
 } = AppAPI;

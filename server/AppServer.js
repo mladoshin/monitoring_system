@@ -113,7 +113,7 @@ class AppServer {
             `${process.env.CONTROLLER_URI}/history`
         )
 
-        res.sendStatus(response?.status || 400)
+        res.status(response?.status || 400).send({status: response?.status || 400})
     }
 
     testSocket = async (req, res) => {

@@ -191,7 +191,7 @@ function NetworkInfo() {
         <b>IP адрес контроллера </b>
         <span>{info.addresses[0].address}</span>
       </Stack>
-      <Divider />
+      <Divider sx={{my: 2}}/>
       <Stack direction="row" spacing={3} className={styles.row}>
         <b>IP адрес сервера </b>
         <span>{data.server_ip}</span>

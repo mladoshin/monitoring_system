@@ -8,6 +8,7 @@ import { store } from "./store/store";
 import { Provider } from "react-redux";
 import MonitoringPage from "./pages/MonitoringPage/MonitoringPage";
 import NetworkSettingPage from "./pages/NetworkSettings/NetworkSettingPage";
+import SystemSettingPage from "./pages/SystemSettings/SystemSettingPage";
 
 function App() {
 
@@ -21,6 +22,7 @@ function App() {
             <Route path="/monitoring" element={<MonitoringPage />} />
             <Route path="/postprocessing" element={<PostprocessingPage />} />
             <Route path="/network-settings" element={<NetworkSettingPage />} />
+            <Route path="/system-settings" element={<SystemSettingPage />} />
           </Routes>
         </Layout>
       </BrowserRouter>
