@@ -36,7 +36,6 @@ class AppServer {
         this.app.use(json())
         this.app.use(cors())
         this.app.get('/api/get-files', this.getAllFiles)
-        this.app.get('/test-socket', this.testSocket)
         this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.PM.getUserProfiles)
         this.app.get('/api/user-profile', this.PM.getUserProfile)
@@ -118,10 +117,6 @@ class AppServer {
         res.status(response?.status || 400).send({status: response?.status || 400})
     }
 
-    testSocket = async (req, res) => {
-        this.io.emit('test', { data: { name: 'Max', surname: 'Ladoshin' } })
-        res.sendStatus(200)
-    }
     getMICFile = async (req, res) => {
         const { path: fpath } = req.query
 
@@ -554,16 +549,6 @@ class AppServer {
         this.all_files = temp
 
         res.status(200).send(files[''])
-    }
-
-    processCSVFiles = (folder_path, files) => {
-        const csv_files = files
-            .filter((f) => f.includes('.csv'))
-            .sort((a, b) => +a.split('.')[0] > +b.split('.')[0])
-        console.log(csv_files)
-
-        for (let file in csv_files) {
-        }
     }
 
     generateTestModeXLSX({ ws, col_start, mode, ws_start_row }) {
