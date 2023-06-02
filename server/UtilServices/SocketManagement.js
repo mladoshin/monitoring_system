@@ -82,6 +82,8 @@ class SocketManagement {
             error = err
         })
 
+        console.log(hosts)
+
         if (error) {
             res.status(400).send(error)
             return
@@ -89,7 +91,7 @@ class SocketManagement {
 
         const idx = hosts.findIndex((h) => h.address === ip_address)
         if (idx !== -1) {
-            return
+            return res.status(200).send(hosts)
         }
 
         const body = {

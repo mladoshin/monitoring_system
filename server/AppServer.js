@@ -101,7 +101,9 @@ class AppServer {
             return res.sendStatus(400);
         }
 
-        res.send(response.data)
+        const server_ip = ip.address()
+
+        res.send({...response.data, server_ip})
     }
 
     clearControllerHistory = async (req, res) => {
