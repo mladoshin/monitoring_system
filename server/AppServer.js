@@ -14,6 +14,7 @@ import { createServer } from 'http'
 import { Server } from 'socket.io'
 import EventService from './EventService.js'
 import { SOCKET_EVENTS } from '../common/enums.mjs'
+import SocketManagement from './UtilServices/SocketManagement.js'
 
 dotenv.config()
 
@@ -26,19 +27,26 @@ const port = process.env.HTTPS_PORT
 
 class AppServer {
     constructor(mode = MODE.MONITORING) {
+        //socket manager api quieries
+        this.SM = new SocketManagement()
+        
         this.app = express()
-        // enableWs(this.app)
-
         this.app.use(json())
         this.app.use(cors())
-        //this.app.use(express.static(path.join(__dirname, '../webapp/dist/')))
-
         this.app.get('/api/get-files', this.getAllFiles)
         this.app.get('/test-socket', this.testSocket)
         this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.getUserProfiles)
         this.app.get('/api/user-profile', this.getUserProfile)
+        this.app.get(
+            '/api/get-socket-connections',
+            this.SM.getSocketConnectionsQuery
+        )
         this.app.post('/api/user-profiles', this.addUserProfile)
+        this.app.post(
+            '/api/reset-socket-connections',
+            this.SM.resetSocketConnectionsQuery
+        )
         this.app.delete('/api/user-profiles', this.removeUserProfile)
         this.app.delete('/api/mission', this.stopMission)
 
@@ -53,7 +61,7 @@ class AppServer {
         this.app.post('/api/calibrate-channel', this.calibrateChannel)
 
         this.app.post('/api/generate-result', this.generateResultingXLSX)
-        this.app.post('/api/connect-controller', this.connectController)
+        this.app.post('/api/connect-controller', this.SM.connectController)
 
         this.server = createServer(this.app)
 
@@ -286,7 +294,7 @@ class AppServer {
             .catch((err) => (error = err.message))
 
         if (error) {
-            res.status(400).send("Возникла ошибка при запросе к контроллеру")
+            res.status(400).send('Возникла ошибка при запросе к контроллеру')
             console.log(error)
             return
         }
@@ -735,51 +743,6 @@ class AppServer {
         for (let i = 0; i < values.length; i++) {
             ws.cell(row + 1, col_start + i).number(+values[i])
         }
-    }
-
-    reconnectController = async () => {
-        const response = await axios.get(
-            `${process.env.CONTROLLER_URI}/socket/MCM-204-0/connection`
-        )
-
-        return response.data.host
-    }
-
-    connectController = async (req, res) => {
-        let error = null
-        const ip_address = ip.address()
-        const hosts = await this.reconnectController().catch((err) => {
-            error = err
-        })
-
-        if (error) {
-            res.status(400).send(error)
-            return
-        }
-
-        const idx = hosts.findIndex((h) => h.address === ip_address)
-        if (idx !== -1) {
-            return
-        }
-
-        const body = {
-            address: ip_address,
-            port: Number(process.env.TCP_PORT),
-        }
-
-        const response = await axios
-            .post(`${process.env.CONTROLLER_URI}/socket/MCM-204-0/connection`, {
-                ...body,
-            })
-            .catch((err) => (error = err.message))
-
-        if (error) {
-            res.status(400).send(error)
-            console.log(error)
-            return
-        }
-
-        res.status(200).send(response.data)
     }
 
     //synchronous functiion for saving metrics file

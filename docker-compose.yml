@@ -44,6 +44,7 @@ services:
     networks:
       - backend
       - frontend
+
     environment: *app_settings
 
   pgweb:
