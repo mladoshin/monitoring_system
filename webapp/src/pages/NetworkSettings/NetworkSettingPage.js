@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
+  useGetNetworkInfoQuery,
   useGetSocketConnectionsQuery,
   useResetSocketConnectionsMutation,
 } from "../../store/api";
@@ -20,6 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import { toast } from "react-toastify";
+import styles from "./NetworkSettingPage.module.scss";
 
 function NetworkSettingPage() {
   return (
@@ -28,7 +30,7 @@ function NetworkSettingPage() {
         <SocketSettings />
       </Grid>
       <Grid item xs={6}>
-        <MemorySettings />
+        <NetworkInfo />
       </Grid>
     </Grid>
   );
@@ -108,13 +110,35 @@ function SocketSettings() {
   );
 }
 
-function MemorySettings() {
+function NetworkInfo() {
+  const { data, isLoading } = useGetNetworkInfoQuery();
+
+  if (isLoading) {
+    return <Skeleton variant="rounded" height={150} />;
+  }
+
+  const info = data.interfaces[0];
+
   return (
     <Paper sx={{ p: 3 }}>
-      <Typography variant="h5" sx={{ mb: 1, textDecoration: "underline" }}>
-        История измерений
+      <Typography variant="h5" sx={{ mb: 2, textDecoration: "underline" }}>
+        Сетевая информация
       </Typography>
-      <Button>Очистить историю измерений</Button>
+
+      <Stack direction="row" spacing={3} className={styles.row}>
+        <b>Имя </b>
+        <span>{info.name}</span>
+      </Stack>
+
+      <Stack direction="row" spacing={3} className={styles.row}>
+        <b>MAC адрес </b>
+        <span>{info.mac}</span>
+      </Stack>
+
+      <Stack direction="row" spacing={3} className={styles.row}>
+        <b>IP адрес контроллера </b>
+        <span>{info.addresses[0].address}</span>
+      </Stack>
     </Paper>
   );
 }

@@ -5,20 +5,23 @@ const BASE_URL = "http://localhost:3000/api";
 // Define a service using a base URL and expected endpoints
 export const AppAPI = createApi({
   reducerPath: "api",
-  tagTypes: ['Socket'],
+  tagTypes: ["Socket"],
   baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
   endpoints: (builder) => ({
     getSocketConnections: builder.query({
       query: () => "/get-socket-connections",
-      providesTags: ['Socket'],
+      providesTags: ["Socket"],
     }),
     resetSocketConnections: builder.mutation({
-      query: (all=false) => ({
+      query: (all = false) => ({
         url: "/reset-socket-connections",
         method: "POST",
-        body: {all},
+        body: { all },
       }),
-      invalidatesTags: ['Socket'],
+      invalidatesTags: ["Socket"],
+    }),
+    getNetworkInfo: builder.query({
+      query: () => "/network-info",
     }),
   }),
 });
@@ -28,5 +31,7 @@ export const AppAPI = createApi({
 export const {
   useGetSocketConnectionsQuery,
   useLazyGetSocketConnectionsQuery,
-  useResetSocketConnectionsMutation
+  useResetSocketConnectionsMutation,
+  useLazyGetNetworkInfoQuery,
+  useGetNetworkInfoQuery
 } = AppAPI;

@@ -29,7 +29,7 @@ class AppServer {
     constructor(mode = MODE.MONITORING) {
         //socket manager api quieries
         this.SM = new SocketManagement()
-        
+
         this.app = express()
         this.app.use(json())
         this.app.use(cors())
@@ -38,6 +38,8 @@ class AppServer {
         this.app.get('/api/mic-file', this.getMICFile)
         this.app.get('/api/user-profiles', this.getUserProfiles)
         this.app.get('/api/user-profile', this.getUserProfile)
+        this.app.get("/api/network-info", this.getNetworkInfo)
+        this.app.delete('/api/controller-history', this.clearControllerHistory)
         this.app.get(
             '/api/get-socket-connections',
             this.SM.getSocketConnectionsQuery
@@ -89,6 +91,24 @@ class AppServer {
 
         //create new instance of Event Service for sending data through socket
         this.eventService = new EventService(this.io)
+    }
+
+    getNetworkInfo = async (req, res) => {
+        const response = await axios
+        .get(`${process.env.CONTROLLER_URI}/system/network`)
+
+        if(!response?.data){
+            return res.sendStatus(400);
+        }
+
+        res.send(response.data)
+    }
+
+    clearControllerHistory = async (req, res) => {
+        const response = await axios
+            .delete(`${process.env.CONTROLLER_URI}/history`)
+        
+        res.sendStatus(response?.status || 400);
     }
 
     testSocket = async (req, res) => {
