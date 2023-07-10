@@ -176,7 +176,7 @@ export default function Content() {
         })
         .catch((err) => {
           let msg = err.message;
-          console.log(msg);
+          //console.log(msg);
 
           if (err.response.status === 300) {
             msg = err.response.data.msg;
@@ -213,7 +213,7 @@ export default function Content() {
 
   // fetch the user profile and update the ui
   async function handleFetchProfile(name, setValues) {
-    console.log(name);
+    //console.log(name);
     const res = await getUserProfiles({ profile_name: name });
     const { channel_config, ...rest } = res;
     setValues(rest);

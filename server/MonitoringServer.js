@@ -135,18 +135,11 @@ export default class MonitoringServer {
 
     processCalibrationData = (data_string) => {
         const data_obj = JSON.parse(data_string)
-        console.log(typeof data_obj)
-
         const json = JSON.parse(data_string)
         const key = Object.keys(json)[0] //channel
-
         const data_arr = json[key]['G']
-        this.AS.saveBinaryFile(data_arr.join(',\n'), key.slice(2))
-
         const res = G_DataInfo(data_arr)
         const scale_factor = 300 * res.rms
-        console.log(res)
-        this.AS.saveCalibrationResults({ ...res, scale_factor })
 
         this.AS.eventService.emit(SOCKET_EVENTS.CALIBRATION_COMPLETE, {
             ...res,

@@ -18,7 +18,7 @@ function useProfiles() {
 
     function addProfile({name, data} = {}){
         addUserProfile({profile_name: name, data}).then(res => {
-            console.log(name)
+            //console.log(name)
             if(userProfiles.indexOf(name) === -1){
                 setUserProfiles(s => [...s, name])
             }

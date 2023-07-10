@@ -95,11 +95,11 @@ function MonitoringPage() {
         return;
       }
 
-      console.log(
-        Object.values(data)
-          .map((el) => el["G"])
-          .filter((el) => Array.isArray(el))
-      );
+      // console.log(
+      //   Object.values(data)
+      //     .map((el) => el["G"])
+      //     .filter((el) => Array.isArray(el))
+      // );
       const tmp = centerSignal(
         Object.values(data)
           .map((el) => el["G"])
@@ -128,7 +128,6 @@ function MonitoringPage() {
     });
   }
 
-  console.log(maxAmplitude);
 
   function onMetricUpdate({ data }) {
     setParamData(data);
@@ -169,7 +168,7 @@ function MonitoringPage() {
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values, actions) => {
-      console.log(values);
+      //console.log(values);
     },
   };
 

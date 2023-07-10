@@ -94,7 +94,6 @@ function GraphMonitor({
         frequency: f,
         magnitude: magnitudes[ix],
       }));
-      console.log(both);
 
       ApexCharts.exec("spectrum_chart", "updateSeries", [
         {

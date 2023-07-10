@@ -158,9 +158,6 @@ function useConfigureMission({
       Conversion,
     };
 
-    console.log("Saving channel!");
-    console.log(channel);
-
     const temp = [...config];
     temp[idx] = channel;
     setConfig(temp);

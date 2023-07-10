@@ -49,7 +49,6 @@ function SocketSettings() {
 
   const toastId = useRef(null);
 
-  console.log("isSuccess for mutation = ", isSuccess);
   if (isLoading) {
     return <Skeleton variant="rounded" height={200} />;
   } else if (isError) {

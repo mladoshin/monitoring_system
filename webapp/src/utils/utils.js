@@ -19,7 +19,6 @@ function preventEnterKey(e) {
     if (key == 13) {
         e.preventDefault()
     }
-    console.log(key)
 }
 
 export { transformGRawData, transformMetrics, preventEnterKey }

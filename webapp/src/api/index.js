@@ -29,7 +29,6 @@ export async function connectController() {
     const res = await axios
         .post(`/api/connect-controller`)
         .catch((err) => console.log(err))
-    console.log(res.data)
     return res
 }
 
@@ -75,7 +74,7 @@ export async function pollCalibrationResults({
             resolve(res.data)
             return
         }
-        console.log(counter.value)
+        //console.log(counter.value)
         counter.value += 1
         setTimeout(() => tick(resolve, reject, counter), interval)
     }
@@ -106,7 +105,7 @@ export async function pollGRawData({
             resolve(res.data)
             return
         }
-        console.log(counter.value)
+        //console.log(counter.value)
         counter.value += 1
         setTimeout(() => tick(resolve, reject, counter), interval)
     }
@@ -132,7 +131,7 @@ export async function getUserProfiles({ profile_name } = {}) {
 export async function addUserProfile({ profile_name, data }) {
     if (!profile_name) return
 
-    console.log(profile_name)
+    //console.log(profile_name)
 
     const res = await axios
         .post(`/api/user-profiles`, { profile_name, data })

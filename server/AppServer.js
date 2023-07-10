@@ -278,13 +278,13 @@ class AppServer {
         this.test_mode = 'tmp'
         this.test_id = channel_id
 
-        fs.rm(
-            path.join(__dirname, `/data/tmp/${channel_id}`),
-            { recursive: true, force: true },
-            (err) => {
-                if (err) console.log(err.message)
-            }
-        )
+        // fs.rm(
+        //     path.join(__dirname, `/data/tmp/${channel_id}`),
+        //     { recursive: true, force: true },
+        //     (err) => {
+        //         if (err) console.log(err.message)
+        //     }
+        // )
 
         console.log(mission_config.ChannelConfig[0])
         const response = await axios

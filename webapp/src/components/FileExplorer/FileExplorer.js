@@ -36,7 +36,6 @@ function canOpenStats(path, subtree) {
 
 export default function FileExplorer({ refresh }) {
   const allFiles = useSelector((state) => state.files.value);
-  console.log(allFiles);
   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
   const [currentFolder, setCurrentFolder] = useState({ file: "" });
   const [subtree, setSubTree] = useState({ ...allFiles });
