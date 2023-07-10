@@ -6,7 +6,7 @@ import {
   startMission,
   getAllFiles,
   generateResult,
-  connectController,
+  //connectController,
   getUserProfiles,
 } from "../api";
 import * as Yup from "yup";
@@ -25,6 +25,8 @@ import { preventEnterKey, transformMetrics } from "../utils/utils";
 import { MODE } from "../../../common/enums.mjs";
 import { setLoading } from "../store/slices/missionSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { useConnectControllerMutation } from "../store/api";
+import { setConnected } from "../store/slices/controllerSlice";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -82,6 +84,7 @@ export default function Content() {
   const [metricsData, setMetricsData] = useState({});
   const { status } = useSelector((state) => state.mission);
   const dispatch = useDispatch();
+  const [connectController, {isLoading: isConnectLoading, isError: isConnectError}] = useConnectControllerMutation()
 
   const toastId = React.useRef(null);
 
@@ -92,7 +95,7 @@ export default function Content() {
 
   useEffect(() => {
     fetchFiles();
-    connectController();
+    handleConnectController();
   }, []);
 
   //process the status of a mission and update a toast message
@@ -118,6 +121,20 @@ export default function Content() {
       });
     }
   }, [status]);
+
+
+  async function handleConnectController(){
+    try{
+      await connectController().unwrap();
+      dispatch(setConnected(true));
+    }catch(err){
+      dispatch(setConnected(false));
+      toast.error("не удалось подключиться к контроллеру MCM-204", {
+        autoClose: false,
+        position: "bottom-right"
+      })
+    }
+  }
 
   const ChannelConfig = useConfigureMission({});
 

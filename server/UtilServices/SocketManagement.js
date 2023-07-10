@@ -14,11 +14,12 @@ class SocketManagement {
             return SocketManagement.instance
         }
         SocketManagement.instance = this
+        this.timeout = 15000
     }
 
     //get all socket connection of controller
     #getSocketConnections = async () => {
-        const response = await axios.get(SocketQueries.SOCKET_CONNECTION, {timeout: 5000})
+        const response = await axios.get(SocketQueries.SOCKET_CONNECTION, {timeout: this.timeout})
         return response?.data
     }
 
@@ -26,7 +27,7 @@ class SocketManagement {
     #deleteSocketConnection = async (socket) => {
         console.log(socket)
         const response = await axios
-            .delete(SocketQueries.SOCKET_CONNECTION, { data: { ...socket }, timeout: 5000 })
+            .delete(SocketQueries.SOCKET_CONNECTION, { data: { ...socket }, timeout: this.timeout })
             .catch((err) => console.log(err))
 
         console.log(response.status)

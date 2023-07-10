@@ -11,7 +11,7 @@ import { useLocation } from "react-router";
 import { MENU } from "../constants/config";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
 import { SOCKET_EVENTS } from "../../../common/enums.mjs";
 import SocketService from "../utils/SocketService";
@@ -176,6 +176,9 @@ const drawerWidth = 256;
 
 export default function Layout({ children }) {
   const dispatch = useDispatch();
+  const {
+    is_connected: isControllerConnected,
+  } = useSelector((state) => state.controller);
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageHeading, setPageHeading] = useState("");
@@ -188,7 +191,7 @@ export default function Layout({ children }) {
   };
 
   useEffect(() => {
-    const {socket} = new SocketService()
+    const { socket } = new SocketService();
 
     socket.on("connect", () => {
       console.log("Connected to socket!");
@@ -202,12 +205,12 @@ export default function Layout({ children }) {
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
       console.log("Mission completed!");
-      dispatch(setSuccess())
+      dispatch(setSuccess());
     });
 
     socket.on(SOCKET_EVENTS.FILE_CHANGE, (res) => {
       console.log("File change");
-      dispatch(setFiles(res.data[''] || {}));
+      dispatch(setFiles(res.data[""] || {}));
     });
 
     socket.on("error", () => {
@@ -233,6 +236,7 @@ export default function Layout({ children }) {
               variant="temporary"
               open={mobileOpen}
               onClose={handleDrawerToggle}
+              isControllerConnected={isControllerConnected}
             />
           )}
 
@@ -240,6 +244,7 @@ export default function Layout({ children }) {
             PaperProps={{ style: { width: drawerWidth } }}
             sx={{ display: { sm: "block", xs: "none" } }}
             location={location}
+            isControllerConnected={isControllerConnected}
           />
         </Box>
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
