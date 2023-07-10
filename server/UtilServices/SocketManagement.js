@@ -51,7 +51,7 @@ class SocketManagement {
             }
         })
 
-        res.sendStatus(200)
+        res.status(200).send({status: 200, message: "success"})
     }
 
     //api query for getting all socket connections

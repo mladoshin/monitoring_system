@@ -41,10 +41,10 @@ function NetworkSettingPage() {
 
 function SocketSettings() {
   const { data, error, isLoading, isError } = useGetSocketConnectionsQuery();
-  const [resetSocketConnections, { isLoading: isResetLoading }] =
+  const [resetSocketConnections, { isLoading: isResetLoading, isSuccess }] =
     useResetSocketConnectionsMutation();
 
-  const [connectController, { isLoading: isConnectLoading, isSuccess }] =
+  const [connectController, { isLoading: isConnectLoading }] =
     useConnectControllerMutation();
 
   const toastId = useRef(null);
@@ -68,6 +68,7 @@ function SocketSettings() {
       await resetSocketConnections(...props).unwrap();
       toast.dismiss(toastId.current);
     } catch (err) {
+      console.log(err)
       displayErrorToast();
     }
   };
