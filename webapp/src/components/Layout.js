@@ -9,13 +9,20 @@ import Navigator from "./Navigator";
 import Header from "./Header";
 import { useLocation } from "react-router";
 import { MENU } from "../constants/config";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
 import { SOCKET_EVENTS } from "../../../common/enums.mjs";
 import SocketService from "../utils/SocketService";
 import { setLoading, setSuccess } from "../store/slices/missionSlice";
+import {
+  setConnected,
+  startLoading,
+  stopLoading,
+} from "../store/slices/controllerSlice";
+import { useConnectControllerMutation } from "../store/api";
+import { Alert } from "@mui/material";
 
 function Copyright() {
   return (
@@ -176,15 +183,19 @@ const drawerWidth = 256;
 
 export default function Layout({ children }) {
   const dispatch = useDispatch();
-  const {
-    is_connected: isControllerConnected,
-  } = useSelector((state) => state.controller);
+  const { is_connected: isControllerConnected, loading: isControllerLoading } = useSelector(
+    (state) => state.controller
+  );
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [pageHeading, setPageHeading] = useState("");
   const location = useLocation();
 
   const isSmUp = useMediaQuery(theme.breakpoints.up("sm"));
+  const [
+    connectController,
+    { isLoading: isConnectLoading, isError: isConnectError },
+  ] = useConnectControllerMutation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -216,12 +227,32 @@ export default function Layout({ children }) {
     socket.on("error", () => {
       console.log("Socket error");
     });
+
+    handleConnectController();
   }, []);
 
   useEffect(() => {
     setPageHeading(MENU[location.pathname.slice(1)]);
   }, [location]);
 
+  async function handleConnectController() {
+    try {
+      dispatch(startLoading());
+      await connectController().unwrap();
+      dispatch(setConnected(true));
+      dispatch(stopLoading());
+    } catch (err) {
+      console.log(err);
+      dispatch(setConnected(false));
+      dispatch(stopLoading());
+      toast.error("не удалось подключиться к контроллеру MCM-204", {
+        autoClose: false,
+        position: "bottom-right",
+      });
+    }
+  }
+
+  const is_controller_connected = isControllerLoading || isControllerConnected;
   return (
     <ThemeProvider theme={theme}>
       <Box sx={{ display: "flex", minHeight: "100vh" }}>
@@ -236,7 +267,7 @@ export default function Layout({ children }) {
               variant="temporary"
               open={mobileOpen}
               onClose={handleDrawerToggle}
-              isControllerConnected={isControllerConnected}
+              isControllerConnected={is_controller_connected}
             />
           )}
 
@@ -244,8 +275,9 @@ export default function Layout({ children }) {
             PaperProps={{ style: { width: drawerWidth } }}
             sx={{ display: { sm: "block", xs: "none" } }}
             location={location}
-            isControllerConnected={isControllerConnected}
+            isControllerConnected={is_controller_connected}
           />
+
         </Box>
         <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <Header onDrawerToggle={handleDrawerToggle} heading={pageHeading} />

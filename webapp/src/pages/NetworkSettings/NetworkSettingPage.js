@@ -44,11 +44,12 @@ function SocketSettings() {
   const [resetSocketConnections, { isLoading: isResetLoading }] =
     useResetSocketConnectionsMutation();
 
-  const [connectController, { isLoading: isConnectLoading }] =
+  const [connectController, { isLoading: isConnectLoading, isSuccess }] =
     useConnectControllerMutation();
 
   const toastId = useRef(null);
 
+  console.log("isSuccess for mutation = ", isSuccess);
   if (isLoading) {
     return <Skeleton variant="rounded" height={200} />;
   } else if (isError) {

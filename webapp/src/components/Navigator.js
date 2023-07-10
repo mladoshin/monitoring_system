@@ -124,7 +124,9 @@ export default function Navigator(props) {
           </Box>
         ))}
       </List>
-      {!isControllerConnected && <Alert severity="error">Контроллер MCM-204 не подключён</Alert>}
+      {!isControllerConnected && (
+        <Alert severity="error">Контроллер MCM-204 не подключён</Alert>
+      )}
     </Drawer>
   );
 }

@@ -84,7 +84,6 @@ export default function Content() {
   const [metricsData, setMetricsData] = useState({});
   const { status } = useSelector((state) => state.mission);
   const dispatch = useDispatch();
-  const [connectController, {isLoading: isConnectLoading, isError: isConnectError}] = useConnectControllerMutation()
 
   const toastId = React.useRef(null);
 
@@ -95,7 +94,6 @@ export default function Content() {
 
   useEffect(() => {
     fetchFiles();
-    handleConnectController();
   }, []);
 
   //process the status of a mission and update a toast message
@@ -121,20 +119,6 @@ export default function Content() {
       });
     }
   }, [status]);
-
-
-  async function handleConnectController(){
-    try{
-      await connectController().unwrap();
-      dispatch(setConnected(true));
-    }catch(err){
-      dispatch(setConnected(false));
-      toast.error("не удалось подключиться к контроллеру MCM-204", {
-        autoClose: false,
-        position: "bottom-right"
-      })
-    }
-  }
 
   const ChannelConfig = useConfigureMission({});
 
