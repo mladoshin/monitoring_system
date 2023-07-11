@@ -1,5 +1,7 @@
 import {
   Button,
+  Checkbox,
+  FormControlLabel,
   Grid,
   InputLabel,
   MenuItem,
@@ -10,7 +12,7 @@ import {
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { useFormikContext } from "formik";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import ErrorMessage from "../ErrorMessage";
 
 function ControllerConfigurator({
@@ -20,7 +22,7 @@ function ControllerConfigurator({
   is_monitoring = false,
 }) {
   const formik = useFormikContext();
-
+  const [dataCountMode, setDataCountMode] = useState(false);
   const handleChangeDuration = (duration) => {
     const { sample_rate } = formik.values;
     if (duration < 0) return;
@@ -31,11 +33,25 @@ function ControllerConfigurator({
   };
 
   const handleChangeSampleRate = (sample_rate) => {
-    const { record_duration } = formik.values;
+    const { record_duration, data_count } = formik.values;
 
-    const data_count = sample_rate * record_duration;
-    formik.setFieldValue("data_count", data_count);
+    if(dataCountMode){
+      const record_duration = data_count / sample_rate;
+      formik.setFieldValue("record_duration", record_duration);
+    }else{
+      const data_count = sample_rate * record_duration;
+      formik.setFieldValue("data_count", data_count);
+    }
+    
     formik.setFieldValue("sample_rate", sample_rate);
+  };
+
+  const handleChangeDataCount = (data_count) => {
+    const { sample_rate } = formik.values;
+
+    const record_duration = data_count / sample_rate;
+    formik.setFieldValue("data_count", data_count);
+    formik.setFieldValue("record_duration", record_duration);
   };
 
   const constrainInput = (min, max) => {
@@ -51,6 +67,7 @@ function ControllerConfigurator({
   const inputRepeatTimes = constrainInput(0, 99999);
   const inputSampleRate = constrainInput(0, 128000);
   const inputDuration = constrainInput(0, 600);
+  const inputDataCount = constrainInput(0, 7680000);
 
   useEffect(() => {
     const { record_duration, sample_rate } = formik.values;
@@ -196,6 +213,7 @@ function ControllerConfigurator({
               }
               onBlur={formik.handleBlur}
               value={formik.values.record_duration}
+              disabled={dataCountMode}
             />
             <ErrorMessage
               error={formik.errors.record_duration}
@@ -215,11 +233,26 @@ function ControllerConfigurator({
             name="data_count"
             onBlur={formik.handleBlur}
             value={formik.values.data_count}
-            disabled
+            disabled={!dataCountMode}
+            onChange={(e) =>
+              inputDataCount(e, (e) => handleChangeDataCount(e.target.value))
+            }
           />
           <ErrorMessage
             error={formik.errors.data_count}
             touched={formik.touched.data_count}
+          />
+        </Grid>
+        <Grid item sx={{ display: "flex", alignItems: "center" }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={dataCountMode}
+                onChange={(val) => setDataCountMode(val.target.checked)}
+              />
+            }
+            label="Указать количество точек явно"
+            sx={{ marginTop: "23px" }}
           />
         </Grid>
       </Grid>
