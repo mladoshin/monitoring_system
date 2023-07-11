@@ -150,9 +150,9 @@ export async function removeUserProfile(profile_name) {
     return res?.data
 }
 
-export async function getFile(path) {
+export async function getFile(path, options) {
     const res = await axios
-        .get(`/api/mic-file`, { params: { path } })
+        .get(`/api/mic-file`, { params: { path }, ...options })
         .catch((err) => console.log(err))
 
     return res

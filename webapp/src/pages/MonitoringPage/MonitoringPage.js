@@ -94,12 +94,16 @@ function MonitoringPage() {
       if (!running.current) {
         return;
       }
+      
+      console.log(data)
 
-      // console.log(
-      //   Object.values(data)
-      //     .map((el) => el["G"])
-      //     .filter((el) => Array.isArray(el))
-      // );
+      Object.keys(data).map(key => {
+        if(data[key].G){
+          data[key].G = data[key].G.slice(0, 1000)
+        }
+      })
+      
+      //console.log(data)
       const tmp = centerSignal(
         Object.values(data)
           .map((el) => el["G"])
@@ -188,11 +192,11 @@ function MonitoringPage() {
         await startMission({
           input_type: "PseudoDifferential",
           trigger_source: "NoWait",
-          repeat_times: 0,
-          record_duration: 0.1,
-          sample_rate: 16000,
-          data_count: 128,
-          repeat_interval: 1000,
+          repeat_times: 4,
+          record_duration: 4.0,
+          sample_rate: 64000,
+          data_count: 262144,
+          repeat_interval: 0,
           channel_config: ChannelConfig.config,
           mode: MODE.TEST_MONITORING,
         });

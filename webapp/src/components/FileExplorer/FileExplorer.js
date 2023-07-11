@@ -83,9 +83,20 @@ export default function FileExplorer({ refresh }) {
 
   async function loadFile(folder_path, file_name) {
     const path = `${folder_path}/${file_name}`;
-    const res = await getFile(path);
+    const is_binary = file_name.includes("bin");
+    const res = await getFile(path, is_binary ? {responseType: "arraybuffer"} : {});
 
+    console.log(res)
+    
     if (res.statusText === "OK") {
+      if(res.headers["content-type"] === "application/octet-stream"){
+        //received binary data
+        const data =  new Float32Array(res.data);
+        //console.log(data[0]);
+        setModalOpen({ open: true, data: Array.from(data).slice(0, 1000), file_name });
+        return;
+      }
+
       setModalOpen({ open: true, data: res?.data, file_name });
     } else {
       console.log(res.statusText);

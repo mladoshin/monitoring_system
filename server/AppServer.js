@@ -114,7 +114,9 @@ class AppServer {
             `${process.env.CONTROLLER_URI}/history`
         )
 
-        res.status(response?.status || 400).send({status: response?.status || 400})
+        res.status(response?.status || 400).send({
+            status: response?.status || 400,
+        })
     }
 
     getMICFile = async (req, res) => {
@@ -122,6 +124,14 @@ class AppServer {
 
         const file_path = path.join(__dirname, `/data/${fpath}`)
 
+        if(fpath.includes("bin")){
+            fs.readFile(file_path, (err, buf) => {
+                // let restoredData = new Uint32Array(buf.buffer, buf.offset, buf.byteLength/4)
+                res.status(200).send(buf);
+            });
+            return;
+        }
+        
         fs.readFile(file_path, 'utf8', (err, data) => {
             if (err) {
                 res.status(400).send(err)
@@ -357,7 +367,7 @@ class AppServer {
     }
 
     //synchronous functiion for saving GData file
-    saveBinaryFile = (G_data, channel) => {
+    saveBinaryFile = (G_data, G_array, channel) => {
         fs.mkdirSync(
             path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
             { recursive: true },
@@ -367,6 +377,24 @@ class AppServer {
         )
 
         try {
+            const wstream = fs.createWriteStream(
+                path.join(
+                    __dirname,
+                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}_bin.dat`
+                )
+            )
+
+            const data = new Float32Array(G_array);
+            const buffer = Buffer.alloc(data.length*4);
+
+            for(let i = 0; i < data.length; i++){
+                //write the float in Little-Endian and move the offset
+                buffer.writeFloatLE(data[i], i*4);
+            }
+
+            wstream.write(buffer);
+            wstream.end();
+
             fs.writeFileSync(
                 path.join(
                     __dirname,

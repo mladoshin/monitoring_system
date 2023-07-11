@@ -163,6 +163,7 @@ export default class MonitoringServer {
                 if (isTesting) {
                     this.AS.saveBinaryFile(
                         transformed_g_data.join(',\n'),
+                        transformed_g_data,
                         channel.slice(2)
                     )
                 }
