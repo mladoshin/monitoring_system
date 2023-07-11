@@ -20,11 +20,12 @@ import { getAllFiles, getFile } from "../../api";
 import FileModal from "./FileModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setFiles } from "../../store/slices/fileSlice";
+import { toast } from "react-toastify";
 
 function canOpenStats(path, subtree) {
   let res = false;
   const regExp = /\/([0-9]+)/g;
-  const files = Object.keys(subtree);
+  const files = Object.keys(subtree || {});
   const folders = [...path.matchAll(regExp)].map((el) => el[1]);
   try {
     if (files.indexOf(`${folders[1]}.csv`) !== -1 && folders.length == 2) {
@@ -35,7 +36,7 @@ function canOpenStats(path, subtree) {
   return res;
 }
 
-export default function FileExplorer() {
+export default function FileExplorer({ basePath = "" }) {
   const allFiles = useSelector((state) => state.files.value);
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
@@ -45,6 +46,8 @@ export default function FileExplorer() {
   const [canViewStats, setCanViewStats] = useState(false);
 
   useEffect(() => {
+    //if(basePath) return;
+
     if (!currentFolder.file) {
       setSubTree({ ...allFiles });
       return;
@@ -58,6 +61,7 @@ export default function FileExplorer() {
   }, [path, subtree]);
 
   useEffect(() => {
+    if(basePath) return;
     const keys = path.split("/").filter((k) => k !== "");
 
     let temp = allFiles;
@@ -68,15 +72,47 @@ export default function FileExplorer() {
     setSubTree({ ...temp });
   }, [allFiles]);
 
+  //if base path is specified, then open this path
+  useEffect(() => {
+    if (basePath) {
+      openFolder(basePath);
+    }
+  }, [basePath]);
+
+  //refresh all files
   async function refresh() {
     const res = await getAllFiles().catch((err) => console.log(err.message));
     dispatch(setFiles(res));
   }
 
+  //function for opening a specific folder with path - basePath
+  function openFolder(path) {
+    try {
+      const keys = path.split("/").filter((k) => k != "");
+      let new_path = "";
+      let tree = { ...allFiles };
+
+      keys.forEach((key) => {
+        new_path = `${new_path}/${key}`;
+        tree = tree[key];
+      });
+
+      if(tree === undefined || tree === null){
+        throw new Error();
+      }
+      setPath(new_path);
+      setSubTree(tree);
+    } catch (err) {
+      toast.error("Указанный путь не найден!", {position: "bottom-right", autoClose: false});
+    }
+  }
+
   const files = useMemo(() => {
+    if(!subtree) return [];
     return Object.keys(subtree);
   }, [subtree]);
 
+  // go up 1 level in file hierarchy
   function goUp() {
     const newpath = path.split("/").slice(0, -1).join("/");
     setPath(newpath);
@@ -88,19 +124,27 @@ export default function FileExplorer() {
     setSubTree({ ...temp });
   }
 
+  //load file contents from the api
   async function loadFile(folder_path, file_name) {
     const path = `${folder_path}/${file_name}`;
     const is_binary = file_name.includes("bin");
-    const res = await getFile(path, is_binary ? {responseType: "arraybuffer"} : {});
+    const res = await getFile(
+      path,
+      is_binary ? { responseType: "arraybuffer" } : {}
+    );
 
-    console.log(res)
-    
+    console.log(res);
+
     if (res.statusText === "OK") {
-      if(res.headers["content-type"] === "application/octet-stream"){
+      if (res.headers["content-type"] === "application/octet-stream") {
         //received binary data
-        const data =  new Float32Array(res.data);
+        const data = new Float32Array(res.data);
         //console.log(data[0]);
-        setModalOpen({ open: true, data: Array.from(data).slice(0, 1000), file_name });
+        setModalOpen({
+          open: true,
+          data: Array.from(data).slice(0, 1000),
+          file_name,
+        });
         return;
       }
 
@@ -110,6 +154,7 @@ export default function FileExplorer() {
     }
   }
 
+  //handle open a file by double clicking on it
   function handleDoubleClick(folder_name) {
     if (subtree[folder_name] == null) {
       //file

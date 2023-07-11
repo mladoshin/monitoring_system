@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Button from "@mui/material/Button";
 import { Formik, useFormik } from "formik";
 import { Box } from "@mui/system";
@@ -22,12 +22,15 @@ import useProfiles from "../hooks/useProfiles";
 import ProfileModal from "./ProfileModal";
 import { _transformToStatData } from "../../../common/utils/utils.mjs";
 import { preventEnterKey, transformMetrics } from "../utils/utils";
-import { MODE } from "../../../common/enums.mjs";
+import { MODE, SOCKET_EVENTS } from "../../../common/enums.mjs";
 import { setLoading } from "../store/slices/missionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useConnectControllerMutation } from "../store/api";
 import { setConnected } from "../store/slices/controllerSlice";
 import { setFiles } from "../store/slices/fileSlice";
+import FileModal from "./FileExplorer/FileModal";
+import SocketService from "../utils/SocketService";
+import { useNavigate } from "react-router";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -83,6 +86,8 @@ export default function Content() {
   const [paramsData, setParamsData] = useState([]);
   const [metricsData, setMetricsData] = useState({});
   const { status } = useSelector((state) => state.mission);
+  const navigate = useNavigate()
+  const formikRef = useRef(null)
   const dispatch = useDispatch();
 
   const toastId = React.useRef(null);
@@ -108,6 +113,13 @@ export default function Content() {
         autoClose: 3000,
         hideProgressBar: true,
       });
+
+      const {file_name, directory_name, show_results} = formikRef.current.values
+
+      //show results if needed
+      if(show_results){
+        navigate(`/missions?mode=${directory_name}&test=${file_name}`)
+      }
     }
   }, [status]);
 
@@ -129,6 +141,7 @@ export default function Content() {
       modal_open: false,
       current_channel: null,
       mode: MODE.TESTING,
+      show_results: false,
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values, actions) => {
@@ -155,7 +168,6 @@ export default function Content() {
           });
 
           setTimeout(() => {
-
             const [new_dir, new_file] = getNextMission(
               values.directory_name,
               values.file_name
@@ -213,7 +225,7 @@ export default function Content() {
 
   return (
     <Box sx={{ maxWidth: 1220, margin: "auto", overflow: "hidden" }}>
-      <Formik {...formik}>
+      <Formik {...formik} innerRef={formikRef}>
         {(props) => (
           <form
             onSubmit={props.handleSubmit}
@@ -294,7 +306,35 @@ export default function Content() {
         )}
       </Formik>
 
-      <FileExplorer/>
+      <FileExplorer />
     </Box>
   );
 }
+
+// function ResultComponent({ show_results }) {
+//   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
+
+//   useEffect(() => {
+//     const { socket } = new SocketService();
+//     if (show_results) {
+//       socket.on(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
+//     }else{
+//       socket.off(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
+//     }
+
+//     return () => socket.off(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
+//   }, [show_results]);
+
+//   function handleReceiveResults(data){
+//     console.log("Mission completed!");
+//     console.log(data);
+//   }
+
+//   return (
+//     <FileModal
+//       open={modalOpen.open}
+//       data={modalOpen.data}
+//       handleClose={() => setModalOpen({ open: false, data: null })}
+//     />
+//   );
+// }

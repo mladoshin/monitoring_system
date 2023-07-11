@@ -1,16 +1,19 @@
 {
   "input_type": "PseudoDifferential",
   "trigger_source": "NoWait",
-  "repeat_interval": "5000",
-  "repeat_times": "1",
+  "repeat_interval": 0,
+  "repeat_times": 4,
   "sample_rate": 16000,
   "data_count": 16000,
-  "file_name": "",
-  "directory_name": "",
+  "record_duration": 1,
+  "file_name": "1",
+  "directory_name": "4",
   "comment": "",
   "channels": [],
   "modal_open": false,
   "current_channel": null,
+  "mode": "testing",
+  "show_results": true,
   "channel_config": [
     {
       "enabled": true,
@@ -18,26 +21,25 @@
         "Port": "AI0",
         "Sensor": {
           "Type": "Accelerometer",
-          "Sensitivity": 1561.283448968259
+          "Sensitivity": "1000"
         }
       },
-      "Coupling": "AC",
+      "Coupling": "DC",
       "InputRange": "B10",
-      "IEPE": "Enable",
+      "IEPE": "Disable",
       "Conversion": [
         {
           "DataType": "G",
           "Algorithm": {
             "WindowType": "Hann",
             "FreqStart": "10",
-            "FreqEnd": "10000",
-            "CustomParameter": "MIC-DFT"
+            "FreqEnd": "10000"
           }
         }
       ]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "Channel": {
         "Port": "AI1",
         "Sensor": {
@@ -56,27 +58,11 @@
             "FreqStart": "10",
             "FreqEnd": "10000"
           }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
         }
       ]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "Channel": {
         "Port": "AI2",
         "Sensor": {
@@ -95,27 +81,11 @@
             "FreqStart": "10",
             "FreqEnd": "10000"
           }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
         }
       ]
     },
     {
-      "enabled": false,
+      "enabled": true,
       "Channel": {
         "Port": "AI3",
         "Sensor": {
@@ -129,22 +99,6 @@
       "Conversion": [
         {
           "DataType": "G",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(Peak)",
-          "Algorithm": {
-            "WindowType": "Hann",
-            "FreqStart": "10",
-            "FreqEnd": "10000"
-          }
-        },
-        {
-          "DataType": "OA_g(RMS)",
           "Algorithm": {
             "WindowType": "Hann",
             "FreqStart": "10",

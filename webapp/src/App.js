@@ -18,7 +18,7 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Content />} />
-            <Route path="/missions" element={<MissionsPage />} />
+            <Route path="/missions/*" element={<MissionsPage />} />
             <Route path="/monitoring" element={<MonitoringPage />} />
             <Route path="/postprocessing" element={<PostprocessingPage />} />
             <Route path="/network-settings" element={<NetworkSettingPage />} />

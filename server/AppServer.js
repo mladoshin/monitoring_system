@@ -200,58 +200,83 @@ class AppServer {
 
         //remove test directory before writing to it (clearing old files)
 
-        if (this.mode !== MODE.MONITORING) {
-            fs.rm(
-                path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
-                { recursive: true, force: true },
-                (err) => {
-                    if (err) {
-                        console.log(err)
-                    } else {
-                        console.log('Successfully cleared the directory')
-                    }
+        // if (this.mode !== MODE.MONITORING) {
+        //     fs.rm(
+        //         path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
+        //         { recursive: true, force: true },
+        //         (err) => {
+        //             if (err) {
+        //                 console.log(err)
+        //             } else {
+        //                 console.log('Successfully cleared the directory')
+        //             }
 
-                    fs.mkdirSync(
-                        path.join(
-                            __dirname,
-                            `/data/${this.test_mode}/${this.test_id}`
-                        ),
-                        { recursive: true }
-                    )
+        //             fs.mkdirSync(
+        //                 path.join(
+        //                     __dirname,
+        //                     `/data/${this.test_mode}/${this.test_id}`
+        //                 ),
+        //                 { recursive: true }
+        //             )
 
-                    const JSON_config = JSON.stringify(
-                        { ...body, comment: comment },
-                        null,
-                        2
-                    )
-                    const file = fs.createWriteStream(
-                        path.join(
-                            __dirname,
-                            `/data/${this.test_mode}/${this.test_id}/full-config.json`
-                        )
-                    )
-                    file.on('error', function (err) {
-                        /* error handling */
-                    })
-                    file.write(JSON_config)
-                    file.end()
-                }
-            )
-        }
+        //             const JSON_config = JSON.stringify(
+        //                 { ...body, comment: comment },
+        //                 null,
+        //                 2
+        //             )
+        //             const file = fs.createWriteStream(
+        //                 path.join(
+        //                     __dirname,
+        //                     `/data/${this.test_mode}/${this.test_id}/full-config.json`
+        //                 )
+        //             )
+        //             file.on('error', function (err) {
+        //                 /* error handling */
+        //             })
+        //             file.write(JSON_config)
+        //             file.end()
+        //         }
+        //     )
+        // }
 
-        const response = await axios
+        let response = null;
+        try{
+            response = await axios
             .post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, {
                 ...body,
             })
-            .catch((err) => (error = err.message))
 
-        if (error) {
+            if (this.mode !== MODE.MONITORING) {
+                fs.rmSync(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), {recursive: true, force: true});
+
+                fs.mkdirSync(
+                    path.join(
+                        __dirname,
+                        `/data/${this.test_mode}/${this.test_id}`
+                    ),
+                    { recursive: true }
+                )
+
+                const JSON_config = JSON.stringify(
+                    { ...body, comment: comment },
+                    null,
+                    2
+                )
+                
+                //save config file
+                fs.writeFileSync(path.join(
+                    __dirname,
+                    `/data/${this.test_mode}/${this.test_id}/full-config.json`
+                ), JSON_config)
+                
+                //generate mera file
+            }
+            
+            res.status(200).send(response.data);
+        }catch(err){
             res.status(400).send('Возникла ошибка при запросе к контроллеру')
-            console.log(error)
-            return
-        }
-
-        res.status(200).send(response.data)
+            console.log(err)
+        }    
     }
 
     stopMission = async (req, res) => {
