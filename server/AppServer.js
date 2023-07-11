@@ -124,14 +124,14 @@ class AppServer {
 
         const file_path = path.join(__dirname, `/data/${fpath}`)
 
-        if(fpath.includes("bin")){
+        if (fpath.includes('bin')) {
             fs.readFile(file_path, (err, buf) => {
                 // let restoredData = new Uint32Array(buf.buffer, buf.offset, buf.byteLength/4)
-                res.status(200).send(buf);
-            });
-            return;
+                res.status(200).send(buf)
+            })
+            return
         }
-        
+
         fs.readFile(file_path, 'utf8', (err, data) => {
             if (err) {
                 res.status(400).send(err)
@@ -251,7 +251,7 @@ class AppServer {
             return
         }
 
-        res.status(200).send({ ...response.data, all_files: this.all_files })
+        res.status(200).send(response.data)
     }
 
     stopMission = async (req, res) => {
@@ -368,6 +368,8 @@ class AppServer {
 
     //synchronous functiion for saving GData file
     saveBinaryFile = (G_data, G_array, channel) => {
+
+        //create a directory for files
         fs.mkdirSync(
             path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
             { recursive: true },
@@ -376,24 +378,23 @@ class AppServer {
             }
         )
 
+        //write g data to text and binary file
         try {
-            const wstream = fs.createWriteStream(
+            const data = new Float32Array(G_array)
+            const buffer = Buffer.alloc(data.length * 4)
+
+            for (let i = 0; i < data.length; i++) {
+                //write the float in Little-Endian and move the offset
+                buffer.writeFloatLE(data[i], i * 4)
+            }
+
+            fs.writeFileSync(
                 path.join(
                     __dirname,
                     `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}_bin.dat`
-                )
+                ),
+                buffer
             )
-
-            const data = new Float32Array(G_array);
-            const buffer = Buffer.alloc(data.length*4);
-
-            for(let i = 0; i < data.length; i++){
-                //write the float in Little-Endian and move the offset
-                buffer.writeFloatLE(data[i], i*4);
-            }
-
-            wstream.write(buffer);
-            wstream.end();
 
             fs.writeFileSync(
                 path.join(
@@ -405,8 +406,6 @@ class AppServer {
         } catch (err) {
             console.error(err)
         }
-
-        //this.updateAllFiles()
     }
 
     saveParamFile = (MIC_data_arr) => {

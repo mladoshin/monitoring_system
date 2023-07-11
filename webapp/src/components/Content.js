@@ -27,6 +27,7 @@ import { setLoading } from "../store/slices/missionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useConnectControllerMutation } from "../store/api";
 import { setConnected } from "../store/slices/controllerSlice";
+import { setFiles } from "../store/slices/fileSlice";
 
 const MissionConfigSchema = Yup.object().shape({
   file_name: Yup.string()
@@ -69,7 +70,6 @@ function getNextMission(dir, file) {
 }
 
 export default function Content() {
-  const [allFiles, setAllFiles] = useState({});
   const {
     userProfiles,
     addProfile,
@@ -86,15 +86,6 @@ export default function Content() {
   const dispatch = useDispatch();
 
   const toastId = React.useRef(null);
-
-  async function fetchFiles() {
-    const res = await getAllFiles().catch((err) => console.log(err.message));
-    setAllFiles(res);
-  }
-
-  useEffect(() => {
-    fetchFiles();
-  }, []);
 
   //process the status of a mission and update a toast message
   useEffect(() => {
@@ -303,7 +294,7 @@ export default function Content() {
         )}
       </Formik>
 
-      <FileExplorer allFiles={allFiles} refresh={fetchFiles} />
+      <FileExplorer/>
     </Box>
   );
 }

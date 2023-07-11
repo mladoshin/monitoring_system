@@ -16,9 +16,10 @@ import ReplayIcon from "@mui/icons-material/Replay";
 import { Box } from "@mui/system";
 import TextSnippetIcon from "@mui/icons-material/TextSnippet";
 import FolderIcon from "@mui/icons-material/Folder";
-import { getFile } from "../../api";
+import { getAllFiles, getFile } from "../../api";
 import FileModal from "./FileModal";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { setFiles } from "../../store/slices/fileSlice";
 
 function canOpenStats(path, subtree) {
   let res = false;
@@ -34,8 +35,9 @@ function canOpenStats(path, subtree) {
   return res;
 }
 
-export default function FileExplorer({ refresh }) {
+export default function FileExplorer() {
   const allFiles = useSelector((state) => state.files.value);
+  const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
   const [currentFolder, setCurrentFolder] = useState({ file: "" });
   const [subtree, setSubTree] = useState({ ...allFiles });
@@ -65,6 +67,11 @@ export default function FileExplorer({ refresh }) {
 
     setSubTree({ ...temp });
   }, [allFiles]);
+
+  async function refresh() {
+    const res = await getAllFiles().catch((err) => console.log(err.message));
+    dispatch(setFiles(res));
+  }
 
   const files = useMemo(() => {
     return Object.keys(subtree);
