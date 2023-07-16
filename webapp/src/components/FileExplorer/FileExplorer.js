@@ -154,7 +154,7 @@ export default function FileExplorer({ basePath = "" }) {
   //load file contents from the api
   async function loadFile(folder_path, file_name) {
     const path = `${folder_path}/${file_name}`;
-    const is_binary = file_name.includes("bin");
+    const is_binary = file_name.endsWith(".dat");
     const res = await getFile(
       path,
       is_binary ? { responseType: "arraybuffer" } : {}

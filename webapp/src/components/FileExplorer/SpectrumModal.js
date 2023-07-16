@@ -1,4 +1,11 @@
-import { Button, Card, CircularProgress, Grid, Modal } from "@mui/material";
+import {
+  Button,
+  Card,
+  CircularProgress,
+  Grid,
+  Modal,
+  Stack,
+} from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useEffect, useMemo, useState } from "react";
 import "./FileModal.scss";
@@ -103,7 +110,7 @@ function SpectrumModal({ open, handleClose, path = "" }) {
         enabled: false,
       },
       tooltip: {
-        enabled: false,
+        enabled: true,
       },
       stroke: {
         curve: "straight",
@@ -195,7 +202,17 @@ function SpectrumModal({ open, handleClose, path = "" }) {
           </Button>
         </div>
         <div className="main">
-          {isLoading && <CircularProgress />}
+          {isLoading && (
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="center"
+              sx={{ width: "100%" }}
+            >
+              <CircularProgress />
+              <p>Загрузка</p>
+            </Stack>
+          )}
           {isSuccess && (
             <Grid container spacing={5}>
               {data?.map((_, idx) => {

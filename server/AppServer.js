@@ -101,14 +101,14 @@ class AppServer {
         this.eventService = new EventService(this.io)
     }
 
-    readBufferToArray(buf){
-        const data = [];
+    readBufferToArray(buf) {
+        const data = []
 
-        for(let i = 0; i < buf.byteLength; i+=4){
+        for (let i = 0; i < buf.byteLength; i += 4) {
             data.push(buf.readFloatLE(i))
         }
 
-        return data;
+        return data
     }
 
     getMissionSpectrumData = async (req, res) => {
@@ -122,31 +122,37 @@ class AppServer {
 
             files.sort((a, b) => (a > b ? 1 : -1))
         } catch (err) {
-            console.error(err)
+            return res.status(500).send({ error: err })
         }
 
         const result = []
 
-        let config = {};
-
-        try{
-            config = JSON.parse(fs.readFileSync(
-                path.join(__dirname, `/data/${folder_path}/full-config.json`),
-                "utf-8"
-            ))
-        }catch(err){
-            return res.sendStatus(400)
+        
+        let config = {}
+        try {
+            config = JSON.parse(
+                fs.readFileSync(
+                    path.join(
+                        __dirname,
+                        `/data/${folder_path}/full-config.json`
+                    ),
+                    'utf-8'
+                )
+            )
+        } catch (err) {
+            return res.status(500).send({ error: err })
         }
 
+        // sample rate read from mission configuration file
         const sample_rate = config.DeviceConfig.SampleRate
 
-        files
-            .filter((f) => f.indexOf('bin') != -1)
-            .forEach((file, idx) => {
+        try {
+            // generate fft data for each channel and store it in result matrix
+            files.forEach((file, idx) => {
                 const buf = fs.readFileSync(
                     path.join(__dirname, `/data/${folder_path}/${file}`)
                 )
-                
+
                 const data = this.readBufferToArray(buf)
                 const phasors = fft(data.slice(0, 1024))
 
@@ -160,8 +166,10 @@ class AppServer {
 
                 result.push(both)
             })
+        } catch (err) {
+            return res.status(500).send({ error: err })
+        }
 
-        //console.log(result)
         res.send(result)
     }
 
@@ -195,21 +203,23 @@ class AppServer {
 
         const file_path = path.join(__dirname, `/data/${fpath}`)
 
-        if (fpath.includes('bin')) {
-            fs.readFile(file_path, (err, buf) => {
-                // let restoredData = new Uint32Array(buf.buffer, buf.offset, buf.byteLength/4)
-                res.status(200).send(buf)
-            })
-            return
+        //handle sending binary files
+        if (fpath.endsWith('.dat')) {
+            try {
+                const buf = fs.readFileSync(file_path)
+                return res.status(200).send(buf)
+            } catch (err) {
+                return res.status(500).send({ error: err })
+            }
         }
 
-        fs.readFile(file_path, 'utf8', (err, data) => {
-            if (err) {
-                res.status(400).send(err)
-                return
-            }
-            res.status(200).send(data)
-        })
+        //handle sending text files in utf-8 encoding
+        try {
+            const file_data = fs.readFileSync(file_path, 'utf8')
+            res.status(200).send(file_data)
+        } catch (err) {
+            res.status(500).send(err)
+        }
     }
 
     startMission = async (req, res) => {
@@ -497,18 +507,18 @@ class AppServer {
             fs.writeFileSync(
                 path.join(
                     __dirname,
-                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}_bin.dat`
+                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
                 ),
                 buffer
             )
 
-            fs.writeFileSync(
-                path.join(
-                    __dirname,
-                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
-                ),
-                G_data
-            )
+            // fs.writeFileSync(
+            //     path.join(
+            //         __dirname,
+            //         `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
+            //     ),
+            //     G_data
+            // )
         } catch (err) {
             console.error(err)
         }
