@@ -21,7 +21,6 @@ import Modal from "../Modal/Modal";
 
 function MissionConfiguratorWidget({
   ChannelConfig,
-  paramsData,
   metrics = {},
   monitoring = false,
   style={}
@@ -54,7 +53,7 @@ function MissionConfiguratorWidget({
                   <TableCell align="right" sx={{ fontWeight: "bold" }}>
                     Peak
                   </TableCell>
-                  <TableCell align="left" sx={{ fontWeight: "bold" }}>
+                  <TableCell align="right" sx={{ fontWeight: "bold" }}>
                     Rms
                   </TableCell>
                 </>

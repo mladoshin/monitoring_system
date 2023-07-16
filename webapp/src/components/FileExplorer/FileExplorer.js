@@ -21,6 +21,7 @@ import FileModal from "./FileModal";
 import { useDispatch, useSelector } from "react-redux";
 import { setFiles } from "../../store/slices/fileSlice";
 import { toast } from "react-toastify";
+import SpectrumModal from "./SpectrumModal";
 
 function canOpenStats(path, subtree) {
   let res = false;
@@ -36,14 +37,34 @@ function canOpenStats(path, subtree) {
   return res;
 }
 
+function canOpenSpectrum(path, subtree) {
+  let res = false;
+  const regExp = /\/([0-9]+)/g;
+  const files = Object.keys(subtree || {});
+  const folders = [...path.matchAll(regExp)].map((el) => el[1]);
+  try {
+    Array.from(files).forEach((file, idx) => {
+      if (file.endsWith(".dat") && folders.length == 2) {
+        res = true;
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
+
+  return res;
+}
+
 export default function FileExplorer({ basePath = "" }) {
   const allFiles = useSelector((state) => state.files.value);
   const dispatch = useDispatch();
   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
+  const [spectrumModalOpen, setSpectrumModalOpen] = useState(false);
   const [currentFolder, setCurrentFolder] = useState({ file: "" });
   const [subtree, setSubTree] = useState({ ...allFiles });
   const [path, setPath] = useState("");
   const [canViewStats, setCanViewStats] = useState(false);
+  const [canViewSpectrum, setCanViewSpectrum] = useState(false);
 
   useEffect(() => {
     //if(basePath) return;
@@ -58,10 +79,11 @@ export default function FileExplorer({ basePath = "" }) {
 
   useEffect(() => {
     setCanViewStats(canOpenStats(path, subtree));
+    setCanViewSpectrum(canOpenSpectrum(path, subtree));
   }, [path, subtree]);
 
   useEffect(() => {
-    if(basePath) return;
+    if (basePath) return;
     const keys = path.split("/").filter((k) => k !== "");
 
     let temp = allFiles;
@@ -78,6 +100,8 @@ export default function FileExplorer({ basePath = "" }) {
       openFolder(basePath);
     }
   }, [basePath]);
+
+  console.log("canViewSpectrum: ", canViewSpectrum);
 
   //refresh all files
   async function refresh() {
@@ -97,18 +121,21 @@ export default function FileExplorer({ basePath = "" }) {
         tree = tree[key];
       });
 
-      if(tree === undefined || tree === null){
+      if (tree === undefined || tree === null) {
         throw new Error();
       }
       setPath(new_path);
       setSubTree(tree);
     } catch (err) {
-      toast.error("Указанный путь не найден!", {position: "bottom-right", autoClose: false});
+      toast.error("Указанный путь не найден!", {
+        position: "bottom-right",
+        autoClose: false,
+      });
     }
   }
 
   const files = useMemo(() => {
-    if(!subtree) return [];
+    if (!subtree) return [];
     return Object.keys(subtree);
   }, [subtree]);
 
@@ -169,6 +196,10 @@ export default function FileExplorer({ basePath = "" }) {
     }));
   }
 
+  function handleOpenSpectrum() {
+    setSpectrumModalOpen(true)
+  }
+
   return (
     <Paper sx={{ padding: "25px" }}>
       <Toolbar
@@ -204,6 +235,15 @@ export default function FileExplorer({ basePath = "" }) {
             Смотреть сводку (MIC / SCADA)
           </Button>
         )}
+        {canViewSpectrum && (
+          <Button
+            sx={{ marginRight: "10px" }}
+            onClick={() => handleOpenSpectrum()}
+            variant="contained"
+          >
+            Открыть спектр
+          </Button>
+        )}
         <Button sx={{ marginLeft: "10px" }} onClick={goUp}>
           <ArrowUpwardIcon />
         </Button>
@@ -227,7 +267,6 @@ export default function FileExplorer({ basePath = "" }) {
           ))}
         </List>
       </Box>
-
       {/*  modal for file contents */}
       <FileModal
         open={modalOpen.open}
@@ -235,6 +274,13 @@ export default function FileExplorer({ basePath = "" }) {
         handleClose={() => setModalOpen({ open: false, data: null })}
         fileName={modalOpen.file_name}
       />
+
+      <SpectrumModal
+        open={spectrumModalOpen}
+        handleClose={() => setSpectrumModalOpen(false)}
+        path={path}
+      />
+      
     </Paper>
   );
 }

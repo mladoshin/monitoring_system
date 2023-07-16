@@ -1,0 +1,15 @@
+.modal {
+    .inner {
+        width: 80% !important;
+        min-width: 700px !important;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+
+        .main{
+            flex: 1 1 0px;
+            overflow-y: auto;
+            padding: 2rem 0rem;
+        }
+    }
+}

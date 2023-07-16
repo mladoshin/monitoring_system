@@ -16,6 +16,8 @@ import EventService from './EventService.js'
 import { SOCKET_EVENTS } from '../common/enums.mjs'
 import SocketManagement from './UtilServices/SocketManagement.js'
 import ProfileManager from './UtilServices/ProfileManager.js'
+import pkg from 'fft-js'
+const { fft, util } = pkg
 
 dotenv.config()
 
@@ -56,6 +58,11 @@ class AppServer {
         this.app.get('/api/calibrate-channel', this.getCalibrationResults)
         this.app.get('/api/get-g-rawdata', this.getGRawData)
 
+        this.app.get(
+            '/api/get-mission-spectrum-data',
+            this.getMissionSpectrumData
+        )
+
         this.app.get('*', (req, res) => {
             res.sendFile(path.join(__dirname, './app/dist/index.html'))
         })
@@ -92,6 +99,70 @@ class AppServer {
 
         //create new instance of Event Service for sending data through socket
         this.eventService = new EventService(this.io)
+    }
+
+    readBufferToArray(buf){
+        const data = [];
+
+        for(let i = 0; i < buf.byteLength; i+=4){
+            data.push(buf.readFloatLE(i))
+        }
+
+        return data;
+    }
+
+    getMissionSpectrumData = async (req, res) => {
+        const { folder_path } = req.query
+
+        let files = this.listFilesInFolder(folder_path)
+
+        console.log(files)
+        try {
+            files = files.filter((f) => f.endsWith('.dat'))
+
+            files.sort((a, b) => (a > b ? 1 : -1))
+        } catch (err) {
+            console.error(err)
+        }
+
+        const result = []
+
+        let config = {};
+
+        try{
+            config = JSON.parse(fs.readFileSync(
+                path.join(__dirname, `/data/${folder_path}/full-config.json`),
+                "utf-8"
+            ))
+        }catch(err){
+            return res.sendStatus(400)
+        }
+
+        const sample_rate = config.DeviceConfig.SampleRate
+
+        files
+            .filter((f) => f.indexOf('bin') != -1)
+            .forEach((file, idx) => {
+                const buf = fs.readFileSync(
+                    path.join(__dirname, `/data/${folder_path}/${file}`)
+                )
+                
+                const data = this.readBufferToArray(buf)
+                const phasors = fft(data.slice(0, 1024))
+
+                const frequencies = util.fftFreq(phasors, sample_rate) // Sample rate and coef is just used for length, and frequency step
+                const magnitudes = util.fftMag(phasors)
+
+                const both = frequencies.map((f, ix) => ({
+                    frequency: f,
+                    magnitude: magnitudes[ix],
+                }))
+
+                result.push(both)
+            })
+
+        //console.log(result)
+        res.send(result)
     }
 
     getNetworkInfo = async (req, res) => {
@@ -239,15 +310,23 @@ class AppServer {
         //     )
         // }
 
-        let response = null;
-        try{
-            response = await axios
-            .post(`${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`, {
-                ...body,
-            })
+        let response = null
+        try {
+            response = await axios.post(
+                `${process.env.CONTROLLER_URI}/devices/MCM-204-0/mission`,
+                {
+                    ...body,
+                }
+            )
 
             if (this.mode !== MODE.MONITORING) {
-                fs.rmSync(path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`), {recursive: true, force: true});
+                fs.rmSync(
+                    path.join(
+                        __dirname,
+                        `/data/${this.test_mode}/${this.test_id}`
+                    ),
+                    { recursive: true, force: true }
+                )
 
                 fs.mkdirSync(
                     path.join(
@@ -262,21 +341,24 @@ class AppServer {
                     null,
                     2
                 )
-                
+
                 //save config file
-                fs.writeFileSync(path.join(
-                    __dirname,
-                    `/data/${this.test_mode}/${this.test_id}/full-config.json`
-                ), JSON_config)
-                
+                fs.writeFileSync(
+                    path.join(
+                        __dirname,
+                        `/data/${this.test_mode}/${this.test_id}/full-config.json`
+                    ),
+                    JSON_config
+                )
+
                 //generate mera file
             }
-            
-            res.status(200).send(response.data);
-        }catch(err){
+
+            res.status(200).send(response.data)
+        } catch (err) {
             res.status(400).send('Возникла ошибка при запросе к контроллеру')
             console.log(err)
-        }    
+        }
     }
 
     stopMission = async (req, res) => {
@@ -393,7 +475,6 @@ class AppServer {
 
     //synchronous functiion for saving GData file
     saveBinaryFile = (G_data, G_array, channel) => {
-
         //create a directory for files
         fs.mkdirSync(
             path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),

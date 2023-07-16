@@ -8,6 +8,9 @@ export const AppAPI = createApi({
   tagTypes: ["Socket"],
   baseQuery: fetchBaseQuery({ baseUrl: BASE_URL }),
   endpoints: (builder) => ({
+    getMissionSpectrumData: builder.query({
+      query: (path) => `/get-mission-spectrum-data?folder_path=${path}`,
+    }),
     getSocketConnections: builder.query({
       query: () => "/get-socket-connections",
       providesTags: ["Socket"],
@@ -48,5 +51,6 @@ export const {
   useLazyGetNetworkInfoQuery,
   useGetNetworkInfoQuery,
   useConnectControllerMutation,
-  useClearHistoryMutation
+  useClearHistoryMutation,
+  useLazyGetMissionSpectrumDataQuery
 } = AppAPI;

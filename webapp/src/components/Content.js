@@ -83,9 +83,9 @@ export default function Content() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
-  const [paramsData, setParamsData] = useState([]);
-  const [metricsData, setMetricsData] = useState({});
   const { status } = useSelector((state) => state.mission);
+  const {metrics: metricsData} = useSelector(state => state.mission)
+
   const navigate = useNavigate()
   const formikRef = useRef(null)
   const dispatch = useDispatch();
@@ -117,7 +117,7 @@ export default function Content() {
       const {file_name, directory_name, show_results} = formikRef.current.values
 
       //show results if needed
-      if(show_results){
+      if(show_results && directory_name && file_name){
         navigate(`/missions?mode=${directory_name}&test=${file_name}`)
       }
     }
@@ -141,7 +141,7 @@ export default function Content() {
       modal_open: false,
       current_channel: null,
       mode: MODE.TESTING,
-      show_results: false,
+      show_results: true,
     },
     validationSchema: MissionConfigSchema,
     onSubmit: async (values, actions) => {
@@ -253,7 +253,6 @@ export default function Content() {
 
             <MissionConfiguratorWidget
               ChannelConfig={ChannelConfig}
-              paramsData={paramsData}
               metrics={metricsData}
               style={{ mt: 3, py: 2 }}
             />

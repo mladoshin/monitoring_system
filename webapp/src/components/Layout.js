@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFiles } from "../store/slices/fileSlice";
 import { SOCKET_EVENTS } from "../../../common/enums.mjs";
 import SocketService from "../utils/SocketService";
-import { setLoading, setSuccess } from "../store/slices/missionSlice";
+import { setLoading, setMetrics, setSuccess } from "../store/slices/missionSlice";
 import {
   setConnected,
   startLoading,
@@ -209,10 +209,11 @@ export default function Layout({ children }) {
       // axios.get('/test-socket').then((res) => console.log(res))
     });
 
-    // socket.on(SOCKET_EVENTS.METRICS_UPDATE, (data) => {
-    //   console.log("Received new metrics file!");
-    //   console.log(data);
-    // });
+    socket.on(SOCKET_EVENTS.METRICS_UPDATE, (data) => {
+      console.log("Received new metrics file!");
+      console.log(data);
+      dispatch(setMetrics(data.data))
+    });
 
     socket.on(SOCKET_EVENTS.MISSION_COMPLETE, (data) => {
       console.log("Mission completed!");

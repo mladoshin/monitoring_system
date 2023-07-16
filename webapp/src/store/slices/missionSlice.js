@@ -1,6 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
+
+
 const initialState = {
-  status: null
+  status: null,
+  metrics: []
 };
 
 export const missionSlice = createSlice({
@@ -16,10 +19,13 @@ export const missionSlice = createSlice({
     setError: (state, action) => {
       state.status = 1;
     },
+    setMetrics: (state, action) => {
+      state.metrics = action.payload;
+    },
   },
 });
 
 // Action creators are generated for each case reducer function
-export const { setLoading, setSuccess, setError } = missionSlice.actions;
+export const { setLoading, setSuccess, setError, setMetrics } = missionSlice.actions;
 
 export default missionSlice.reducer;
