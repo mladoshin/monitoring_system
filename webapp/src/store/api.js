@@ -11,6 +11,9 @@ export const AppAPI = createApi({
     getMissionSpectrumData: builder.query({
       query: (path) => `/get-mission-spectrum-data?folder_path=${path}`,
     }),
+    getMissionTimeseriesData: builder.query({
+      query: (path) => `/get-mission-timeseries-data?folder_path=${path}`,
+    }),
     getSocketConnections: builder.query({
       query: () => "/get-socket-connections",
       providesTags: ["Socket"],
@@ -52,5 +55,6 @@ export const {
   useGetNetworkInfoQuery,
   useConnectControllerMutation,
   useClearHistoryMutation,
-  useLazyGetMissionSpectrumDataQuery
+  useLazyGetMissionSpectrumDataQuery,
+  useLazyGetMissionTimeseriesDataQuery
 } = AppAPI;

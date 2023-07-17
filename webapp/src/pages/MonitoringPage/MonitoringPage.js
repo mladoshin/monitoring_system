@@ -94,15 +94,15 @@ function MonitoringPage() {
       if (!running.current) {
         return;
       }
-      
-      console.log(data)
 
-      Object.keys(data).map(key => {
-        if(data[key].G){
-          data[key].G = data[key].G.slice(0, 1000)
+      console.log(data);
+
+      Object.keys(data).map((key) => {
+        if (data[key].G) {
+          data[key].G = data[key].G.slice(0, 1000);
         }
-      })
-      
+      });
+
       //console.log(data)
       const tmp = centerSignal(
         Object.values(data)
@@ -128,10 +128,9 @@ function MonitoringPage() {
         el.min = 0;
       });
 
-      return tmp
+      return tmp;
     });
   }
-
 
   function onMetricUpdate({ data }) {
     setParamData(data);
@@ -161,7 +160,7 @@ function MonitoringPage() {
       repeat_interval: 5,
       repeat_times: "1",
       sample_rate: 16000,
-      data_count: 16000,
+      data_count: 512,
       record_duration: 1,
       file_name: "",
       directory_name: "",
@@ -192,11 +191,11 @@ function MonitoringPage() {
         await startMission({
           input_type: "PseudoDifferential",
           trigger_source: "NoWait",
-          repeat_times: 4,
-          record_duration: 4.0,
+          repeat_times: 0,
+          record_duration: 0.1,
           sample_rate: 16000,
-          data_count: 16384,
-          repeat_interval: 0,
+          data_count: 128,
+          repeat_interval: 1000,
           channel_config: ChannelConfig.config,
           mode: MODE.TEST_MONITORING,
         });

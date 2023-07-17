@@ -85,7 +85,7 @@ function GraphMonitor({
 
   useEffect(() => {
     try {
-      const phasors = fft(data[selectedChannel].slice(0, 2048));
+      const phasors = fft(data[selectedChannel].slice(0, 128));
 
       const frequencies = util.fftFreq(phasors, 16000); // Sample rate and coef is just used for length, and frequency step
       const magnitudes = util.fftMag(phasors);

@@ -64,6 +64,11 @@ class AppServer {
             this.getMissionSpectrumData
         )
 
+        this.app.get(
+            '/api/get-mission-timeseries-data',
+            this.getMissionTimeseriesData
+        )
+
         this.app.get('*', (req, res) => {
             res.sendFile(path.join(__dirname, './app/dist/index.html'))
         })
@@ -173,6 +178,39 @@ class AppServer {
         res.send(result)
     }
 
+    getMissionTimeseriesData = async (req, res) => {
+        const { folder_path } = req.query
+
+        let files = this.listFilesInFolder(folder_path)
+
+        console.log(files)
+        try {
+            files = files.filter((f) => f.endsWith('.dat'))
+
+            files.sort((a, b) => (a > b ? 1 : -1))
+        } catch (err) {
+            return res.status(500).send({ error: err })
+        }
+
+        const result = []
+
+        try {
+            // generate fft data for each channel and store it in result matrix
+            files.forEach((file, idx) => {
+                const buf = fs.readFileSync(
+                    path.join(__dirname, `/data/${folder_path}/${file}`)
+                )
+
+                const data = this.readBufferToArray(buf)
+                result.push(data.slice(0, 4096))
+            })
+        } catch (err) {
+            return res.status(500).send({ error: err })
+        }
+
+        res.send(result)
+    }
+
     getNetworkInfo = async (req, res) => {
         try {
             const response = await axios.get(
@@ -254,7 +292,7 @@ class AppServer {
             const channel_info = []
             ChannelConfig.forEach((ch, idx) => {
                 console.log(ch)
-                channel_info.push(`[${file_name}_ch${idx}]`)
+                channel_info.push(`[Канал_${+idx+1}]`)
                 channel_info.push(`Freq=${parseFloat(DeviceConfig.SampleRate)}`)
                 channel_info.push(`XUnits=сек`)
                 channel_info.push(`YUnits=м/с^2`)
@@ -349,7 +387,7 @@ class AppServer {
                 }
             )
 
-            if (this.mode !== MODE.MONITORING) {
+            if (this.mode !== MODE.MONITORING && this.mode != MODE.TEST_MONITORING) {
                 fs.rmSync(
                     path.join(
                         __dirname,

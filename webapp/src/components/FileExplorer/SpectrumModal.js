@@ -14,33 +14,56 @@ import {
   _axisGenerator,
   _jsonGenerator,
 } from "../../../../common/utils/utils.mjs";
-import { useLazyGetMissionSpectrumDataQuery } from "../../store/api";
+import { useLazyGetMissionSpectrumDataQuery, useLazyGetMissionTimeseriesDataQuery } from "../../store/api";
 import ReactApexChart from "react-apexcharts";
+
+const VIEW_MODE = { SPECTRUM: "spectrum", TIMESERIES: "timeseries" };
 
 function SpectrumModal({ open, handleClose, path = "" }) {
   const [getSpectrumData, { isError, isLoading, isSuccess, data }] =
     useLazyGetMissionSpectrumDataQuery();
+
+  const [
+    getTimeseriesData,
+    {
+      isError: isTError,
+      isLoading: isTLoading,
+      isSuccess: isTSuccess,
+      timeseries_data,
+    },
+  ] = useLazyGetMissionTimeseriesDataQuery();
+
+  const [viewMode, setViewMode] = useState(VIEW_MODE.SPECTRUM);
 
   useEffect(() => {
     if (!path) {
       console.error("No path specified to fetch spetrum data!");
     }
 
+    console.log(viewMode)
+
     if (open) {
-      handleFetchSpectrumData(path);
+      if (viewMode === VIEW_MODE.SPECTRUM) {
+        handleFetchSpectrumData(path);
+      } else {
+        handleFetchTimeSeriesData(path);
+      }
     }
-  }, [open, path]);
-
-  useEffect(() => {
-    if (!data) return;
-
-    data.forEach(displaySpectrumData);
-  }, [data, open]);
+  }, [open, path, viewMode]);
 
   async function handleFetchSpectrumData(path) {
     try {
       const res = await getSpectrumData(path.substr(1)).unwrap();
-      //res.forEach(displaySpectrumData);
+      res.forEach(displaySpectrumData);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleFetchTimeSeriesData(path) {
+    try {
+      const res = await getTimeseriesData(path.substr(1)).unwrap();
+      res.forEach(displayTimeseriesData);
     } catch (err) {
       console.error(err);
     }
@@ -49,12 +72,6 @@ function SpectrumModal({ open, handleClose, path = "" }) {
   function displaySpectrumData(channel_fft_data, idx) {
     console.log("display spectrum data");
     ApexCharts.exec(`spectrum_chart${idx}`, "updateSeries", [
-      {
-        data: channel_fft_data.map((el) => el.magnitude),
-      },
-    ]);
-
-    ApexCharts.exec(`spectrum_chart${idx}_1`, "updateSeries", [
       {
         data: channel_fft_data.map((el) => el.magnitude),
       },
@@ -74,24 +91,35 @@ function SpectrumModal({ open, handleClose, path = "" }) {
       false,
       false
     );
+  }
 
-    console.log(channel_fft_data[channel_fft_data.length - 1].frequency);
+  function displayTimeseriesData(data, idx) {
+    console.log("display timeseries data");
+    ApexCharts.exec(`spectrum_chart${idx}`, "updateSeries", [
+      {
+        data: data,
+      },
+    ]);
+
     ApexCharts.exec(
-      `spectrum_chart${idx}_1`,
+      `spectrum_chart${idx}`,
       "updateOptions",
       {
-        chart: {
-          ...chart.optionsLine.chart,
-          selection: {
-            enabled: true,
-            xaxis: {
-              categories: channel_fft_data.map((el) => el.frequency),
-            },
+        xaxis: {
+          categories: data.map((_, idx) => idx),
+          labels: {
+            show: true,
           },
         },
       },
       false,
       false
+    );
+  }
+
+  function toggleMode() {
+    setViewMode((state) =>
+      state === VIEW_MODE.SPECTRUM ? VIEW_MODE.TIMESERIES : VIEW_MODE.SPECTRUM
     );
   }
 
@@ -197,6 +225,9 @@ function SpectrumModal({ open, handleClose, path = "" }) {
       <Box className="inner">
         <div className="modal-header">
           <h3>{`Номер эксперимента: ${experiment_number}, номер теста: ${test_number}`}</h3>
+          <Button variant="contained" onClick={toggleMode}>
+            {viewMode === VIEW_MODE.SPECTRUM ? "Временной ряд" : "Спектр"}
+          </Button>
           <Button variant="outlined" onClick={handleClose}>
             закрыть
           </Button>
