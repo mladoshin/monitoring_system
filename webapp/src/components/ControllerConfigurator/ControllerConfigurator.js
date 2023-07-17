@@ -20,6 +20,8 @@ function ControllerConfigurator({
   profile,
   onSelect,
   is_monitoring = false,
+  handleFetchProfile,
+  startMission,
 }) {
   const formik = useFormikContext();
   const [dataCountMode, setDataCountMode] = useState(false);
@@ -35,14 +37,14 @@ function ControllerConfigurator({
   const handleChangeSampleRate = (sample_rate) => {
     const { record_duration, data_count } = formik.values;
 
-    if(dataCountMode){
+    if (dataCountMode) {
       const record_duration = data_count / sample_rate;
       formik.setFieldValue("record_duration", record_duration);
-    }else{
+    } else {
       const data_count = sample_rate * record_duration;
       formik.setFieldValue("data_count", data_count);
     }
-    
+
     formik.setFieldValue("sample_rate", sample_rate);
   };
 
@@ -279,6 +281,29 @@ function ControllerConfigurator({
               <b>Текущая конфигурация:</b> {profile}
             </span>
           )}
+
+          <Box sx={{ marginLeft: "auto" }}>
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => {
+                handleFetchProfile("vibro_16.json")
+              }}
+              sx={{ marginRight: 2 }}
+            >
+              Режим 16 кГц
+            </Button>
+
+            <Button
+              variant="contained"
+              size="large"
+              onClick={() => {
+                handleFetchProfile("vibro_32.json")
+              }}
+            >
+              Режим 32 кГц
+            </Button>
+          </Box>
         </Box>
       )}
     </Paper>

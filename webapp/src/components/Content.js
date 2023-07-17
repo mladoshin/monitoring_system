@@ -84,10 +84,10 @@ export default function Content() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const { status } = useSelector((state) => state.mission);
-  const {metrics: metricsData} = useSelector(state => state.mission)
+  const { metrics: metricsData } = useSelector((state) => state.mission);
 
-  const navigate = useNavigate()
-  const formikRef = useRef(null)
+  const navigate = useNavigate();
+  const formikRef = useRef(null);
   const dispatch = useDispatch();
 
   const toastId = React.useRef(null);
@@ -114,11 +114,12 @@ export default function Content() {
         hideProgressBar: true,
       });
 
-      const {file_name, directory_name, show_results} = formikRef.current.values
+      const { file_name, directory_name, show_results } =
+        formikRef.current.values;
 
       //show results if needed
-      if(show_results && directory_name && file_name){
-        navigate(`/missions?mode=${directory_name}&test=${file_name}`)
+      if (show_results && directory_name && file_name) {
+        navigate(`/missions?mode=${directory_name}&test=${file_name}`);
       }
     }
   }, [status]);
@@ -134,7 +135,7 @@ export default function Content() {
       sample_rate: 16000,
       data_count: 16000,
       record_duration: 1,
-      file_name: "",
+      file_name: 1,
       directory_name: "",
       comment: "",
       channels: [],
@@ -174,7 +175,9 @@ export default function Content() {
             );
             // Auto increment file_name
             actions.setFieldValue("file_name", new_file);
-            actions.setFieldValue("directory_name", new_dir);
+            if (!isNaN(new_dir)) {
+              actions.setFieldValue("directory_name", new_dir);
+            }
           }, (values.data_count / values.sample_rate) * 1000 + 3500);
         })
         .catch((err) => {
@@ -216,10 +219,9 @@ export default function Content() {
 
   // fetch the user profile and update the ui
   async function handleFetchProfile(name, setValues) {
-    //console.log(name);
     const res = await getUserProfiles({ profile_name: name });
     const { channel_config, ...rest } = res;
-    setValues(rest);
+    await setValues(rest);
     ChannelConfig.setConfig(channel_config);
   }
 
@@ -249,6 +251,21 @@ export default function Content() {
               onSave={() => setModalOpen(true)}
               onSelect={() => setSelectOpen(true)}
               profile={selectedProfile}
+              handleFetchProfile={(name) => {
+                setSelectedProfile(name);
+                const test_number = props.values.file_name;
+                handleFetchProfile(name, props.setValues).then(() => {
+                  console.log(props.values);
+                  if (name === "vibro_16.json") {
+                    props.setFieldValue("directory_name", "16кГц");
+                  } else if (name === "vibro_32.json") {
+                    props.setFieldValue("directory_name", "32кГц");
+                  }
+                  props.setFieldValue("file_name", test_number);
+
+                  setTimeout(() => props.handleSubmit(), 250);
+                });
+              }}
             />
 
             <MissionConfiguratorWidget
@@ -309,31 +326,3 @@ export default function Content() {
     </Box>
   );
 }
-
-// function ResultComponent({ show_results }) {
-//   const [modalOpen, setModalOpen] = useState({ open: false, data: null });
-
-//   useEffect(() => {
-//     const { socket } = new SocketService();
-//     if (show_results) {
-//       socket.on(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
-//     }else{
-//       socket.off(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
-//     }
-
-//     return () => socket.off(SOCKET_EVENTS.MISSION_COMPLETE, handleReceiveResults);
-//   }, [show_results]);
-
-//   function handleReceiveResults(data){
-//     console.log("Mission completed!");
-//     console.log(data);
-//   }
-
-//   return (
-//     <FileModal
-//       open={modalOpen.open}
-//       data={modalOpen.data}
-//       handleClose={() => setModalOpen({ open: false, data: null })}
-//     />
-//   );
-// }

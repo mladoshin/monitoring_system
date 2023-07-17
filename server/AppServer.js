@@ -17,6 +17,7 @@ import { SOCKET_EVENTS } from '../common/enums.mjs'
 import SocketManagement from './UtilServices/SocketManagement.js'
 import ProfileManager from './UtilServices/ProfileManager.js'
 import pkg from 'fft-js'
+import moment from 'moment/moment.js'
 const { fft, util } = pkg
 
 dotenv.config()
@@ -127,7 +128,6 @@ class AppServer {
 
         const result = []
 
-        
         let config = {}
         try {
             config = JSON.parse(
@@ -222,6 +222,67 @@ class AppServer {
         }
     }
 
+    saveMissionJsonConfig(JSON_config) {
+        try {
+            //save config file
+            fs.writeFileSync(
+                path.join(
+                    __dirname,
+                    `/data/${this.test_mode}/${this.test_id}/full-config.json`
+                ),
+                JSON_config
+            )
+            return null
+        } catch (err) {
+            return err
+        }
+    }
+
+    saveMissionMeraConfig(config) {
+        const {comment, ChannelConfig, DeviceConfig, file_name} = config
+        try {
+            const today = new Date()
+            const header = [
+                "[MERA]",
+                "Prod=data",
+                `Test=${this.test_mode}`,
+                `Info=${comment}`,
+                `Date=${moment(today).format("DD.MM.YYYY")}`,
+                `Time=${moment(today).format("HH:mm:ss:SSS")}`
+            ]   
+            
+            const channel_info = []
+            ChannelConfig.forEach((ch, idx) => {
+                console.log(ch)
+                channel_info.push(`[${file_name}_ch${idx}]`)
+                channel_info.push(`Freq=${parseFloat(DeviceConfig.SampleRate)}`)
+                channel_info.push(`XUnits=сек`)
+                channel_info.push(`YUnits=м/с^2`)
+                channel_info.push(`Start=0`)
+                channel_info.push(`YFormat=R4`)
+                channel_info.push(`k0=0`)
+                channel_info.push(`k1=1.0`)
+                channel_info.push(`kCalibr=${parseFloat(ch.Channel.Sensor.Sensitivity)}`)
+                channel_info.push(`ChanNo=${idx}\n`)
+            })
+
+            const content = `${header.join("\n")}\n\n${channel_info.join("\n")}`
+
+            fs.writeFileSync(
+                path.join(
+                    __dirname,
+                    `/data/${this.test_mode}/${this.test_id}/full-config.mera`
+                ),
+                content,
+                "utf-8"
+            )
+            return null
+        } catch (err) {
+            console.log(err)
+            return err
+        }
+    }
+
     startMission = async (req, res) => {
         let error = null
         const {
@@ -279,47 +340,6 @@ class AppServer {
             ),
         }
 
-        //remove test directory before writing to it (clearing old files)
-
-        // if (this.mode !== MODE.MONITORING) {
-        //     fs.rm(
-        //         path.join(__dirname, `/data/${this.test_mode}/${this.test_id}`),
-        //         { recursive: true, force: true },
-        //         (err) => {
-        //             if (err) {
-        //                 console.log(err)
-        //             } else {
-        //                 console.log('Successfully cleared the directory')
-        //             }
-
-        //             fs.mkdirSync(
-        //                 path.join(
-        //                     __dirname,
-        //                     `/data/${this.test_mode}/${this.test_id}`
-        //                 ),
-        //                 { recursive: true }
-        //             )
-
-        //             const JSON_config = JSON.stringify(
-        //                 { ...body, comment: comment },
-        //                 null,
-        //                 2
-        //             )
-        //             const file = fs.createWriteStream(
-        //                 path.join(
-        //                     __dirname,
-        //                     `/data/${this.test_mode}/${this.test_id}/full-config.json`
-        //                 )
-        //             )
-        //             file.on('error', function (err) {
-        //                 /* error handling */
-        //             })
-        //             file.write(JSON_config)
-        //             file.end()
-        //         }
-        //     )
-        // }
-
         let response = null
         try {
             response = await axios.post(
@@ -352,21 +372,21 @@ class AppServer {
                     2
                 )
 
-                //save config file
-                fs.writeFileSync(
-                    path.join(
-                        __dirname,
-                        `/data/${this.test_mode}/${this.test_id}/full-config.json`
-                    ),
-                    JSON_config
-                )
+                let rc = this.saveMissionJsonConfig(JSON_config)
+                if (rc) {
+                    return res.status(500).send({ error: rc })
+                }
 
                 //generate mera file
+                rc = this.saveMissionMeraConfig({ ...body, comment: comment, file_name: file_name })
+                if (rc) {
+                    return res.status(500).send({ error: rc })
+                }
             }
 
             res.status(200).send(response.data)
         } catch (err) {
-            res.status(400).send('Возникла ошибка при запросе к контроллеру')
+            res.status(500).send('Возникла ошибка при запросе к контроллеру')
             console.log(err)
         }
     }

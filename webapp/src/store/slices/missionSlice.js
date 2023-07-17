@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
   status: null,
-  metrics: []
+  metrics: [],
+  test_number: 1
 };
 
 export const missionSlice = createSlice({
@@ -22,6 +23,9 @@ export const missionSlice = createSlice({
     setMetrics: (state, action) => {
       state.metrics = action.payload;
     },
+    setTestNumber: (state, action) => {
+      state.test_number = +action.payload
+    }
   },
 });
 

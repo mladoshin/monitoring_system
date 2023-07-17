@@ -1,0 +1,111 @@
+{
+  "input_type": "PseudoDifferential",
+  "trigger_source": "NoWait",
+  "repeat_interval": 5,
+  "repeat_times": "1",
+  "sample_rate": "32000",
+  "data_count": 524288,
+  "record_duration": "16.384",
+  "file_name": "",
+  "directory_name": "",
+  "comment": "",
+  "channels": [],
+  "modal_open": false,
+  "current_channel": null,
+  "mode": "testing",
+  "show_results": true,
+  "channel_config": [
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI0",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": 1574.225546901165
+        }
+      },
+      "Coupling": "AC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI1",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": 217.57472595112202
+        }
+      },
+      "Coupling": "AC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI2",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": 221.64656725208982
+        }
+      },
+      "Coupling": "AC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "Channel": {
+        "Port": "AI3",
+        "Sensor": {
+          "Type": "Accelerometer",
+          "Sensitivity": 228.4523979356686
+        }
+      },
+      "Coupling": "AC",
+      "InputRange": "B10",
+      "IEPE": "Disable",
+      "Conversion": [
+        {
+          "DataType": "G",
+          "Algorithm": {
+            "WindowType": "Hann",
+            "FreqStart": "10",
+            "FreqEnd": "10000"
+          }
+        }
+      ]
+    }
+  ]
+}
