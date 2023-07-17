@@ -44,7 +44,7 @@ function canOpenSpectrum(path, subtree) {
   const folders = [...path.matchAll(regExp)].map((el) => el[1]);
   try {
     Array.from(files).forEach((file, idx) => {
-      if (file.endsWith(".dat") && folders.length == 2) {
+      if (file.endsWith(".dat")) {
         res = true;
       }
     });

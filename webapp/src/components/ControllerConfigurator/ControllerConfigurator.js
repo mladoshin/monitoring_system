@@ -21,7 +21,6 @@ function ControllerConfigurator({
   onSelect,
   is_monitoring = false,
   handleFetchProfile,
-  startMission,
 }) {
   const formik = useFormikContext();
   const [dataCountMode, setDataCountMode] = useState(false);

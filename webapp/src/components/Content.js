@@ -23,7 +23,15 @@ import ProfileModal from "./ProfileModal";
 import { _transformToStatData } from "../../../common/utils/utils.mjs";
 import { preventEnterKey, transformMetrics } from "../utils/utils";
 import { MODE, SOCKET_EVENTS } from "../../../common/enums.mjs";
-import { setLoading } from "../store/slices/missionSlice";
+import {
+  incrementCounter16,
+  incrementCounter32,
+  resetCounters,
+  setConfig,
+  setCounter16,
+  setCounter32,
+  setLoading,
+} from "../store/slices/missionSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { useConnectControllerMutation } from "../store/api";
 import { setConnected } from "../store/slices/controllerSlice";
@@ -61,15 +69,26 @@ const MissionConfigSchema = Yup.object().shape({
     .required("Обязательное поле"),
 });
 
-function getNextMission(dir, file) {
-  let directory = +dir;
-  let file_name = +file;
-
-  if (file_name === process.env.TEST_COUNT) {
-    return [++directory, 1];
-  } else {
-    return [directory, ++file_name];
+function formatNumber(num) {
+  if (num < 10) {
+    return "00" + num;
+  } else if (num < 100) {
+    return "0" + num;
+  } else if (num < 999) {
+    return JSON.stringify(nums);
   }
+}
+
+function getNextMission(dir, file) {
+  const idx = file.indexOf("vibro");
+  if (idx != -1) {
+    let number_str = parseInt(file.substr(idx + 5, 3));
+    number_str++;
+    const file_name = file.slice(0, -3) + formatNumber(number_str);
+    return [dir, file_name];
+  }
+
+  return [dir, file];
 }
 
 export default function Content() {
@@ -84,16 +103,23 @@ export default function Content() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectOpen, setSelectOpen] = useState(false);
   const { status } = useSelector((state) => state.mission);
-  const { metrics: metricsData } = useSelector((state) => state.mission);
+  const {
+    metrics: metricsData,
+    counter16,
+    counter32,
+  } = useSelector((state) => state.mission);
 
   const navigate = useNavigate();
   const formikRef = useRef(null);
   const dispatch = useDispatch();
 
   const toastId = React.useRef(null);
+  const Config = useConfigureMission({});
 
   //process the status of a mission and update a toast message
   useEffect(() => {
+    if (!toastId.current) return;
+
     if (status === 2) {
       toast.update(toastId.current, {
         render: (
@@ -117,6 +143,9 @@ export default function Content() {
       const { file_name, directory_name, show_results } =
         formikRef.current.values;
 
+      //increment test number by one
+      updateTestNumber();
+
       //show results if needed
       if (show_results && directory_name && file_name) {
         navigate(`/missions?mode=${directory_name}&test=${file_name}`);
@@ -124,7 +153,40 @@ export default function Content() {
     }
   }, [status]);
 
-  const ChannelConfig = useConfigureMission({});
+  useEffect(() => {
+    console.log("Set formik values");
+    formikRef.current.setValues(Config.controllerConfig);
+    const file_name = Config.controllerConfig.file_name;
+
+    const idx = file_name.indexOf("vibro");
+    if (idx != -1) {
+      const number = parseInt(file_name.substr(idx + 5, 3));
+      if (file_name.indexOf("16000") != -1) {
+        dispatch(setCounter16(number));
+      } else if (file_name.indexOf("32000") != -1) {
+        dispatch(setCounter32(number));
+      }
+    }
+  }, [Config.controllerConfig]);
+
+  function updateTestNumber() {
+    console.log("update test number");
+    const [new_dir, new_file] = getNextMission(
+      formikRef.current.values.directory_name,
+      formikRef.current.values.file_name
+    );
+
+    if (formikRef.current.values.file_name.indexOf("16000") != -1) {
+      dispatch(incrementCounter16());
+    } else if (formikRef.current.values.file_name.indexOf("32000") != -1) {
+      dispatch(incrementCounter32());
+    }
+
+    Config.updateTestNumber(new_dir, new_file);
+    // Auto increment file_name
+    formikRef.current.setFieldValue("file_name", new_file);
+    formikRef.current.setFieldValue("directory_name", new_dir);
+  }
 
   const formik = {
     initialValues: {
@@ -135,7 +197,7 @@ export default function Content() {
       sample_rate: 16000,
       data_count: 16000,
       record_duration: 1,
-      file_name: 1,
+      file_name: "",
       directory_name: "",
       comment: "",
       channels: [],
@@ -153,76 +215,77 @@ export default function Content() {
         { position: "bottom-right", hideProgressBar: true }
       );
 
-      await startMission({
-        ...values,
-        repeat_interval: values.repeat_interval * 1000,
-        channel_config: ChannelConfig.config,
-      })
-        .then((res) => {
-          dispatch(setLoading());
-          toast.update(toastId.current, {
-            render: `Миссия запущена`,
-            position: "bottom-right",
-            type: "success",
-            autoClose: (values.data_count / values.sample_rate) * 1000 + 3000,
-            hideProgressBar: false,
-          });
+      Config.saveControllerConfig(values);
 
-          setTimeout(() => {
-            const [new_dir, new_file] = getNextMission(
-              values.directory_name,
-              values.file_name
-            );
-            // Auto increment file_name
-            actions.setFieldValue("file_name", new_file);
-            if (!isNaN(new_dir)) {
-              actions.setFieldValue("directory_name", new_dir);
-            }
-          }, (values.data_count / values.sample_rate) * 1000 + 3500);
-        })
-        .catch((err) => {
-          let msg = err.message;
-          //console.log(msg);
-
-          if (err.response.status === 300) {
-            msg = err.response.data.msg;
-          }
-
-          toast.update(toastId.current, {
-            render: msg,
-            position: "bottom-right",
-            type: "error",
-          });
-
-          if (err.response.status === 300) {
-            if (
-              confirm(
-                `Вы уверены, что хотите перезаписать миссию ${values.directory_name}-${values.file_name}?`
-              )
-            ) {
-              formik.onSubmit({ ...values, force: true }, actions);
-            }
-          }
+      //start mission
+      try {
+        const res = await startMission({
+          ...values,
+          repeat_interval: values.repeat_interval * 1000,
+          channel_config: Config.config,
         });
+
+        // set mission status to loading
+        dispatch(setLoading());
+      } catch (err) {
+        //handle mission errors
+        onMissionError(err, values, actions);
+      }
     },
   };
+
+  function onMissionError(err, values, actions) {
+    let msg = err.message;
+    //console.log(msg);
+
+    if (err.response.status === 300) {
+      msg = err.response.data.msg;
+    }
+
+    toast.update(toastId.current, {
+      render: msg,
+      position: "bottom-right",
+      type: "error",
+    });
+
+    if (err.response.status === 300) {
+      if (
+        confirm(
+          `Вы уверены, что хотите перезаписать миссию ${values.directory_name}-${values.file_name}?`
+        )
+      ) {
+        formik.onSubmit({ ...values, force: true }, actions);
+      }
+    }
+  }
 
   //handle select the user profile
   function handleSelectProfile(name, values) {
     setSelectedProfile(name);
     addProfile({
       name,
-      data: { ...values, channel_config: ChannelConfig.config },
+      data: { ...values, channel_config: Config.config },
     });
     setModalOpen(false);
+    Config.saveControllerConfig(values);
   }
 
   // fetch the user profile and update the ui
   async function handleFetchProfile(name, setValues) {
     const res = await getUserProfiles({ profile_name: name });
     const { channel_config, ...rest } = res;
-    await setValues(rest);
-    ChannelConfig.setConfig(channel_config);
+    //await setValues(rest);
+    Config.setConfig(channel_config);
+
+    if (name === "vibro_16.json") {
+      rest.file_name = `16000 Гц/vibro${formatNumber(counter16)}`;
+    } else if (name === "vibro_32.json") {
+      rest.file_name = `32000 Гц/vibro${formatNumber(counter32)}`;
+    }
+
+    rest.directory_name = formikRef.current.values.directory_name;
+
+    Config.saveControllerConfig(rest);
   }
 
   return (
@@ -253,23 +316,12 @@ export default function Content() {
               profile={selectedProfile}
               handleFetchProfile={(name) => {
                 setSelectedProfile(name);
-                const test_number = props.values.file_name;
-                handleFetchProfile(name, props.setValues).then(() => {
-                  console.log(props.values);
-                  if (name === "vibro_16.json") {
-                    props.setFieldValue("directory_name", "16кГц");
-                  } else if (name === "vibro_32.json") {
-                    props.setFieldValue("directory_name", "32кГц");
-                  }
-                  props.setFieldValue("file_name", test_number);
-
-                  setTimeout(() => props.handleSubmit(), 250);
-                });
+                handleFetchProfile(name, props.setValues);
               }}
             />
 
             <MissionConfiguratorWidget
-              ChannelConfig={ChannelConfig}
+              ChannelConfig={Config}
               metrics={metricsData}
               style={{ mt: 3, py: 2 }}
             />

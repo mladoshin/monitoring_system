@@ -527,7 +527,7 @@ class AppServer {
             fs.writeFileSync(
                 path.join(
                     __dirname,
-                    `/data/${this.test_mode}/${this.test_id}/${this.test_id}_ch${channel}.dat`
+                    `/data/${this.test_mode}/${this.test_id}/Канал_${+channel+1}.dat`
                 ),
                 buffer
             )
