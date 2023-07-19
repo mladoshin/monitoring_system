@@ -11,7 +11,7 @@ import {
 import ErrorMessage from "../ErrorMessage";
 import { useFormikContext } from "formik";
 
-function MissionModeConfig() {
+function MissionModeConfig({ handleFilenameChange }) {
   const formik = useFormikContext();
 
   return (
@@ -51,6 +51,7 @@ function MissionModeConfig() {
             type="text"
             name="file_name"
             onChange={formik.handleChange}
+            onKeyUp={(e) => handleFilenameChange(e.target.value)}
             onBlur={formik.handleBlur}
             value={formik.values.file_name}
             sx={{ width: "100%" }}

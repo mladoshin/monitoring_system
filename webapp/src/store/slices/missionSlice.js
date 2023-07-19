@@ -5,6 +5,7 @@ const initialState = {
   metrics: [],
   counter16: 1,
   counter32: 1,
+  counter: 1,
 };
 
 export const missionSlice = createSlice({
@@ -26,6 +27,12 @@ export const missionSlice = createSlice({
     incrementCounter16: (state, action) => {
       state.counter16++;
     },
+    incrementCounter: (state, action) => {
+      state.counter++;
+    },
+    setCounter: (state, action) => {
+      state.counter = action.payload;
+    },
     setCounter16: (state, action) => {
       state.counter16 = +action.payload;
     },
@@ -38,6 +45,9 @@ export const missionSlice = createSlice({
     resetCounters: (state, action) => {
       state.counter16 = 1;
       state.counter32 = 1;
+    },
+    resetCounter: (state, action) => {
+      state.counter = 1;
     },
   },
 });
@@ -53,6 +63,9 @@ export const {
   resetCounters,
   setCounter16,
   setCounter32,
+  incrementCounter,
+  setCounter,
+  resetCounter
 } = missionSlice.actions;
 
 export default missionSlice.reducer;

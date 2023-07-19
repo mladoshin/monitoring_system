@@ -7,6 +7,7 @@ import {
   MenuItem,
   Paper,
   Select,
+  Stack,
   TextField,
   Typography,
 } from "@mui/material";
@@ -21,6 +22,8 @@ function ControllerConfigurator({
   onSelect,
   is_monitoring = false,
   handleFetchProfile,
+  handleStartDoubleTest,
+  handleResetCounter,
 }) {
   const formik = useFormikContext();
   const [dataCountMode, setDataCountMode] = useState(false);
@@ -285,8 +288,17 @@ function ControllerConfigurator({
             <Button
               variant="contained"
               size="large"
+              onClick={handleStartDoubleTest}
+              sx={{ marginRight: 2 }}
+            >
+              {`16 | 32`}
+            </Button>
+
+            <Button
+              variant="contained"
+              size="large"
               onClick={() => {
-                handleFetchProfile("vibro_16.json")
+                handleFetchProfile("vibro_16.json");
               }}
               sx={{ marginRight: 2 }}
             >
@@ -297,7 +309,7 @@ function ControllerConfigurator({
               variant="contained"
               size="large"
               onClick={() => {
-                handleFetchProfile("vibro_32.json")
+                handleFetchProfile("vibro_32.json");
               }}
             >
               Режим 32 кГц
@@ -305,6 +317,12 @@ function ControllerConfigurator({
           </Box>
         </Box>
       )}
+
+      <Stack direction="row" justifyContent="end" sx={{py: 2}}>
+        <Button variant="outlined" size="small" onClick={handleResetCounter}>
+          Сбросить счётчик
+        </Button>
+      </Stack>
     </Paper>
   );
 }

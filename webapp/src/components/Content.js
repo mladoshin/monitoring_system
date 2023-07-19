@@ -24,12 +24,13 @@ import { _transformToStatData } from "../../../common/utils/utils.mjs";
 import { preventEnterKey, transformMetrics } from "../utils/utils";
 import { MODE, SOCKET_EVENTS } from "../../../common/enums.mjs";
 import {
+  incrementCounter,
   incrementCounter16,
   incrementCounter32,
+  resetCounter,
   resetCounters,
   setConfig,
-  setCounter16,
-  setCounter32,
+  setCounter,
   setLoading,
 } from "../store/slices/missionSlice";
 import { useDispatch, useSelector } from "react-redux";
@@ -75,20 +76,28 @@ function formatNumber(num) {
   } else if (num < 100) {
     return "0" + num;
   } else if (num < 999) {
-    return JSON.stringify(nums);
+    return JSON.stringify(num);
   }
 }
 
-function getNextMission(dir, file) {
-  const idx = file.indexOf("vibro");
-  if (idx != -1) {
-    let number_str = parseInt(file.substr(idx + 5, 3));
-    number_str++;
-    const file_name = file.slice(0, -3) + formatNumber(number_str);
-    return [dir, file_name];
+function getNextMission(dir, file = "") {
+  let number = getFileNumber(file);
+  if (number === null) {
+    return [dir, file];
   }
 
-  return [dir, file];
+  const file_name = file.slice(0, -3) + formatNumber(++number);
+  return [dir, file_name];
+}
+
+function getFileNumber(file_name = "") {
+  const idx = file_name?.indexOf("vibro");
+  if (idx != -1) {
+    let number = parseInt(file_name.substr(idx + 5, 3));
+    return number;
+  }
+
+  return null;
 }
 
 export default function Content() {
@@ -107,10 +116,12 @@ export default function Content() {
     metrics: metricsData,
     counter16,
     counter32,
+    counter,
   } = useSelector((state) => state.mission);
 
   const navigate = useNavigate();
   const formikRef = useRef(null);
+  const halfReady = useRef(false);
   const dispatch = useDispatch();
 
   const toastId = React.useRef(null);
@@ -146,6 +157,10 @@ export default function Content() {
       //increment test number by one
       updateTestNumber();
 
+      if (halfReady.current) {
+        handleStartDoubleTest({ mode: "vibro_32.json" });
+      }
+
       //show results if needed
       if (show_results && directory_name && file_name) {
         navigate(`/missions?mode=${directory_name}&test=${file_name}`);
@@ -158,14 +173,11 @@ export default function Content() {
     formikRef.current.setValues(Config.controllerConfig);
     const file_name = Config.controllerConfig.file_name;
 
-    const idx = file_name.indexOf("vibro");
+    const idx = file_name?.indexOf("vibro");
     if (idx != -1) {
       const number = parseInt(file_name.substr(idx + 5, 3));
-      if (file_name.indexOf("16000") != -1) {
-        dispatch(setCounter16(number));
-      } else if (file_name.indexOf("32000") != -1) {
-        dispatch(setCounter32(number));
-      }
+
+      dispatch(setCounter(number));
     }
   }, [Config.controllerConfig]);
 
@@ -177,9 +189,8 @@ export default function Content() {
     );
 
     if (formikRef.current.values.file_name.indexOf("16000") != -1) {
-      dispatch(incrementCounter16());
     } else if (formikRef.current.values.file_name.indexOf("32000") != -1) {
-      dispatch(incrementCounter32());
+      dispatch(incrementCounter());
     }
 
     Config.updateTestNumber(new_dir, new_file);
@@ -214,7 +225,7 @@ export default function Content() {
         </Box>,
         { position: "bottom-right", hideProgressBar: true }
       );
-
+      console.log(values);
       Config.saveControllerConfig(values);
 
       //start mission
@@ -229,7 +240,7 @@ export default function Content() {
         dispatch(setLoading());
       } catch (err) {
         //handle mission errors
-        onMissionError(err, values, actions);
+        onMissionError(err, values);
       }
     },
   };
@@ -254,7 +265,7 @@ export default function Content() {
           `Вы уверены, что хотите перезаписать миссию ${values.directory_name}-${values.file_name}?`
         )
       ) {
-        formik.onSubmit({ ...values, force: true }, actions);
+        formik.onSubmit({ ...values, force: true });
       }
     }
   }
@@ -271,21 +282,65 @@ export default function Content() {
   }
 
   // fetch the user profile and update the ui
-  async function handleFetchProfile(name, setValues) {
+  async function handleFetchProfile(name) {
     const res = await getUserProfiles({ profile_name: name });
     const { channel_config, ...rest } = res;
     //await setValues(rest);
     Config.setConfig(channel_config);
 
     if (name === "vibro_16.json") {
-      rest.file_name = `16000 Гц/vibro${formatNumber(counter16)}`;
+      rest.file_name = `16000 Гц/vibro${formatNumber(counter)}`;
     } else if (name === "vibro_32.json") {
-      rest.file_name = `32000 Гц/vibro${formatNumber(counter32)}`;
+      rest.file_name = `32000 Гц/vibro${formatNumber(counter)}`;
     }
 
     rest.directory_name = formikRef.current.values.directory_name;
 
     Config.saveControllerConfig(rest);
+
+    return { ...rest };
+  }
+
+  async function handleStartDoubleTest({ mode = "vibro_16.json" }) {
+    await handleFetchProfile(mode);
+    setSelectedProfile(mode);
+    const values = { ...formikRef.current.values };
+    let filename;
+    if (mode === "vibro_16.json") {
+      filename = `16000 Гц/vibro${formatNumber(counter)}`;
+      values.show_results = false;
+      formikRef.current.setFieldValue("show_results", false);
+
+      //set halfReady flag to true
+      halfReady.current = true;
+    } else {
+      filename = `32000 Гц/vibro${formatNumber(counter)}`;
+      values.show_results = true;
+      formikRef.current.setFieldValue("show_results", true);
+
+      //set halfReady flag to true
+      halfReady.current = false;
+    }
+    values.file_name = filename;
+    formikRef.current.setFieldValue("file_name", filename);
+
+    formik.onSubmit(values);
+  }
+
+  function handleResetCounter() {
+    dispatch(resetCounter());
+    const values = { ...formikRef.current.values };
+    const file_name = `16000 Гц/vibro${formatNumber(1)}`;
+    formikRef.current.setFieldValue("file_name", file_name);
+    values.file_name = file_name;
+    Config.saveControllerConfig(values);
+  }
+
+  function handleFilenameChange(value) {
+    const number = getFileNumber(value);
+    if (number !== null) {
+      dispatch(setCounter(number));
+    }
   }
 
   return (
@@ -318,6 +373,8 @@ export default function Content() {
                 setSelectedProfile(name);
                 handleFetchProfile(name, props.setValues);
               }}
+              handleStartDoubleTest={handleStartDoubleTest}
+              handleResetCounter={handleResetCounter}
             />
 
             <MissionConfiguratorWidget
@@ -326,7 +383,7 @@ export default function Content() {
               style={{ mt: 3, py: 2 }}
             />
 
-            <MissionModeConfig />
+            <MissionModeConfig handleFilenameChange={handleFilenameChange} />
 
             <Box
               sx={{
@@ -363,7 +420,6 @@ export default function Content() {
               handleClose={() => setSelectOpen(false)}
               onDelete={(name) => removeProfile(name)}
               onSelect={(name) => {
-                // handleSelectProfile(name, props.values)
                 setSelectedProfile(name);
                 setSelectOpen(false);
                 handleFetchProfile(name, props.setValues);
